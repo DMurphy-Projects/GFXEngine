@@ -1,7 +1,6 @@
 package GxEngine3D.Intersection3D;
 
-import GxEngine3D.Polygon3D;
-import GxEngine3D.RefPoint3D;
+import GxEngine3D.Model.Polygon3D;
 
 import java.util.ArrayList;
 

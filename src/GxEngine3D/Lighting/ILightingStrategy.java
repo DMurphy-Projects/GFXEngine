@@ -1,7 +1,7 @@
 package GxEngine3D.Lighting;
 
 import GxEngine3D.Camera.Camera;
-import GxEngine3D.Plane;
+import GxEngine3D.Model.Plane;
 
 /**
  * Created by Dean on 29/12/16.

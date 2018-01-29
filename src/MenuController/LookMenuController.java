@@ -1,6 +1,6 @@
 package MenuController;
 
-import GxEngine3D.Scene;
+import GxEngine3D.Controller.Scene;
 import Shapes.IShape;
 
 import javax.swing.*;

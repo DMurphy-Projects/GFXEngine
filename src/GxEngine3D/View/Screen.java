@@ -1,4 +1,7 @@
-package GxEngine3D;
+package GxEngine3D.View;
+
+import GxEngine3D.Model.Polygon2D;
+import GxEngine3D.Controller.Scene;
 
 import java.awt.Color;
 import java.awt.Cursor;

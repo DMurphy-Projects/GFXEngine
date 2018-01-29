@@ -1,7 +1,6 @@
 package Shapes.Shape2D;
 
-import GxEngine3D.ViewHandler;
-import Shapes.Shape2D.NSidedPolygon;
+import GxEngine3D.View.ViewHandler;
 
 import java.awt.*;
 

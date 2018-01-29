@@ -1,4 +1,4 @@
-package GxEngine3D;
+package GxEngine3D.Controller;
 
 import java.awt.AWTException;
 import java.awt.Robot;
@@ -11,6 +11,9 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 import GxEngine3D.Camera.Camera;
+import GxEngine3D.Model.Vector;
+import GxEngine3D.View.Screen;
+import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
 public class GXController extends GXTickEvent implements KeyListener, MouseListener,
@@ -94,32 +97,32 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 		Vector SideViewVector = ViewVector.crossProduct(VerticalVector);
 
 		if (keys[0]) {
-			xMove += ViewVector.x;
-			yMove += ViewVector.y;
-			zMove += ViewVector.z;
+			xMove += ViewVector.X();
+			yMove += ViewVector.Y();
+			zMove += ViewVector.Z();
 		}
 
 		if (keys[2]) {
-			xMove -= ViewVector.x;
-			yMove -= ViewVector.y;
-			zMove -= ViewVector.z;
+			xMove -= ViewVector.X();
+			yMove -= ViewVector.Y();
+			zMove -= ViewVector.Z();
 		}
 
 		if (keys[1]) {
-			xMove += SideViewVector.x;
-			yMove += SideViewVector.y;
-			zMove += SideViewVector.z;
+			xMove += SideViewVector.X();
+			yMove += SideViewVector.Y();
+			zMove += SideViewVector.Z();
 		}
 
 		if (keys[3]) {
-			xMove -= SideViewVector.x;
-			yMove -= SideViewVector.y;
-			zMove -= SideViewVector.z;
+			xMove -= SideViewVector.X();
+			yMove -= SideViewVector.Y();
+			zMove -= SideViewVector.Z();
 		}
 
 		Vector MoveVector = new Vector(xMove, yMove, zMove);
-		cam.MoveTo(from[0] + MoveVector.x * moveSpeed, from[1] + MoveVector.y
-				* moveSpeed, from[2] + MoveVector.z * moveSpeed);
+		cam.MoveTo(from[0] + MoveVector.X() * moveSpeed, from[1] + MoveVector.Y()
+				* moveSpeed, from[2] + MoveVector.Z() * moveSpeed);
 	}
 
 	public void keyReleased(KeyEvent e) {
@@ -172,6 +175,11 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 		} catch (AWTException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static boolean hasOutlines()
+	{
+		return outlines;
 	}
 
 	@Override

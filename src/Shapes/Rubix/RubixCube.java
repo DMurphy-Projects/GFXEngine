@@ -5,12 +5,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
-import GxEngine3D.Polygon3D;
-import GxEngine3D.Plane;
-import GxEngine3D.RefPoint3D;
+import GxEngine3D.Model.Polygon3D;
+import GxEngine3D.Model.Plane;
+import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.CalculationHelper.RotationCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
-import GxEngine3D.ViewHandler;
+import GxEngine3D.View.ViewHandler;
 import Shapes.Cube;
 
 public class RubixCube extends Cube implements KeyListener {

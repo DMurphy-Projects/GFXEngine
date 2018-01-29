@@ -1,10 +1,10 @@
 package Shapes.Split;
 
 import GxEngine3D.CalculationHelper.VectorCalc;
-import GxEngine3D.Polygon3D;
-import GxEngine3D.RefPoint3D;
-import GxEngine3D.Vector;
-import GxEngine3D.ViewHandler;
+import GxEngine3D.Model.Polygon3D;
+import GxEngine3D.Model.RefPoint3D;
+import GxEngine3D.Model.Vector;
+import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
 import java.awt.*;

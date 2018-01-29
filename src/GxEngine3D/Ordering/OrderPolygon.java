@@ -1,6 +1,6 @@
 package GxEngine3D.Ordering;
 
-import GxEngine3D.Polygon3D;
+import GxEngine3D.Model.Polygon3D;
 import Shapes.IShape;
 
 import java.util.ArrayList;

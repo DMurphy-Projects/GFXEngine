@@ -2,8 +2,8 @@ package Shapes;
 
 import java.util.ArrayList;
 
-import GxEngine3D.Polygon3D;
-import GxEngine3D.RefPoint3D;
+import GxEngine3D.Model.Polygon3D;
+import GxEngine3D.Model.RefPoint3D;
 
 public interface IShape {
 	

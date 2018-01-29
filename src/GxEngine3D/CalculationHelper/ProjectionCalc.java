@@ -1,8 +1,8 @@
 package GxEngine3D.CalculationHelper;
 
-import GxEngine3D.Plane;
-import GxEngine3D.Projection;
-import GxEngine3D.Vector;
+import GxEngine3D.Model.Plane;
+import GxEngine3D.Model.Projection;
+import GxEngine3D.Model.Vector;
 
 public class ProjectionCalc {
 

@@ -1,4 +1,4 @@
-package GxEngine3D;
+package GxEngine3D.Model;
 
 public class Vector {
 	double x, y, z, len;

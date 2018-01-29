@@ -2,7 +2,7 @@ package ObjectFactory;
 
 import java.awt.Color;
 
-import GxEngine3D.ViewHandler;
+import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 import Shapes.Shape2D.Circle;
 

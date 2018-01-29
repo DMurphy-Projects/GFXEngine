@@ -5,11 +5,14 @@ import java.awt.Graphics;
 import java.awt.Polygon;
 import java.util.ArrayList;
 
-import GxEngine3D.*;
 import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.RotationCalc;
+import GxEngine3D.Controller.IManipulatable;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Lighting.StandardLighting;
+import GxEngine3D.Model.Polygon3D;
+import GxEngine3D.Model.RefPoint3D;
+import GxEngine3D.View.ViewHandler;
 import Shapes.Split.ISplitStrategy;
 import Shapes.Split.MidPointSplit;
 import Shapes.Split.SplitIntoTriangles;

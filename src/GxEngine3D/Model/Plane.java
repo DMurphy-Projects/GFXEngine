@@ -1,4 +1,4 @@
-package GxEngine3D;
+package GxEngine3D.Model;
 
 import GxEngine3D.CalculationHelper.VectorCalc;
 

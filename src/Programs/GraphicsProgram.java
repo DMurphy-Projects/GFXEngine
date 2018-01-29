@@ -1,9 +1,12 @@
 package Programs;
 
-import GxEngine3D.*;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
+import GxEngine3D.Controller.GXController;
+import GxEngine3D.Controller.Scene;
 import GxEngine3D.Lighting.Light;
+import GxEngine3D.View.Screen;
+import GxEngine3D.View.ViewHandler;
 import MenuController.LookMenuController;
 import ObjectFactory.*;
 import Shapes.*;

@@ -2,7 +2,7 @@ package Shapes;
 
 import java.awt.Color;
 
-import GxEngine3D.ViewHandler;
+import GxEngine3D.View.ViewHandler;
 import Shapes.Shape2D.Circle;
 
 public class Sphere extends Circle {

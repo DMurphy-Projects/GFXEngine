@@ -1,9 +1,9 @@
 package GxEngine3D.Intersection3D;
 
 import GxEngine3D.CalculationHelper.VectorCalc;
-import GxEngine3D.Plane;
-import GxEngine3D.Polygon3D;
-import GxEngine3D.Projection;
+import GxEngine3D.Model.Plane;
+import GxEngine3D.Model.Polygon3D;
+import GxEngine3D.Model.Projection;
 
 import java.util.ArrayList;
 

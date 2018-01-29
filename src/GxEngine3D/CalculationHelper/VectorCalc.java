@@ -1,6 +1,6 @@
 package GxEngine3D.CalculationHelper;
 
-import GxEngine3D.Projection;
+import GxEngine3D.Model.Projection;
 
 public class VectorCalc {
 

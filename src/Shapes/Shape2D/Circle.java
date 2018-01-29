@@ -3,8 +3,8 @@ package Shapes.Shape2D;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import GxEngine3D.RefPoint3D;
-import GxEngine3D.ViewHandler;
+import GxEngine3D.Model.RefPoint3D;
+import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
 public class Circle extends BaseShape {

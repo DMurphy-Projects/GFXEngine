@@ -2,8 +2,8 @@ package Shapes;
 
 import java.awt.Color;
 
-import GxEngine3D.RefPoint3D;
-import GxEngine3D.ViewHandler;
+import GxEngine3D.Model.RefPoint3D;
+import GxEngine3D.View.ViewHandler;
 
 public class Prism extends BaseShape {
 

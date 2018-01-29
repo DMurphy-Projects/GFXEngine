@@ -1,10 +1,13 @@
-package GxEngine3D;
+package GxEngine3D.Controller;
 
 import java.util.ArrayList;
 
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Camera.ICameraEventListener;
+import GxEngine3D.Controller.SplitManager;
 import GxEngine3D.Lighting.Light;
+import GxEngine3D.Model.Polygon2D;
+import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Ordering.IOrderStrategy;
 import GxEngine3D.Ordering.OrderPolygon;
 import Shapes.IShape;
@@ -64,7 +67,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 	public Polygon2D nextPolygon() {
 		if (orderPos > mNewOrder.length - 1)
 			return null;
-		Polygon2D d = polygons.get(mNewOrder[orderPos]).screenPoly;
+		Polygon2D d = polygons.get(mNewOrder[orderPos]).get2DPoly();
 		//System.out.println("D "+mNewOrder[orderPos]);
 		orderPos++;
 		return d;
@@ -107,11 +110,11 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		Polygon3D dp;
 			for (int i = polygons.size()-1; i >= 0; i--) {
 			dp = polygons.get(mNewOrder[i]);
-			if (dp.draw)
-				if (dp.screenPoly.MouseOver()) {
-					PolygonOver = dp.screenPoly;
-					dp.belongsTo.hover(dp);
-					dp.screenPoly.hover();
+			if (dp.canDraw())
+				if (dp.get2DPoly().MouseOver()) {
+					PolygonOver = dp.get2DPoly();
+					dp.getBelongsTo().hover(dp);
+					dp.get2DPoly().hover();
 					break;
 				}
 		}

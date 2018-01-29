@@ -1,9 +1,12 @@
 package Shapes;
 
-import GxEngine3D.*;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Lighting.Light;
+import GxEngine3D.Model.Plane;
+import GxEngine3D.Model.RefPoint3D;
+import GxEngine3D.Model.Vector;
+import GxEngine3D.View.ViewHandler;
 import Shapes.Shape2D.Circle;
 
 import java.awt.*;

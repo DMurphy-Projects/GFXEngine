@@ -3,9 +3,9 @@ package Shapes.Orbit;
 import java.awt.Color;
 import java.util.ArrayList;
 
-import GxEngine3D.RefPoint3D;
+import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.CalculationHelper.RotationCalc;
-import GxEngine3D.ViewHandler;
+import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 import Shapes.Cube;
 import Shapes.IShape;

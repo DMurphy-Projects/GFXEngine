@@ -1,11 +1,12 @@
-package GxEngine3D;
+package GxEngine3D.Model;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
 
+import GxEngine3D.Controller.GXController;
+import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
-import Shapes.IShape;
 
 public class Polygon2D {
 	Polygon P;
@@ -48,7 +49,7 @@ public class Polygon2D {
 		return P;
 	}
 
-	void updatePolygon(double[] x, double[] y) {
+	public void updatePolygon(double[] x, double[] y) {
 		P.reset();
 		for (int i = 0; i < x.length; i++) {
 			P.xpoints[i] = (int) x[i];
@@ -57,7 +58,7 @@ public class Polygon2D {
 		}
 	}
 
-	void drawPolygon(Graphics g) {
+	public void drawPolygon(Graphics g) {
 		if (draw) {
 			g.setColor(new Color((int) (c.getRed() * lighting), (int) (c
 					.getGreen() * lighting), (int) (c.getBlue() * lighting)));
@@ -66,7 +67,7 @@ public class Polygon2D {
 				g.setColor(new Color(255, 255, 255, 100));
 				belongsTo.drawHighlight(g, P);
 			}
-			if (GXController.outlines) {
+			if (GXController.hasOutlines()) {
 				g.setColor(new Color(0, 0, 0));
 				belongsTo.drawOutlines(g, P);
 			}
@@ -74,7 +75,7 @@ public class Polygon2D {
 		}
 	}
 
-	boolean MouseOver() {
+	public boolean MouseOver() {
 		return P.contains(vHandler.CenterX(), vHandler.CenterY());
 	}
 }

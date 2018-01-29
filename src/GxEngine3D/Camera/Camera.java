@@ -3,10 +3,10 @@ package GxEngine3D.Camera;
 import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.ProjectionCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
-import GxEngine3D.Plane;
-import GxEngine3D.Projection;
-import GxEngine3D.Vector;
-import GxEngine3D.ViewHandler;
+import GxEngine3D.Model.Plane;
+import GxEngine3D.Model.Projection;
+import GxEngine3D.Model.Vector;
+import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
 import java.util.ArrayList;

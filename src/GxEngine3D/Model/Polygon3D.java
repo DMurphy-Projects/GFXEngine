@@ -1,4 +1,4 @@
-package GxEngine3D;
+package GxEngine3D.Model;
 
 import java.awt.Color;
 
@@ -6,6 +6,7 @@ import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.ProjectionCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.Light;
+import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
 //TODO merge this class with polygon, it servers no purpose anymore
@@ -39,7 +40,7 @@ public class Polygon3D {
 				belongsTo);
 	}
 
-	void updatePolygon(Camera c, Light l) {
+	public void updatePolygon(Camera c, Light l) {
 		if (screenPoly == null)
 			createPolygon();
 		RefPoint3D[] shp = getShape();
@@ -96,5 +97,14 @@ public class Polygon3D {
 		if (screenPoly == null)
 			createPolygon();
 		return screenPoly;
+	}
+
+	public BaseShape getBelongsTo() {
+		return belongsTo;
+	}
+
+	public boolean canDraw()
+	{
+		return draw;
 	}
 }

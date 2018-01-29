@@ -4,10 +4,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
 
-import GxEngine3D.*;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Lighting.Light;
+import GxEngine3D.Model.Plane;
+import GxEngine3D.Model.RefPoint3D;
+import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
 public class Line extends BaseShape {

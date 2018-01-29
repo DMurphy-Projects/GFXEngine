@@ -1,9 +1,8 @@
 package Shapes.Shape2D;
 
-import GxEngine3D.*;
-
 import GxEngine3D.Intersection3D.IIntersection3DStrategy;
 import GxEngine3D.Intersection3D.TriangleSideIntersection;
+import GxEngine3D.View.ViewHandler;
 
 import java.awt.*;
 

@@ -2,7 +2,7 @@ package ObjectFactory;
 
 import java.util.ArrayList;
 
-import GxEngine3D.ViewHandler;
+import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
 public class ShapeFactory {

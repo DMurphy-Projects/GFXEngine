@@ -1,8 +1,8 @@
 package GxEngine3D.Lighting;
 
 import GxEngine3D.Camera.Camera;
-import GxEngine3D.Plane;
-import GxEngine3D.Vector;
+import GxEngine3D.Model.Plane;
+import GxEngine3D.Model.Vector;
 
 /**
  * Created by Dean on 29/12/16.
