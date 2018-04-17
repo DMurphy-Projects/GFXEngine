@@ -34,7 +34,7 @@ public class Circle extends BaseShape {
 			points.add(p);
 			shape.add(p);
 		}
-		add(shape.toArray(new RefPoint3D[shape.size()]));
+//		add(shape.toArray(new RefPoint3D[shape.size()]));
 	}
 	public static String getName()
 	{

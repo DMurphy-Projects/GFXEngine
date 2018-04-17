@@ -84,7 +84,7 @@ public class VectorCalc {
 
 	public static double[] norm_v3(double[] v0)
 	{
-		return div_v3_fl(v0, len_v3(v0));
+		return div_v3_fl(v0, len_v3_fl(v0));
 	}
 
 	public static double[] plane_v3_pointForm(double[] nV, double[] p)

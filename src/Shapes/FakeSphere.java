@@ -47,7 +47,7 @@ public class FakeSphere extends Circle {
         points.add(new RefPoint3D(x-width/2, y+height/2, z+offset));
         points.add(new RefPoint3D(x+width/2, y-height/2, z+offset));
         points.add(new RefPoint3D(x+width/2, y+height/2, z+offset));
-        add(new RefPoint3D[]{points.get(0), points.get(1), points.get(3), points.get(2)});
+//        add(new RefPoint3D[]{points.get(0), points.get(1), points.get(3), points.get(2)});
     }
 
     @Override

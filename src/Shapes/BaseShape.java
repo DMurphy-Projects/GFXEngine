@@ -13,7 +13,9 @@ import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.View.ViewHandler;
 import Shapes.Split.ISplitStrategy;
+import Shapes.Split.MidPointSplit;
 import Shapes.Split.SplitIntoTriangles;
+import Shapes.Split.SubDivideOnPoint;
 
 public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
@@ -27,7 +29,7 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 	int curId;
 
 	protected ArrayList<RefPoint3D> points = new ArrayList<RefPoint3D>();
-
+	protected ArrayList<RefPoint3D[]> edges = new ArrayList<RefPoint3D[]>();
 	protected ArrayList<Polygon3D> polys = new ArrayList<Polygon3D>();
 
 	protected ViewHandler v;
@@ -38,8 +40,6 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 	protected ILightingStrategy lighting;
 
 	protected ISplitStrategy triangles = new SplitIntoTriangles();
-	protected ISplitStrategy subDivide = new SubDivideOnPoint();
-	protected ISplitStrategy middleSplit = new MidPointSplit();
 
 	public BaseShape(double x, double y, double z, double width, double length,
 			double height, Color c, ViewHandler v) {
@@ -61,25 +61,20 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 		return polys;
 	}
 
+	public ArrayList<RefPoint3D[]> getEdges() {
+		return edges;
+	}
 	public ArrayList<RefPoint3D> getPoints() {
 		return points;
 	}
 
-	protected void add(RefPoint3D[] d, Color c, int i) {
-		if (i<0){i=0;}
-		// use custom colour
-		polys.add(i, new Polygon3D(d, c, v, this));
-		scheduleUpdate();
-	}
-	protected void add(RefPoint3D[] d, Color c) {
-		add(d, c,  polys.size());
-	}
-	protected  void add(RefPoint3D[] d, int i)
+	protected void addEdge(RefPoint3D[] edge)
 	{
-		add(d, c, i);
+		edges.add(edge);
 	}
-	protected void add(RefPoint3D[] d) {
-		add(d, c);// use global colour
+	protected void addPoly(RefPoint3D[] poly, Color c)
+	{
+		polys.add(new Polygon3D(poly, c, v, this));
 	}
 
 	protected void scheduleUpdate()

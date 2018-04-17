@@ -29,9 +29,9 @@ public class Line extends BaseShape {
 	protected void createShape() {
 		points.add(new RefPoint3D(x, y, z));
 		points.add(new RefPoint3D(x+width, y+length, z+height));
-		//points.add(new RefPoint3D(x, y, z+10));
-		add(new RefPoint3D[]{points.get(0), points.get(1)});
-//		add(new RefPoint3D[]{points.get(0), points.get(2)});
+
+		addEdge(new RefPoint3D[]{points.get(0), points.get(1)});
+		addPoly(new RefPoint3D[]{points.get(0), points.get(1)}, c);
 	}
 
 	public void setStart(double[] pos) {
