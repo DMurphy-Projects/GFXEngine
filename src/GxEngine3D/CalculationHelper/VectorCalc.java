@@ -114,7 +114,7 @@ public class VectorCalc {
 		v2 = norm_v3(v2);
 		for (int i=0;i<v1.length;i++)
 		{
-			if (v1[i] != v2[i])
+			if (Math.abs(v1[i] - v2[i]) > epsilon)
 			{
 				return false;
 			}

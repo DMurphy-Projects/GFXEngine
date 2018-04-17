@@ -30,7 +30,7 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 	long repaintTime = 0;
 
 	// TODO fix this once polygon splitting happens
-	static boolean outlines = true, hover = false;
+	static boolean outlines = true, hover = true;
 
 	double moveSpeed = 1;
 
@@ -55,6 +55,7 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 		notifyTick();
 		setup();
 	}
+
 	public void setup()
 	{
 		if (isKeyPressed())

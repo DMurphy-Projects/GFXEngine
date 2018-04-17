@@ -41,93 +41,25 @@ public class GraphicsProgram {
 		
 		vH.setPanel(panel);
 
+//		Cube cube = new Cube(1, 1, 1, 1, 1, 1, Color.WHITE, vH);
+//		scene.addObject(cube);
+
 		//testing for matrix plane intersections
-		Sqaure sq01 = new Sqaure(0, 0, 2, 5, Color.white, vH);
+		Sqaure sq01 = new Sqaure(0, 0, 1.5, 2, Color.white, vH);
+		sq01.yaw(Math.toRadians(45));
 		scene.addObject(sq01);
 
-		Sqaure sq02 = new Sqaure(0, 0, 2, 2, Color.white, vH);
-		sq02.roll(Math.toRadians(90));
-		sq02.pitch(Math.toRadians(20));
-		sq02.yaw(Math.toRadians(40));
+		Sqaure sq02 = new Sqaure(0, 0.5, 1.5, 1, Color.white, vH);
+		sq02.pitch(Math.toRadians(90));
 		scene.addObject(sq02);
 
-		Sqaure sq03 = new Sqaure(0, 0, 2, 5, Color.white, vH);
-		sq03.roll(Math.toRadians(90));
-		sq03.pitch(Math.toRadians(90));
-		sq03.yaw(Math.toRadians(45));
+//		Sqaure sq03 = new Sqaure(0, 0, 2, 5, Color.white, vH);
+//		sq03.roll(Math.toRadians(90));
+//		sq03.pitch(Math.toRadians(90));
+//		sq03.yaw(Math.toRadians(45));
 //		scene.addObject(sq03);
+//		scene.update();
 
-		scene.update();
-
-		Plane plane0 = new Plane(sq01.getShape().get(0));
-		Plane plane1 = new Plane(sq02.getShape().get(0));
-		Plane plane2 = new Plane(sq03.getShape().get(0));
-
-		double[] p1 = new double[]{1, 0, -10};
-		double[] p2 = new double[]{1, 0, 10};
-
-		//so a plane counts as 1 but a line counts as 2
-		Matrix m = new Matrix(3, 4);
-		m.addEqautionOfPlane(plane0);
-		m.addEqautionOfPlane(plane1);
-//		m.addEqautionOfLine(p1, p2);
-		
-		m.gaussJordandElimination();
-		m.determineSolution();
-
-		//squares are treated as planes so isn't collision detection for squares but for planes
-		if (m.getSolutionType() == Matrix.SolutionType.POINT) {
-			double[] point = m.getPointSolution();
-			Cube cube = new Cube(point[0], point[1], point[2], 0.1, 0.1, 0.1, Color.RED, vH);
-			scene.addObject(cube);
-		}
-		else if (m.getSolutionType() == Matrix.SolutionType.LINE)
-		{
-			double[] prev = null;
-			//so edge intersects also get the intersections from the ray that the edge makes, therefor some intersections appear outside the shape but is still correct
-			//for this method, to remove this we must check if the intersection points are inside/on the polygon
-			//similar to plane-sided but with edges
-			ArrayList<double[]> points = new ArrayList<>();
-			for (RefPoint3D[] edge:sq01.getEdges())
-			{
-				//two lines so has to be 4 length
-				Matrix edgeIntersect = new Matrix(m.getRows()+2, 4);
-				edgeIntersect.addMatrixOfEqautions(m);
-				edgeIntersect.addEqautionOfLine(edge[0].toArray(), edge[1].toArray());
-				edgeIntersect.gaussJordandElimination();
-				edgeIntersect.determineSolution();
-				System.out.println(edgeIntersect.getSolutionType());
-				System.out.println(edgeIntersect);
-				if (edgeIntersect.getSolutionType() == Matrix.SolutionType.POINT)
-				{
-					points.add(edgeIntersect.getPointSolution());
-
-				}
-			}
-			for (RefPoint3D[] edge:sq01.getEdges())
-			{
-				Iterator<double[]> it = points.iterator();
-				while(it.hasNext())
-				{
-					double[] d = it.next();
-					if (VectorCalc.p3_in_line_seg(edge[0].toArray(), edge[1].toArray(), d))
-					{
-						if (prev == null)
-						{
-							prev = d;
-							it.remove();
-						}
-						else
-						{
-							Line line = new Line(prev[0], prev[1], prev[2], d[0], d[1], d[2], vH);
-							scene.addObject(line);
-							break;
-						}
-					}
-				}
-			}
-		}
-		//end matrix test
 
 		final ShapeFactory factory = new ShapeFactory();
 		final JMenu lookMenu = new JMenu("Look At");

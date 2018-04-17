@@ -4,12 +4,12 @@ import java.awt.Color;
 
 import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.ProjectionCalc;
+import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
-//TODO merge this class with polygon, it serves no purpose anymore
 public class Polygon3D {
 	Color c;
 	private RefPoint3D[] shape;
@@ -26,7 +26,7 @@ public class Polygon3D {
 	public Polygon3D(RefPoint3D[] shape, Color c,
                      ViewHandler v, BaseShape bTo) {
 		vHandler = v;
-		this.setShape(shape);
+		this.shape = shape;
 		this.c = c;
 		belongsTo = bTo;
 		createPolygon();
@@ -75,6 +75,50 @@ public class Polygon3D {
 		return total / getShape().length;
 	}
 
+	public Polygon3D[] splitAlong(SplittingPackage[] pack)
+	{
+		Polygon3D[] pArr = new Polygon3D[2];
+		int start = pack[0].index;
+		int end  = pack[1].index;
+		int cur = start;
+
+		int size = end-start;
+		RefPoint3D[] shape = new RefPoint3D[size+2];//for the two split points
+		//add start of split
+		shape[0] = new RefPoint3D(pack[0].getPoint());
+		for (int i=0;i<size;i++)
+		{
+			shape[i+1] = this.shape[cur];
+			cur++;
+			if (cur >= this.shape.length)
+			{
+				cur = 0;
+			}
+		}
+		//add end of split, technically size+2 -1
+		shape[size+1] = new RefPoint3D(pack[1].getPoint());
+		pArr[0] = new Polygon3D(shape, c, vHandler, belongsTo);
+		size = start+(this.shape.length-end);
+		shape = new RefPoint3D[size+2];
+		cur = end;
+		//i = (start - 0) + (length-end)
+		//add start of split
+		shape[0] = new RefPoint3D(pack[1].getPoint());
+		for(int i=0;i<size;i++)
+		{
+			shape[i+1] = this.shape[cur];
+			cur++;
+			if (cur >= this.shape.length)
+			{
+				cur = 0;
+			}
+		}
+		//add end of split
+		shape[size+1] = new RefPoint3D(pack[0].getPoint());
+		pArr[1] = new Polygon3D(shape, c, vHandler, belongsTo);
+		return pArr;
+	}
+
 	@Override
 	public String toString() {
 		String s = "";
@@ -86,10 +130,6 @@ public class Polygon3D {
 
 	public RefPoint3D[] getShape() {
 		return shape;
-	}
-
-	public void setShape(RefPoint3D[] shape) {
-		this.shape = shape;
 	}
 
 	public Polygon2D get2DPoly()

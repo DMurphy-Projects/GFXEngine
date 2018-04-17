@@ -12,6 +12,15 @@ public class RefPoint3D {
 		setY(y);
 		setZ(z);
 	}
+	public RefPoint3D(double[] arr)
+	{
+		if (arr.length == 3)
+		{
+			setX(arr[0]);
+			setY(arr[1]);
+			setZ(arr[2]);
+		}
+	}
 	public double X()
 	{
 		return x;
@@ -46,7 +55,7 @@ public class RefPoint3D {
 	
 	@Override
 	public String toString() {
-		return "{"+x+" "+y+" "+z+"}";
+		return "{"+x+", "+y+", "+z+"}";
 	}
 
 	public static double round(double unrounded, int precision)
