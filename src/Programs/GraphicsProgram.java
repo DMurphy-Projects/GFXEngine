@@ -7,7 +7,6 @@ import GxEngine3D.Controller.GXController;
 import GxEngine3D.Controller.Scene;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.Plane;
-import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.View.Screen;
 import GxEngine3D.View.ViewHandler;
@@ -22,7 +21,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Iterator;
 
 public class GraphicsProgram {
 
@@ -49,7 +48,7 @@ public class GraphicsProgram {
 		Sqaure sq02 = new Sqaure(0, 0, 2, 2, Color.white, vH);
 		sq02.roll(Math.toRadians(90));
 		sq02.pitch(Math.toRadians(20));
-		sq02.yaw(Math.toRadians(45));
+		sq02.yaw(Math.toRadians(40));
 		scene.addObject(sq02);
 
 		Sqaure sq03 = new Sqaure(0, 0, 2, 5, Color.white, vH);
@@ -72,8 +71,7 @@ public class GraphicsProgram {
 		m.addEqautionOfPlane(plane0);
 		m.addEqautionOfPlane(plane1);
 //		m.addEqautionOfLine(p1, p2);
-
-//		m.seteDebug(true);
+		
 		m.gaussJordandElimination();
 		m.determineSolution();
 
@@ -86,16 +84,10 @@ public class GraphicsProgram {
 		else if (m.getSolutionType() == Matrix.SolutionType.LINE)
 		{
 			double[] prev = null;
-			Color[] c = new Color[]{
-					Color.RED,
-					Color.BLUE,
-					Color.GREEN,
-					Color.YELLOW
-			};
-			int cIndex = 0;
 			//so edge intersects also get the intersections from the ray that the edge makes, therefor some intersections appear outside the shape but is still correct
 			//for this method, to remove this we must check if the intersection points are inside/on the polygon
 			//similar to plane-sided but with edges
+			ArrayList<double[]> points = new ArrayList<>();
 			for (RefPoint3D[] edge:sq01.getEdges())
 			{
 				//two lines so has to be 4 length
@@ -108,19 +100,30 @@ public class GraphicsProgram {
 				System.out.println(edgeIntersect);
 				if (edgeIntersect.getSolutionType() == Matrix.SolutionType.POINT)
 				{
-					double[] p = edgeIntersect.getPointSolution();
-					if (prev == null)
+					points.add(edgeIntersect.getPointSolution());
+
+				}
+			}
+			for (RefPoint3D[] edge:sq01.getEdges())
+			{
+				Iterator<double[]> it = points.iterator();
+				while(it.hasNext())
+				{
+					double[] d = it.next();
+					if (VectorCalc.p3_in_line_seg(edge[0].toArray(), edge[1].toArray(), d))
 					{
-						prev = p;
+						if (prev == null)
+						{
+							prev = d;
+							it.remove();
+						}
+						else
+						{
+							Line line = new Line(prev[0], prev[1], prev[2], d[0], d[1], d[2], vH);
+							scene.addObject(line);
+							break;
+						}
 					}
-					else
-					{
-						Line intersectLine = new Line(prev[0], prev[1], prev[2], p[0], p[1], p[2], vH);
-						scene.addObject(intersectLine);
-					}
-					Cube iCube = new Cube(p[0], p[1], p[2], 0.1, 0.1, 0.1, c[cIndex], vH);
-					scene.addObject(iCube);
-					cIndex++;
 				}
 			}
 		}

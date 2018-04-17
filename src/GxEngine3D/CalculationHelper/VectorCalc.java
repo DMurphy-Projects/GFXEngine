@@ -2,9 +2,9 @@ package GxEngine3D.CalculationHelper;
 
 import GxEngine3D.Model.Projection;
 
-import java.util.Arrays;
-
 public class VectorCalc {
+
+	private static double epsilon = 1e-10;;
 
 	public static double[] bounce_on_plane(double[] planeNorm, double[] vector)
 	{
@@ -118,6 +118,39 @@ public class VectorCalc {
 			{
 				return false;
 			}
+		}
+		return true;
+	}
+
+	//works but not great as it needs roots
+	public static boolean p3_in_line_seg(double[] l0, double[] l1, double[] p)
+	{
+		double[] v0 = VectorCalc.sub_v3v3(l0, l1);
+		double[] v1 = VectorCalc.sub_v3v3(l0, p);
+		double[] cross = VectorCalc.cross(v0, v1);
+		if (Math.abs(cross[0] + cross[1] + cross[2]) > epsilon)
+		{
+			return false;
+		}
+		double k_ac = VectorCalc.dot_v3v3(v0, v1);
+		if (k_ac < 0)
+		{
+			return false;
+		}
+		else if (k_ac == 0)
+		{
+			//p shares with l0
+			return true;
+		}
+		double k_ab = VectorCalc.dot_v3v3(v0, v0);
+		if (k_ac > k_ab)
+		{
+			return false;
+		}
+		else if (k_ac == k_ab)
+		{
+			//p shares with l2
+			return true;
 		}
 		return true;
 	}
