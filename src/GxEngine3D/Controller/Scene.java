@@ -99,7 +99,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		}
 		orderPos = 0;
 		if (redraw) {
-			mNewOrder = orderStrategy.order(cam.From(), shapes, polygons);
+			mNewOrder = orderStrategy.order(cam.From(), splitPolygons);
 		}
 		setPolyHover();
 	}
