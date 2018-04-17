@@ -47,35 +47,18 @@ public class Matrix {
     //a plane counts as 1 but a line counts as 2
     public void addEqautionOfLine(double[] p1, double[] p2)
     {
-        double[] v1 = VectorCalc.sub_v3v3(p1, p2);
-        double[] noise01 = new double[]{1, 1, 0};
-        double[] noise02 = new double[]{0, 1, 1};
-        double[] noise03 = new double[]{1, 0, 1};
-        if (VectorCalc.v3_v3_eqauls(v1, noise01))
-        {
-            if (debug) {
-                System.out.println("v1 same as n1");
-            }
-            noise01 = noise03;
-        }
-        else if(VectorCalc.v3_v3_eqauls(v1, noise02))
-        {
-            if (debug) {
-                System.out.println("v1 same as n2");
-            }
-            noise02 = noise03;
-        }
-        Plane plane1 = new Plane(new Vector(v1), new Vector(VectorCalc.add_v3v3(v1, noise01)), p1);
-        Plane plane2 = new Plane(new Vector(v1), new Vector(VectorCalc.add_v3v3(v1, noise02)), p1);
-        double[] planeEq1 = VectorCalc.plane_v3_pointForm(plane1.getNV().toArray(), plane1.getP());
-        double[] planeEq2 = VectorCalc.plane_v3_pointForm(plane2.getNV().toArray(), plane2.getP());
+        Plane[] plane = PlaneCalc.getFullPlaneFromLine(p1, p2);
+        double[] planeEq1 = VectorCalc.plane_v3_pointForm(plane[0].getNV().toArray(), plane[0].getP());
+        double[] planeEq2 = VectorCalc.plane_v3_pointForm(plane[1].getNV().toArray(), plane[1].getP());
         addEqaution(planeEq1);
         addEqaution(planeEq2);
     }
 
     public void addEqautionOfPlane(Plane plane)
     {
-        double[] eq = VectorCalc.plane_v3_pointForm(plane.getNV().toArray(), plane.getP());
+        double[] eq = VectorCalc.plane_v3_pointForm(
+                plane.getNV().toArray(),
+                plane.getP());
         addEqaution(eq);
     }
 
