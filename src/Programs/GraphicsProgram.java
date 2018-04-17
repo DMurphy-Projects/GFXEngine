@@ -1,16 +1,20 @@
 package Programs;
 
+import GxEngine3D.CalculationHelper.Matrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Controller.GXController;
 import GxEngine3D.Controller.Scene;
 import GxEngine3D.Lighting.Light;
+import GxEngine3D.Model.Plane;
+import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.View.Screen;
 import GxEngine3D.View.ViewHandler;
 import MenuController.LookMenuController;
 import ObjectFactory.*;
 import Shapes.*;
 import Shapes.Shape2D.Line;
+import Shapes.Shape2D.Sqaure;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,12 +32,54 @@ public class GraphicsProgram {
 		Line ln = new Line(0, 0, 0, lightLocation[0], lightLocation[1], lightLocation[2], vH);
 		Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 1, ln);
 
-		final Scene scene = new Scene(camera, ls, 1);
+		final Scene scene = new Scene(camera, ls, 0);
 
 		Screen panel = new Screen(scene);
 		panel.setPreferredSize(new Dimension(500, 500));
 		
 		vH.setPanel(panel);
+
+		//testing for matrix plane intersections
+		Sqaure sq01 = new Sqaure(0, 0, 2, 5, Color.white, vH);
+		scene.addObject(sq01);
+
+		Sqaure sq02 = new Sqaure(0, 0, 2, 5, Color.white, vH);
+		sq02.roll(Math.toRadians(90));
+		sq02.pitch(Math.toRadians(20));
+		sq02.yaw(Math.toRadians(45));
+//		scene.addObject(sq02);
+
+		Sqaure sq03 = new Sqaure(0, 0, 2, 5, Color.white, vH);
+		sq03.roll(Math.toRadians(90));
+		sq03.pitch(Math.toRadians(90));
+		sq03.yaw(Math.toRadians(45));
+//		scene.addObject(sq03);
+
+		scene.update();
+
+		Plane plane0 = new Plane(sq01.getShape().get(0));
+		Plane plane1 = new Plane(sq02.getShape().get(0));
+		Plane plane2 = new Plane(sq03.getShape().get(0));
+
+		double[] p1 = new double[]{1, 0, -10};
+		double[] p2 = new double[]{1, 0, 10};
+
+		//so a plane counts as 1 but a line counts as 2
+		Matrix m = new Matrix(3, 4);
+		m.addEqautionOfPlane(plane0);
+		m.addEqautionOfLine(p1, p2);
+
+		m.seteDebug(false);
+		m.gaussJordandElimination();
+		m.determineSolution();
+
+		//squares are treated as planes so isn't collision detection for squares but for planes
+		if (m.getSolutionType() == Matrix.SolutionType.POINT) {
+			Double[] point = m.getPointSolution();
+			Cube cube = new Cube(point[0], point[1], point[2], 0.1, 0.1, 0.1, Color.RED, vH);
+			scene.addObject(cube);
+		}
+		//end matrix test
 
 		final ShapeFactory factory = new ShapeFactory();
 		final JMenu lookMenu = new JMenu("Look At");
