@@ -4,6 +4,7 @@ import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Vector;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Matrix {
 
@@ -18,7 +19,8 @@ public class Matrix {
         UNSOLVABLE,
         POINT,
         LINE,
-        PLANE
+        PLANE,
+        HIGHER_DIMENSION
     }
 
     SolutionType solutionType = SolutionType.UNDEFINED;
@@ -28,6 +30,18 @@ public class Matrix {
         matrix = new double[m][n];
         this.m = m;
         this.n = n;
+    }
+
+    public void addMatrixOfEqautions(Matrix m)
+    {
+        //compatibility checks
+        if (m.n != this.n) return;
+        if (m.m <= curM) return;
+
+        for (double[] e:m.matrix)
+        {
+            addEqaution(e);
+        }
     }
 
     //a plane counts as 1 but a line counts as 2
@@ -106,7 +120,7 @@ public class Matrix {
             newRow[i] = matrix[m][i] + v;
         }
         if (debug) {
-            System.out.println("Add");
+            System.out.println("Add Constant");
             System.out.println(this);
         }
         return newRow;
@@ -118,6 +132,10 @@ public class Matrix {
         for (int i=0;i<n;i++)
         {
             newRow[i] = matrix[m][i] + _matrix[i];
+        }
+        if (debug) {
+            System.out.println("Add Matrix");
+            System.out.println(this);
         }
         return newRow;
     }
@@ -157,15 +175,20 @@ public class Matrix {
         swapOrdering();
         for (int i=0;i<m;i++)
         {
-            for (int ii=0;ii<n;ii++)
+            for (int ii=0;ii<n-1;ii++)
             {
                 //find leading edge
-                if (matrix[i][ii] == 0) continue;
-                if (matrix[i][ii] == 1) break;
-                //turn it to a 1
-                double scale = 1d / matrix[i][ii];
-                matrix[i] = scale(i, scale);
-                matrix[i][ii] = 1;//to avoid double imprecision
+                if (matrix[i][ii] == 0) continue;//if 0 we skip
+                if (matrix[i][ii] != 1) //if 1 we dont need to change to 1
+                {
+                    if (debug) {
+                        System.out.println("Set to 1");
+                    }
+                    //turn it to a 1
+                    double scale = 1d / matrix[i][ii];
+                    matrix[i] = scale(i, scale);
+                    matrix[i][ii] = 1;//to avoid double imprecision
+                }
                 //turn it to a 0
                 for (int iii=i+1;iii<m;iii++)
                 {
@@ -196,15 +219,14 @@ public class Matrix {
         swapOrdering();
         for (int i=m-1;i>=0;i--)
         {
-            for (int ii=0;ii<n;ii++) {
+            for (int ii=0;ii<n-1;ii++) {
                 //find leading edge, we know its in gaussian form so any non 0 value is 1
                 if (matrix[i][ii] == 0) continue;
                 for (int iii=i-1;iii>=0;iii--)
                 {
-                    if (iii < 0) break;
                     matrix[iii] = add(iii, scale(i, -matrix[iii][ii]));
+                    matrix[iii][ii] = 0;
                 }
-                matrix[i][ii] = 1;//double precision sometimes leads to 0.99999999 when it should be 1
                 break;
             }
         }
@@ -219,37 +241,64 @@ public class Matrix {
     public void determineSolution()
     {
         //if every row has only 1 non 0 value, then is point
-        boolean isPoint = true, unsolvable = false;
+        boolean unsolvable = false;
+        boolean[] pColumns = new boolean[n-1];
         for (int i=0;i<m;i++) {
-            int count = 0;
-            for (int ii = 0; ii < n-1; ii++) {
-                if (matrix[i][ii] != 0)
+            boolean foundPivot = false;
+            //the last column is not a basic variable
+            for (int ii=0;ii<n-1;ii++)
+            {
+                //for counting pivots
+                if (matrix[i][ii] == 0) continue;
+                foundPivot = true;
+                pColumns[ii] = true;
+                break;
+            }
+            if (!foundPivot)
+            {
+                //there are all 0's in this row but non 0 at end?
+                if (matrix[i][n-1] != 0)
                 {
-                    count++;
+                    unsolvable = true;
+                    break;
                 }
             }
-            if (count > 1)
-            {
-                isPoint = false;
-                break;
-            }
-            if (count == 0 && matrix[i][n-1] != 0)
-            {
-                //if all elements are 0 but the last column isnt then the matrix is unsolvable
-                //ie 0x + 0y + 0z = 5, cant be done
-                unsolvable = true;
-                break;
-            }
         }
-        //TODO other types
-        //what makes a line vs a plane, can an area be represented here?
         if (unsolvable)
         {
             solutionType = SolutionType.UNSOLVABLE;
+            return;
         }
-        else if (isPoint)
+        //count free variables and pivots
+        int pivot = 0, freeVariable = 0;
+        for (boolean b:pColumns)
+        {
+            if (b)
+            {
+                pivot++;
+            }
+            else
+            {
+                freeVariable++;
+            }
+        }
+        //if there are no free variables and every column has a pivot
+        if (freeVariable == 0 && pivot == n-1)
         {
             solutionType = SolutionType.POINT;
+        }
+        //only 1 free variable mean line?
+        else if (freeVariable == 1)
+        {
+            solutionType = SolutionType.LINE;
+        }
+        else if (freeVariable == 2)
+        {
+            solutionType = SolutionType.PLANE;
+        }
+        else if (freeVariable > 2)
+        {
+            solutionType = SolutionType.HIGHER_DIMENSION;
         }
     }
 
@@ -258,22 +307,93 @@ public class Matrix {
         return solutionType;
     }
 
-    public Double[] getPointSolution()
+    private double[] solveViaBacksubstitution()
+    {
+        double[] solution = new double[n-1];
+        boolean[] sRef = new boolean[n-1];
+        ArrayList<Integer> rowIndex = new ArrayList<>();
+        int solutions = 0;
+        //find already solved parts
+        for (int i=0;i<m;i++)
+        {
+            int variables = 0, lastIndex = 0;
+            for (int ii=0;ii<n-1;ii++)
+            {
+                if (matrix[i][ii] == 1)
+                {
+                    variables++;
+                    lastIndex = ii;
+                }
+            }
+            if (variables == 1)
+            {
+                solution[lastIndex] = matrix[i][n-1];
+                sRef[lastIndex] = true;
+                solutions++;
+            }
+            else if (variables > 1)
+            {
+                //rows to solve
+                rowIndex.add(i);
+            }
+        }
+        //keep going until we have all solutions
+        while (solutions < n-1)
+        {
+            Iterator<Integer> it = rowIndex.iterator();
+            while (it.hasNext())
+            {
+                double[] eq = matrix[it.next()];
+                //sum is equal to current end of matrix
+                double sum = eq[n-1];
+                int unknowns = 0, uIndex = -1;
+                for (int i=0;i<n-1;i++)
+                {
+                    //eg:
+                    //2x + 3y = 5
+                    //x = 2, y = ?
+                    //5-2(2) => 1 => 3y=1
+                    //if there is a variable to substitute and we have it
+                    if (eq[i] != 0)
+                    {
+                        if (sRef[i])
+                        {
+                            sum -= eq[i]*solution[i];
+                        }
+                        else
+                        {
+                            //we can have 1 unknown and still solve
+                            unknowns++;
+                            uIndex = i;
+                            if (unknowns > 1)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                //if 0 there is nothing to solve, if >1 then we can solve yet
+                if (unknowns == 1)
+                {
+                    solution[uIndex] = sum / eq[uIndex];
+                    sRef[uIndex] = true;
+                    solutions++;
+                    it.remove();
+                }
+            }
+        }
+        return solution;
+    }
+
+    public double[] getPointSolution()
     {
         if (solutionType == SolutionType.POINT)
         {
-            ArrayList<Double> point = new ArrayList<>();
-            for (int i=0;i<m;i++) {
-                for (int ii = 0; ii < n - 1; ii++) {
-                    if (matrix[i][ii] == 1)
-                    {
-                        point.add(i, matrix[i][n-1]);
-                    }
-                }
-            }
-            Double[] p = new Double[point.size()];
-            point.toArray(p);
-            return p;
+            return solveViaBacksubstitution();
+        }
+        if (debug)
+        {
+            System.out.println("Matrix - Incorrect type Solution");
         }
         return null;
     }
@@ -292,8 +412,13 @@ public class Matrix {
         return s;
     }
 
-    public void seteDebug(boolean d)
+    public void setDebug(boolean d)
     {
         debug = d;
+    }
+
+    public int getRows()
+    {
+        return m;
     }
 }

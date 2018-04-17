@@ -8,6 +8,7 @@ import GxEngine3D.Controller.Scene;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Polygon3D;
+import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.View.Screen;
 import GxEngine3D.View.ViewHandler;
 import MenuController.LookMenuController;
@@ -20,6 +21,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class GraphicsProgram {
 
@@ -43,11 +46,11 @@ public class GraphicsProgram {
 		Sqaure sq01 = new Sqaure(0, 0, 2, 5, Color.white, vH);
 		scene.addObject(sq01);
 
-		Sqaure sq02 = new Sqaure(0, 0, 2, 5, Color.white, vH);
+		Sqaure sq02 = new Sqaure(0, 0, 2, 2, Color.white, vH);
 		sq02.roll(Math.toRadians(90));
 		sq02.pitch(Math.toRadians(20));
 		sq02.yaw(Math.toRadians(45));
-//		scene.addObject(sq02);
+		scene.addObject(sq02);
 
 		Sqaure sq03 = new Sqaure(0, 0, 2, 5, Color.white, vH);
 		sq03.roll(Math.toRadians(90));
@@ -67,17 +70,59 @@ public class GraphicsProgram {
 		//so a plane counts as 1 but a line counts as 2
 		Matrix m = new Matrix(3, 4);
 		m.addEqautionOfPlane(plane0);
-		m.addEqautionOfLine(p1, p2);
+		m.addEqautionOfPlane(plane1);
+//		m.addEqautionOfLine(p1, p2);
 
-		m.seteDebug(false);
+//		m.seteDebug(true);
 		m.gaussJordandElimination();
 		m.determineSolution();
 
 		//squares are treated as planes so isn't collision detection for squares but for planes
 		if (m.getSolutionType() == Matrix.SolutionType.POINT) {
-			Double[] point = m.getPointSolution();
+			double[] point = m.getPointSolution();
 			Cube cube = new Cube(point[0], point[1], point[2], 0.1, 0.1, 0.1, Color.RED, vH);
 			scene.addObject(cube);
+		}
+		else if (m.getSolutionType() == Matrix.SolutionType.LINE)
+		{
+			double[] prev = null;
+			Color[] c = new Color[]{
+					Color.RED,
+					Color.BLUE,
+					Color.GREEN,
+					Color.YELLOW
+			};
+			int cIndex = 0;
+			//so edge intersects also get the intersections from the ray that the edge makes, therefor some intersections appear outside the shape but is still correct
+			//for this method, to remove this we must check if the intersection points are inside/on the polygon
+			//similar to plane-sided but with edges
+			for (RefPoint3D[] edge:sq01.getEdges())
+			{
+				//two lines so has to be 4 length
+				Matrix edgeIntersect = new Matrix(m.getRows()+2, 4);
+				edgeIntersect.addMatrixOfEqautions(m);
+				edgeIntersect.addEqautionOfLine(edge[0].toArray(), edge[1].toArray());
+				edgeIntersect.gaussJordandElimination();
+				edgeIntersect.determineSolution();
+				System.out.println(edgeIntersect.getSolutionType());
+				System.out.println(edgeIntersect);
+				if (edgeIntersect.getSolutionType() == Matrix.SolutionType.POINT)
+				{
+					double[] p = edgeIntersect.getPointSolution();
+					if (prev == null)
+					{
+						prev = p;
+					}
+					else
+					{
+						Line intersectLine = new Line(prev[0], prev[1], prev[2], p[0], p[1], p[2], vH);
+						scene.addObject(intersectLine);
+					}
+					Cube iCube = new Cube(p[0], p[1], p[2], 0.1, 0.1, 0.1, c[cIndex], vH);
+					scene.addObject(iCube);
+					cIndex++;
+				}
+			}
 		}
 		//end matrix test
 
