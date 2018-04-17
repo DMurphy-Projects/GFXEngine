@@ -50,7 +50,7 @@ public class Vector {
 	}
 	public Vector crossProduct(Vector V) {
 
-		return crossProduct(V, true);
+		return crossProduct(V, false);
 	}
 	public Vector crossProduct(Vector V, boolean norm)
 	{

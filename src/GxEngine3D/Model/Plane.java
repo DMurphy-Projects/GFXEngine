@@ -10,9 +10,9 @@ public class Plane {
 	public Plane(Polygon3D dp)
 	{
 		RefPoint3D[] p = dp.getShape();
-		getP()[0] = p[0].X();
-		getP()[1] = p[0].Y();
-		getP()[2] = p[0].Z();
+		point[0] = p[0].X();
+		point[1] = p[0].Y();
+		point[2] = p[0].Z();
 
 		//object doesnt have enough point for cross vector
 		//probably a line or single point

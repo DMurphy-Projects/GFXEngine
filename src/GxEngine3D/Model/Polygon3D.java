@@ -9,7 +9,7 @@ import GxEngine3D.Lighting.Light;
 import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
-//TODO merge this class with polygon, it servers no purpose anymore
+//TODO merge this class with polygon, it serves no purpose anymore
 public class Polygon3D {
 	Color c;
 	private RefPoint3D[] shape;

@@ -1,0 +1,969 @@
+diff a/.idea/workspace.xml b/.idea/workspace.xml	(rejected hunks)
+@@ -12,31 +12,21 @@
+   </component>
+   <component name="FileEditorManager">
+     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+-      <file leaf-file-name="PhysicsTest.java" pinned="false" current-in-tab="true">
+-        <entry file="file://$PROJECT_DIR$/src/Programs/PhysicsTest.java">
++      <file leaf-file-name="GraphicsProgram.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/Programs/GraphicsProgram.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="459">
+-              <caret line="44" column="33" lean-forward="false" selection-start-line="44" selection-start-column="33" selection-end-line="44" selection-end-column="33" />
++            <state relative-caret-position="500">
++              <caret line="71" column="25" lean-forward="false" selection-start-line="71" selection-start-column="25" selection-end-line="71" selection-end-column="25" />
+               <folding />
+             </state>
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="ForceController.java" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Controller/ForceController.java">
++      <file leaf-file-name="Matrix.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/Matrix.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="901">
+-              <caret line="65" column="15" lean-forward="false" selection-start-line="65" selection-start-column="15" selection-end-line="65" selection-end-column="15" />
+-              <folding />
+-            </state>
+-          </provider>
+-        </entry>
+-      </file>
+-      <file leaf-file-name="ImpulseSolver.java" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/src/Constraint/ImpulseSolver.java">
+-          <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="102">
+-              <caret line="10" column="20" lean-forward="false" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
++            <state relative-caret-position="415">
++              <caret line="108" column="38" lean-forward="true" selection-start-line="108" selection-start-column="38" selection-end-line="108" selection-end-column="38" />
+               <folding>
+                 <element signature="imports" expanded="true" />
+               </folding>
+@@ -44,11 +34,11 @@
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="ForceShape.java" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/src/Shapes/ForceShape.java">
++      <file leaf-file-name="MatrixTest.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/Programs/MatrixTest.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="850">
+-              <caret line="62" column="33" lean-forward="false" selection-start-line="62" selection-start-column="33" selection-end-line="62" selection-end-column="33" />
++            <state relative-caret-position="294">
++              <caret line="30" column="33" lean-forward="true" selection-start-line="30" selection-start-column="33" selection-end-line="30" selection-end-column="33" />
+               <folding>
+                 <element signature="imports" expanded="true" />
+               </folding>
+@@ -56,31 +46,31 @@
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="Pyramid.java" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/src/Shapes/Pyramid.java">
++      <file leaf-file-name="Sqaure.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/Shapes/Shape2D/Sqaure.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="782">
+-              <caret line="49" column="63" lean-forward="false" selection-start-line="49" selection-start-column="63" selection-end-line="49" selection-end-column="63" />
++            <state relative-caret-position="119">
++              <caret line="11" column="33" lean-forward="false" selection-start-line="11" selection-start-column="33" selection-end-line="11" selection-end-column="33" />
+               <folding />
+             </state>
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="ForcePoint3D.java" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Model/ForcePoint3D.java">
++      <file leaf-file-name="NSidedPolygon.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/Shapes/Shape2D/NSidedPolygon.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="1666">
+-              <caret line="108" column="19" lean-forward="false" selection-start-line="108" selection-start-column="19" selection-end-line="108" selection-end-column="19" />
++            <state relative-caret-position="68">
++              <caret line="8" column="38" lean-forward="false" selection-start-line="8" selection-start-column="38" selection-end-line="8" selection-end-column="38" />
+               <folding />
+             </state>
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="PointManipulation.java" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/src/Programs/PointManipulation.java">
++      <file leaf-file-name="VectorCalc.java" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/VectorCalc.java">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="272">
+-              <caret line="20" column="21" lean-forward="false" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
++            <state relative-caret-position="352">
++              <caret line="114" column="27" lean-forward="true" selection-start-line="114" selection-start-column="27" selection-end-line="114" selection-end-column="27" />
+               <folding>
+                 <element signature="imports" expanded="true" />
+               </folding>
+@@ -88,6 +78,16 @@
+           </provider>
+         </entry>
+       </file>
++      <file leaf-file-name="BaseShape.java" pinned="false" current-in-tab="true">
++        <entry file="file://$PROJECT_DIR$/src/Shapes/BaseShape.java">
++          <provider selected="true" editor-type-id="text-editor">
++            <state relative-caret-position="-971">
++              <caret line="78" column="5" lean-forward="false" selection-start-line="78" selection-start-column="5" selection-end-line="78" selection-end-column="5" />
++              <folding />
++            </state>
++          </provider>
++        </entry>
++      </file>
+     </leaf>
+   </component>
+   <component name="FileTemplateManagerImpl">
+@@ -109,8 +109,21 @@
+       <find>ho</find>
+       <find>highl</find>
+       <find>hover</find>
++      <find>setPolyHover</find>
++      <find>outline</find>
++      <find>getFinalVector</find>
++      <find>get</find>
++      <find>getRe</find>
++      <find>mNewOrder</find>
++      <find>orderPos</find>
++      <find>dot</find>
++      <find>roll</find>
++      <find>scheduleUpdate</find>
+     </findStrings>
+   </component>
++  <component name="Git.Settings">
++    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
++  </component>
+   <component name="GradleLocalSettings">
+     <option name="externalProjectsViewState">
+       <projects_view />
+@@ -119,57 +132,57 @@
+   <component name="IdeDocumentHistory">
+     <option name="CHANGED_PATHS">
+       <list>
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/IForce.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/Spring3D.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/FloorForce.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/ForcePair.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/Force/IForce.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/Force/HardForce.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/Force/FloorForce.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/Force/RigidForce.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/Force/IConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/Force/SoftForce.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/Force/GenericRepel3D.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/Force/Spring3D.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/BaseConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/Programs/ImpulseSolverTest.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/SingleConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/MultiConstraintPair.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/ConstraintPair.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/RigidConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/IConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/DoublePointConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/FloorConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/Constraints/AreaConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/Constraints/VolumeRestraint.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/Constraints/BaseConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/DistanceCalc.java" />
+-        <option value="$PROJECT_DIR$/src/GxEngine3D/Camera/Camera.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/CoordinateCalc3D.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/ForceVector3D.java" />
+-        <option value="$PROJECT_DIR$/src/Force3DInterface/ForceVector.java" />
+         <option value="$PROJECT_DIR$/src/Force3DInterface/ForceVector3DCalc.java" />
+         <option value="$PROJECT_DIR$/src/Programs/DragTest.java" />
+-        <option value="$PROJECT_DIR$/src/Programs/PointManipulation.java" />
+-        <option value="$PROJECT_DIR$/src/GxEngine3D/Model/ForcePoint3D.java" />
+         <option value="$PROJECT_DIR$/src/Constraint/Constraints/as.java" />
+         <option value="$PROJECT_DIR$/src/Constraint/Constraints/ImpulseSolverLegacy.java" />
+         <option value="$PROJECT_DIR$/src/Constraint/ImpulseSolverLegacy.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/Constraints/DoublePointConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/Constraints/SinglePointConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/VectorCalc.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/Constraints/IConstraint.java" />
+         <option value="$PROJECT_DIR$/src/Constraint/Constraints/FloorConstraint.java" />
++        <option value="$PROJECT_DIR$/src/Programs/CoinFlip.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Model/Polygon3D.java" />
++        <option value="$PROJECT_DIR$/src/Shapes/Pyramid.java" />
++        <option value="$PROJECT_DIR$/src/Shapes/Prism.java" />
++        <option value="$PROJECT_DIR$/src/Programs/PlaneSided.java" />
++        <option value="$PROJECT_DIR$/src/Programs/PlaneSidedTest.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Model/Polygon2D.java" />
+         <option value="$PROJECT_DIR$/src/GxEngine3D/Controller/GXController.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/Constraints/VolumeConstraint.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/Constraints/RigidConstraint.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/PointPenetrationConstrain.java" />
+         <option value="$PROJECT_DIR$/src/GxEngine3D/Controller/ForceController.java" />
+-        <option value="$PROJECT_DIR$/src/Constraint/ImpulseSolver.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Controller/IManipulatable.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Controller/IManipulable.java" />
++        <option value="$PROJECT_DIR$/src/Shapes/IManipulable.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Controller/Force/IForceControllerListener.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Controller/Force/IForceControllerEvent.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/RigidConstraint.java" />
++        <option value="$PROJECT_DIR$/src/Programs/PointManipulation.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Controller/Force/ForceController.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Model/ForcePoint3D.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/ConstraintPair.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/PointPenetrationConstraint.java" />
+         <option value="$PROJECT_DIR$/src/Shapes/Cube.java" />
+-        <option value="$PROJECT_DIR$/src/Programs/CoinFlip.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/VolumeConstraint.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/ImpulseSolver.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/IConstraint.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/BaseObjectConstraint.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/DoublePointConstraint.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/SinglePointConstraint.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/BasePointConstraint.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/BaseConstraint.java" />
+         <option value="$PROJECT_DIR$/src/Shapes/ForceShape.java" />
+-        <option value="$PROJECT_DIR$/src/Shapes/Pyramid.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Model/Vector.java" />
++        <option value="$PROJECT_DIR$/src/Programs/ObjectCollision01.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Controller/Scene.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/View/Screen.java" />
+         <option value="$PROJECT_DIR$/src/Programs/PhysicsTest.java" />
++        <option value="$PROJECT_DIR$/src/Constraint/Constraints/PolyhedraPenetrationConstraint.java" />
++        <option value="$PROJECT_DIR$/src/Shapes/Shape2D/NSidedPolygon.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/Model/Plane.java" />
++        <option value="$PROJECT_DIR$/src/Programs/test.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/VectorCalc.java" />
++        <option value="$PROJECT_DIR$/src/Programs/MatrixTest.java" />
++        <option value="$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/Matrix.java" />
++        <option value="$PROJECT_DIR$/src/Programs/GraphicsProgram.java" />
++        <option value="$PROJECT_DIR$/src/Shapes/BaseShape.java" />
+       </list>
+     </option>
+   </component>
+@@ -194,8 +207,6 @@
+       <foldersAlwaysOnTop value="true" />
+     </navigator>
+     <panes>
+-      <pane id="AndroidView" />
+-      <pane id="Scope" />
+       <pane id="ProjectPane">
+         <subPane>
+           <expand>
+@@ -212,29 +223,70 @@
+               <item name="PhysicsTesting" type="b2602c69:ProjectViewProjectNode" />
+               <item name="PhysicsTesting" type="462c0819:PsiDirectoryNode" />
+               <item name="src" type="462c0819:PsiDirectoryNode" />
++              <item name="Constraint" type="462c0819:PsiDirectoryNode" />
++            </path>
++            <path>
++              <item name="PhysicsTesting" type="b2602c69:ProjectViewProjectNode" />
++              <item name="PhysicsTesting" type="462c0819:PsiDirectoryNode" />
++              <item name="src" type="462c0819:PsiDirectoryNode" />
++              <item name="GxEngine3D" type="462c0819:PsiDirectoryNode" />
++            </path>
++            <path>
++              <item name="PhysicsTesting" type="b2602c69:ProjectViewProjectNode" />
++              <item name="PhysicsTesting" type="462c0819:PsiDirectoryNode" />
++              <item name="src" type="462c0819:PsiDirectoryNode" />
++              <item name="GxEngine3D" type="462c0819:PsiDirectoryNode" />
++              <item name="CalculationHelper" type="462c0819:PsiDirectoryNode" />
++            </path>
++            <path>
++              <item name="PhysicsTesting" type="b2602c69:ProjectViewProjectNode" />
++              <item name="PhysicsTesting" type="462c0819:PsiDirectoryNode" />
++              <item name="src" type="462c0819:PsiDirectoryNode" />
+               <item name="Programs" type="462c0819:PsiDirectoryNode" />
+             </path>
++            <path>
++              <item name="PhysicsTesting" type="b2602c69:ProjectViewProjectNode" />
++              <item name="PhysicsTesting" type="462c0819:PsiDirectoryNode" />
++              <item name="src" type="462c0819:PsiDirectoryNode" />
++              <item name="Shapes" type="462c0819:PsiDirectoryNode" />
++            </path>
++            <path>
++              <item name="PhysicsTesting" type="b2602c69:ProjectViewProjectNode" />
++              <item name="PhysicsTesting" type="462c0819:PsiDirectoryNode" />
++              <item name="src" type="462c0819:PsiDirectoryNode" />
++              <item name="Shapes" type="462c0819:PsiDirectoryNode" />
++              <item name="Shape2D" type="462c0819:PsiDirectoryNode" />
++            </path>
++            <path>
++              <item name="PhysicsTesting" type="b2602c69:ProjectViewProjectNode" />
++              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
++            </path>
+           </expand>
+           <select />
+         </subPane>
+       </pane>
++      <pane id="Scope" />
+       <pane id="Scratches" />
+       <pane id="PackagesPane" />
++      <pane id="AndroidView" />
+     </panes>
+   </component>
+   <component name="PropertiesComponent">
+     <property name="settings.editor.selected.configurable" value="preferences.externalResources" />
+     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+-    <property name="project.structure.last.edited" value="Modules" />
++    <property name="project.structure.last.edited" value="Problems" />
+     <property name="project.structure.proportion" value="0.15" />
+     <property name="project.structure.side.proportion" value="0.2" />
+     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file://C:/Users/Dean/Documents/sourcetree/CoinFlip/src/Force3DInterface/Force/Spring3D.java" />
+   </component>
+   <component name="RecentsManager">
+     <key name="CopyClassDialog.RECENTS_KEY">
++      <recent name="Programs" />
+       <recent name="Force3DInterface" />
+     </key>
+     <key name="CopyFile.RECENT_KEYS">
++      <recent name="C:\Users\Dean\Documents\sourcetree\PhysicsTesting\src\Programs" />
++      <recent name="C:\Users\Dean\Documents\sourcetree\PhysicsTesting\src\GxEngine3D\CalculationHelper" />
+       <recent name="C:\Users\Dean\Documents\sourcetree\CoinFlip\src\Force3DInterface" />
+     </key>
+   </component>
+@@ -250,7 +302,7 @@
+       </list>
+     </option>
+   </component>
+-  <component name="RunManager" selected="Application.Physics test">
++  <component name="RunManager" selected="Application.Graphics">
+     <configuration name="Drag Test" type="Application" factoryName="Application">
+       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+       <option name="MAIN_CLASS_NAME" value="Programs.DragTest" />
+@@ -265,6 +317,48 @@
+       <module name="PhysicsTesting" />
+       <envs />
+     </configuration>
++    <configuration name="Graphics" type="Application" factoryName="Application">
++      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
++      <option name="MAIN_CLASS_NAME" value="Programs.GraphicsProgram" />
++      <option name="VM_PARAMETERS" value="" />
++      <option name="PROGRAM_PARAMETERS" value="" />
++      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
++      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
++      <option name="ALTERNATIVE_JRE_PATH" />
++      <option name="ENABLE_SWING_INSPECTOR" value="false" />
++      <option name="ENV_VARIABLES" />
++      <option name="PASS_PARENT_ENVS" value="true" />
++      <module name="PhysicsTesting" />
++      <envs />
++    </configuration>
++    <configuration name="Matrix" type="Application" factoryName="Application">
++      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
++      <option name="MAIN_CLASS_NAME" value="Programs.MatrixTest" />
++      <option name="VM_PARAMETERS" value="" />
++      <option name="PROGRAM_PARAMETERS" value="" />
++      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
++      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
++      <option name="ALTERNATIVE_JRE_PATH" />
++      <option name="ENABLE_SWING_INSPECTOR" value="false" />
++      <option name="ENV_VARIABLES" />
++      <option name="PASS_PARENT_ENVS" value="true" />
++      <module name="PhysicsTesting" />
++      <envs />
++    </configuration>
++    <configuration name="Object Collison" type="Application" factoryName="Application">
++      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
++      <option name="MAIN_CLASS_NAME" value="Programs.ObjectCollision01" />
++      <option name="VM_PARAMETERS" value="" />
++      <option name="PROGRAM_PARAMETERS" value="" />
++      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
++      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
++      <option name="ALTERNATIVE_JRE_PATH" />
++      <option name="ENABLE_SWING_INSPECTOR" value="false" />
++      <option name="ENV_VARIABLES" />
++      <option name="PASS_PARENT_ENVS" value="true" />
++      <module name="PhysicsTesting" />
++      <envs />
++    </configuration>
+     <configuration name="Physics test" type="Application" factoryName="Application">
+       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+       <option name="MAIN_CLASS_NAME" value="Programs.PhysicsTest" />
+@@ -279,9 +373,9 @@
+       <module name="PhysicsTesting" />
+       <envs />
+     </configuration>
+-    <configuration name="Point Test" type="Application" factoryName="Application">
++    <configuration name="Plane sides" type="Application" factoryName="Application">
+       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+-      <option name="MAIN_CLASS_NAME" value="Programs.PointManipulation" />
++      <option name="MAIN_CLASS_NAME" value="Programs.PlaneSidedTest" />
+       <option name="VM_PARAMETERS" value="" />
+       <option name="PROGRAM_PARAMETERS" value="" />
+       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+@@ -293,9 +387,9 @@
+       <module name="PhysicsTesting" />
+       <envs />
+     </configuration>
+-    <configuration name="Solver Test" type="Application" factoryName="Application">
++    <configuration name="Point Test" type="Application" factoryName="Application">
+       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+-      <option name="MAIN_CLASS_NAME" value="Programs.PhysicsTest" />
++      <option name="MAIN_CLASS_NAME" value="Programs.PointManipulation" />
+       <option name="VM_PARAMETERS" value="" />
+       <option name="PROGRAM_PARAMETERS" value="" />
+       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+@@ -400,11 +494,14 @@
+       <properties />
+       <listeners />
+     </configuration>
+-    <list size="4">
++    <list size="7">
+       <item index="0" class="java.lang.String" itemvalue="Application.Physics test" />
+-      <item index="1" class="java.lang.String" itemvalue="Application.Point Test" />
+-      <item index="2" class="java.lang.String" itemvalue="Application.Drag Test" />
+-      <item index="3" class="java.lang.String" itemvalue="Application.Solver Test" />
++      <item index="1" class="java.lang.String" itemvalue="Application.Matrix" />
++      <item index="2" class="java.lang.String" itemvalue="Application.Object Collison" />
++      <item index="3" class="java.lang.String" itemvalue="Application.Plane sides" />
++      <item index="4" class="java.lang.String" itemvalue="Application.Point Test" />
++      <item index="5" class="java.lang.String" itemvalue="Application.Drag Test" />
++      <item index="6" class="java.lang.String" itemvalue="Application.Graphics" />
+     </list>
+   </component>
+   <component name="ShelveChangesManager" show_recycled="false">
+@@ -433,7 +530,7 @@
+       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
+       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
++      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+@@ -457,141 +554,154 @@
+   </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+-      <option name="time" value="89" />
++      <option name="time" value="150" />
+     </breakpoint-manager>
+     <watches-manager />
+   </component>
+   <component name="editorHistoryManager">
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Model/RefPoint3D.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/View/ViewHandler.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="408">
+-          <caret line="45" column="4" lean-forward="false" selection-start-line="45" selection-start-column="4" selection-end-line="45" selection-end-column="4" />
++        <state relative-caret-position="17">
++          <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Model/Polygon3D.java">
++    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/ForceVector3D.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="151">
+-          <caret line="45" column="38" lean-forward="true" selection-start-line="45" selection-start-column="38" selection-end-line="45" selection-end-column="38" />
++        <state relative-caret-position="374">
++          <caret line="22" column="24" lean-forward="true" selection-start-line="22" selection-start-column="24" selection-end-line="22" selection-end-column="24" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/FastMath.java">
++    <entry file="file://$PROJECT_DIR$/src/Shapes/Pyramid.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="17">
+-          <caret line="2" column="13" lean-forward="false" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
++        <state relative-caret-position="362">
++          <caret line="54" column="49" lean-forward="false" selection-start-line="54" selection-start-column="49" selection-end-line="54" selection-end-column="49" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/Force/IForce.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Model/Polygon2D.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="102">
+-          <caret line="6" column="18" lean-forward="false" selection-start-line="6" selection-start-column="18" selection-end-line="6" selection-end-column="18" />
++        <state relative-caret-position="504">
++          <caret line="65" column="49" lean-forward="false" selection-start-line="65" selection-start-column="49" selection-end-line="65" selection-end-column="49" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Controller/SplitManager.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Controller/GXController.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="119">
+-          <caret line="9" column="13" lean-forward="false" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
++        <state relative-caret-position="99">
++          <caret line="32" column="50" lean-forward="true" selection-start-line="32" selection-start-column="50" selection-end-line="32" selection-end-column="50" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Controller/Scene.java">
++    <entry file="file://$PROJECT_DIR$/src/Constraint/ImpulseSolverLegacy.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="68">
+-          <caret line="14" column="31" lean-forward="true" selection-start-line="14" selection-start-column="31" selection-end-line="14" selection-end-column="31" />
++        <state relative-caret-position="606">
++          <caret line="63" column="31" lean-forward="false" selection-start-line="63" selection-start-column="12" selection-end-line="63" selection-end-column="31" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/Force/IForce.java">
++    <entry file="file://$PROJECT_DIR$/src/Shapes/Prism.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="136">
+-          <caret line="8" column="57" lean-forward="true" selection-start-line="8" selection-start-column="57" selection-end-line="8" selection-end-column="57" />
++        <state relative-caret-position="816">
++          <caret line="54" column="120" lean-forward="false" selection-start-line="54" selection-start-column="120" selection-end-line="54" selection-end-column="120" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/Force/HardForce.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/ProjectionCalc.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="306">
+-          <caret line="18" column="22" lean-forward="true" selection-start-line="18" selection-start-column="22" selection-end-line="18" selection-end-column="22" />
++        <state relative-caret-position="391">
++          <caret line="25" column="54" lean-forward="false" selection-start-line="25" selection-start-column="54" selection-end-line="25" selection-end-column="54" />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Model/Polygon3D.java">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="442">
++          <caret line="50" column="55" lean-forward="false" selection-start-line="50" selection-start-column="55" selection-end-line="50" selection-end-column="55" />
+         </state>
+       </provider>
+     </entry>
+     <entry file="file://$PROJECT_DIR$/src/Force3DInterface/ForcePair.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="289">
+-          <caret line="17" column="18" lean-forward="false" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="18" />
++        <state relative-caret-position="68">
++          <caret line="8" column="13" lean-forward="false" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/Force/RigidForce.java" />
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/Force/IConstraint.java" />
+     <entry file="file://$PROJECT_DIR$/src/Force3DInterface/Force/FloorForce.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="31" lean-forward="false" selection-start-line="0" selection-start-column="31" selection-end-line="0" selection-end-column="31" />
++        <state relative-caret-position="68">
++          <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/Force/Spring3D.java">
++    <entry file="file://$PROJECT_DIR$/src/Shapes/IManipulable.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="238">
+-          <caret line="14" column="42" lean-forward="false" selection-start-line="14" selection-start-column="42" selection-end-line="14" selection-end-column="42" />
++        <state relative-caret-position="119">
++          <caret line="7" column="28" lean-forward="true" selection-start-line="7" selection-start-column="28" selection-end-line="7" selection-end-column="28" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/Force/SoftForce.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Camera/ICameraEvent.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="56">
+-          <caret line="11" column="23" lean-forward="false" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
++        <state relative-caret-position="85">
++          <caret line="5" column="17" lean-forward="false" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="17" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/Force/GenericRepel3D.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Camera/ICameraEventListener.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="357">
+-          <caret line="21" column="112" lean-forward="false" selection-start-line="21" selection-start-column="112" selection-end-line="21" selection-end-column="112" />
++        <state relative-caret-position="85">
++          <caret line="5" column="17" lean-forward="false" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="17" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/SingleConstraint.java" />
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/MultiConstraintPair.java" />
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/BaseConstraint.java" />
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/ConstraintPair.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Controller/Force/IForceControllerListener.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="289">
+-          <caret line="19" column="5" lean-forward="true" selection-start-line="19" selection-start-column="5" selection-end-line="19" selection-end-column="5" />
++        <state relative-caret-position="34">
++          <caret line="2" column="25" lean-forward="false" selection-start-line="2" selection-start-column="25" selection-end-line="2" selection-end-column="25" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Programs/ImpulseSolverTest.java" />
+-    <entry file="file://$PROJECT_DIR$/src/Shapes/Sphere.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Controller/Force/IForceControllerEvent.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="68">
+-          <caret line="7" column="13" lean-forward="false" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
++        <state relative-caret-position="102">
++          <caret line="6" column="38" lean-forward="true" selection-start-line="6" selection-start-column="38" selection-end-line="6" selection-end-column="38" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/DistanceCalc.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Model/ForcePoint3D.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="204">
+-          <caret line="12" column="15" lean-forward="false" selection-start-line="12" selection-start-column="15" selection-end-line="12" selection-end-column="15" />
++        <state relative-caret-position="272">
++          <caret line="24" column="0" lean-forward="false" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Shapes/Shape2D/NSidedPolygon.java">
++    <entry file="file://$PROJECT_DIR$/src/Constraint/ConstraintPair.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="17">
+-          <caret line="8" column="13" lean-forward="false" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
++        <state relative-caret-position="255">
++          <caret line="20" column="5" lean-forward="true" selection-start-line="20" selection-start-column="5" selection-end-line="20" selection-end-column="5" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Shapes/Shape2D/Sqaure.java">
++    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/RigidConstraint.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="119">
+-          <caret line="11" column="37" lean-forward="false" selection-start-line="11" selection-start-column="37" selection-end-line="11" selection-end-column="37" />
++        <state relative-caret-position="68">
++          <caret line="6" column="47" lean-forward="true" selection-start-line="6" selection-start-column="47" selection-end-line="6" selection-end-column="47" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Controller/Force/ForceController.java">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="255">
++          <caret line="24" column="23" lean-forward="true" selection-start-line="24" selection-start-column="23" selection-end-line="24" selection-end-column="23" />
+         </state>
+       </provider>
+     </entry>
+@@ -602,200 +712,233 @@
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/ForceVector.java">
++    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/IConstraint.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="238">
+-          <caret line="14" column="41" lean-forward="true" selection-start-line="14" selection-start-column="41" selection-end-line="14" selection-end-column="41" />
++        <state relative-caret-position="85">
++          <caret line="7" column="35" lean-forward="true" selection-start-line="7" selection-start-column="35" selection-end-line="7" selection-end-column="35" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/ForceVector3DCalc.java">
++    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/BaseObjectConstraint.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="442">
+-          <caret line="38" column="33" lean-forward="false" selection-start-line="38" selection-start-column="33" selection-end-line="38" selection-end-column="33" />
++        <state relative-caret-position="221">
++          <caret line="15" column="41" lean-forward="true" selection-start-line="15" selection-start-column="41" selection-end-line="15" selection-end-column="41" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Programs/DragTest.java">
++    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/SinglePointConstraint.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="85">
+-          <caret line="5" column="39" lean-forward="false" selection-start-line="5" selection-start-column="39" selection-end-line="5" selection-end-column="39" />
++        <state relative-caret-position="221">
++          <caret line="15" column="33" lean-forward="false" selection-start-line="15" selection-start-column="33" selection-end-line="15" selection-end-column="33" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Programs/PointManipulation.java">
++    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/DoublePointConstraint.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="272">
+-          <caret line="20" column="21" lean-forward="false" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
+-          <folding>
+-            <element signature="imports" expanded="true" />
+-          </folding>
++        <state relative-caret-position="238">
++          <caret line="18" column="45" lean-forward="false" selection-start-line="18" selection-start-column="45" selection-end-line="18" selection-end-column="45" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/ImpulseSolverLegacy.java">
++    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/BasePointConstraint.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="364">
+-          <caret line="63" column="31" lean-forward="false" selection-start-line="63" selection-start-column="12" selection-end-line="63" selection-end-column="31" />
++        <state relative-caret-position="255">
++          <caret line="17" column="26" lean-forward="true" selection-start-line="17" selection-start-column="26" selection-end-line="17" selection-end-column="26" />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/VolumeConstraint.java">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="34">
++          <caret line="96" column="50" lean-forward="true" selection-start-line="96" selection-start-column="50" selection-end-line="96" selection-end-column="50" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+     <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/BaseConstraint.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="85">
+-          <caret line="5" column="17" lean-forward="false" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="17" />
++        <state relative-caret-position="425">
++          <caret line="25" column="34" lean-forward="true" selection-start-line="25" selection-start-column="34" selection-end-line="25" selection-end-column="34" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/SinglePointConstraint.java">
++    <entry file="file://$PROJECT_DIR$/src/Shapes/Cube.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="17">
+-          <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
++        <state relative-caret-position="68">
++          <caret line="7" column="31" lean-forward="true" selection-start-line="7" selection-start-column="31" selection-end-line="7" selection-end-column="31" />
++          <folding>
++            <marker date="1522236184987" expanded="true" signature="1886:2494" ph="..." />
++          </folding>
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/src/Constraint/ImpulseSolver.java">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="391">
++          <caret line="30" column="61" lean-forward="false" selection-start-line="30" selection-start-column="61" selection-end-line="30" selection-end-column="61" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/src/Shapes/ForceShape.java">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="442">
++          <caret line="81" column="20" lean-forward="true" selection-start-line="81" selection-start-column="20" selection-end-line="81" selection-end-column="20" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+     <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Model/Vector.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="221">
+-          <caret line="21" column="53" lean-forward="true" selection-start-line="21" selection-start-column="53" selection-end-line="21" selection-end-column="53" />
++        <state relative-caret-position="351">
++          <caret line="52" column="36" lean-forward="false" selection-start-line="52" selection-start-column="36" selection-end-line="52" selection-end-column="36" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/IConstraint.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/View/Screen.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="136">
+-          <caret line="8" column="35" lean-forward="true" selection-start-line="8" selection-start-column="35" selection-end-line="8" selection-end-column="35" />
++        <state relative-caret-position="168">
++          <caret line="32" column="5" lean-forward="false" selection-start-line="32" selection-start-column="5" selection-end-line="32" selection-end-column="5" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/DoublePointConstraint.java">
++    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/PointPenetrationConstraint.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="221">
+-          <caret line="13" column="0" lean-forward="false" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
++        <state relative-caret-position="1411">
++          <caret line="94" column="0" lean-forward="false" selection-start-line="94" selection-start-column="0" selection-end-line="94" selection-end-column="0" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/FloorConstraint.java">
++    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/PolyhedraPenetrationConstraint.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="459">
+-          <caret line="42" column="82" lean-forward="true" selection-start-line="42" selection-start-column="82" selection-end-line="42" selection-end-column="82" />
++        <state relative-caret-position="39">
++          <caret line="236" column="0" lean-forward="false" selection-start-line="236" selection-start-column="0" selection-end-line="236" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/VectorCalc.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Controller/Scene.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="202">
+-          <caret line="50" column="0" lean-forward="false" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
++        <state relative-caret-position="861">
++          <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Controller/GXController.java">
++    <entry file="file://$PROJECT_DIR$/src/Programs/PhysicsTest.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="2946">
+-          <caret line="204" column="13" lean-forward="true" selection-start-line="204" selection-start-column="13" selection-end-line="204" selection-end-column="13" />
++        <state relative-caret-position="0">
++          <caret line="43" column="21" lean-forward="false" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Camera/Camera.java">
++    <entry file="file://$PROJECT_DIR$/src/Programs/PlaneSidedTest.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="651">
+-          <caret line="72" column="76" lean-forward="true" selection-start-line="72" selection-start-column="76" selection-end-line="72" selection-end-column="76" />
++        <state relative-caret-position="510">
++          <caret line="35" column="65" lean-forward="true" selection-start-line="35" selection-start-column="65" selection-end-line="35" selection-end-column="65" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/View/ViewHandler.java">
++    <entry file="file://$PROJECT_DIR$/src/Programs/ObjectCollision01.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="17">
+-          <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
++        <state relative-caret-position="595">
++          <caret line="103" column="40" lean-forward="false" selection-start-line="103" selection-start-column="40" selection-end-line="103" selection-end-column="40" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Shapes/BaseShape.java">
++    <entry file="file://$PROJECT_DIR$/src/Programs/PointManipulation.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="323">
+-          <caret line="35" column="20" lean-forward="true" selection-start-line="35" selection-start-column="20" selection-end-line="35" selection-end-column="20" />
++        <state relative-caret-position="442">
++          <caret line="30" column="61" lean-forward="false" selection-start-line="30" selection-start-column="61" selection-end-line="30" selection-end-column="61" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Force3DInterface/ForceVector3D.java">
++    <entry file="file://$PROJECT_DIR$/src/Shapes/Shape2D/Sqaure.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="374">
+-          <caret line="22" column="24" lean-forward="true" selection-start-line="22" selection-start-column="24" selection-end-line="22" selection-end-column="24" />
++        <state relative-caret-position="119">
++          <caret line="11" column="33" lean-forward="false" selection-start-line="11" selection-start-column="33" selection-end-line="11" selection-end-column="33" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Model/ForcePoint3D.java">
++    <entry file="file://$PROJECT_DIR$/src/Shapes/Shape2D/NSidedPolygon.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="1666">
+-          <caret line="108" column="19" lean-forward="false" selection-start-line="108" selection-start-column="19" selection-end-line="108" selection-end-column="19" />
++        <state relative-caret-position="68">
++          <caret line="8" column="38" lean-forward="false" selection-start-line="8" selection-start-column="38" selection-end-line="8" selection-end-column="38" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/RigidConstraint.java">
++    <entry file="file://$PROJECT_DIR$/src/Shapes/Shape2D/Circle.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="408">
+-          <caret line="66" column="29" lean-forward="false" selection-start-line="66" selection-start-column="29" selection-end-line="66" selection-end-column="29" />
++        <state relative-caret-position="17">
++          <caret line="9" column="13" lean-forward="false" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Controller/ForceController.java">
++    <entry file="file://$PROJECT_DIR$/src/Shapes/FakeSphere.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="901">
+-          <caret line="65" column="15" lean-forward="false" selection-start-line="65" selection-start-column="15" selection-end-line="65" selection-end-column="15" />
++        <state relative-caret-position="17">
++          <caret line="16" column="35" lean-forward="false" selection-start-line="16" selection-start-column="35" selection-end-line="16" selection-end-column="35" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/ImpulseSolver.java">
++    <entry file="file://$PROJECT_DIR$/src/Programs/test.java" />
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/Model/Plane.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="102">
+-          <caret line="10" column="20" lean-forward="false" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+-          <folding>
+-            <element signature="imports" expanded="true" />
+-          </folding>
++        <state relative-caret-position="68">
++          <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Constraint/Constraints/VolumeConstraint.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/VectorCalc.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="73">
+-          <caret line="105" column="43" lean-forward="true" selection-start-line="105" selection-start-column="43" selection-end-line="105" selection-end-column="43" />
++        <state relative-caret-position="352">
++          <caret line="114" column="27" lean-forward="true" selection-start-line="114" selection-start-column="27" selection-end-line="114" selection-end-column="27" />
++          <folding>
++            <element signature="imports" expanded="true" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Shapes/Cube.java">
++    <entry file="file://$PROJECT_DIR$/src/Programs/MatrixTest.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="277">
+-          <caret line="53" column="5" lean-forward="false" selection-start-line="53" selection-start-column="5" selection-end-line="53" selection-end-column="5" />
+-          <folding />
++        <state relative-caret-position="294">
++          <caret line="30" column="33" lean-forward="true" selection-start-line="30" selection-start-column="33" selection-end-line="30" selection-end-column="33" />
++          <folding>
++            <element signature="imports" expanded="true" />
++          </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Shapes/ForceShape.java">
++    <entry file="file://$PROJECT_DIR$/src/GxEngine3D/CalculationHelper/Matrix.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="850">
+-          <caret line="62" column="33" lean-forward="false" selection-start-line="62" selection-start-column="33" selection-end-line="62" selection-end-column="33" />
++        <state relative-caret-position="415">
++          <caret line="108" column="38" lean-forward="true" selection-start-line="108" selection-start-column="38" selection-end-line="108" selection-end-column="38" />
+           <folding>
+             <element signature="imports" expanded="true" />
+           </folding>
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Shapes/Pyramid.java">
++    <entry file="file://$PROJECT_DIR$/src/Programs/GraphicsProgram.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="782">
+-          <caret line="49" column="63" lean-forward="false" selection-start-line="49" selection-start-column="63" selection-end-line="49" selection-end-column="63" />
++        <state relative-caret-position="500">
++          <caret line="71" column="25" lean-forward="false" selection-start-line="71" selection-start-column="25" selection-end-line="71" selection-end-column="25" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/src/Programs/PhysicsTest.java">
++    <entry file="file://$PROJECT_DIR$/src/Shapes/BaseShape.java">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="459">
+-          <caret line="44" column="33" lean-forward="false" selection-start-line="44" selection-start-column="33" selection-end-line="44" selection-end-column="33" />
++        <state relative-caret-position="-971">
++          <caret line="78" column="5" lean-forward="false" selection-start-line="78" selection-start-column="5" selection-end-line="78" selection-end-column="5" />
+           <folding />
+         </state>
+       </provider>
+@@ -852,7 +995,7 @@
+       </state>
+       <state key="ModuleStructureConfigurable.UI">
+         <settings>
+-          <last-edited>CoinFlip</last-edited>
++          <last-edited>PhysicsTesting</last-edited>
+           <splitter-proportions>
+             <option name="proportions">
+               <list>
