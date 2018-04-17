@@ -19,16 +19,30 @@ public class NSidedPolygon extends BaseShape {
     @Override
     protected void createShape() {
         double a = (Math.PI*2)/getSides();
-        //System.out.println(xS+" "+yS);
+        int index = 0;
         for (double i=0;i<Math.PI*2;i+=a)
         {
             double _x = x+(Math.cos(i)*(width/2)),
                     _y = y+(Math.sin(i)*(height/2));
             points.add(new RefPoint3D(_x, _y, z));
-            //points.add(new RefPoint3D(_x, _y, z+0.0000001));
-
+            if (index>0)
+            {
+                addEdge(new RefPoint3D[]{points.get(index), points.get(index-1)});
+            }
+            index++;
         }
-        add(0, 1);
+        addEdge(new RefPoint3D[]{points.get(points.size()-1), points.get(0)});
+        addPoly(getPoly(), c);
+    }
+
+    private RefPoint3D[] getPoly()
+    {
+        RefPoint3D[] poly = new RefPoint3D[points.size()];
+        for (int i=0;i<points.size();i++)
+        {
+            poly[i] = points.get(i);
+        }
+        return poly;
     }
     private void add(int offset, int split)
     {

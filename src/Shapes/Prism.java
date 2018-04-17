@@ -2,10 +2,13 @@ package Shapes;
 
 import java.awt.Color;
 
+import Constraint.ConstraintPair;
+import Constraint.Constraints.VolumeConstraint;
+import GxEngine3D.Model.ForcePoint3D;
 import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.View.ViewHandler;
 
-public class Prism extends BaseShape {
+public class Prism extends ForceShape {
 
 	protected static String name = "Prism";
 	

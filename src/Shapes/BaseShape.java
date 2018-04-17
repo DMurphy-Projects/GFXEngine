@@ -7,18 +7,15 @@ import java.util.ArrayList;
 
 import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.RotationCalc;
-import GxEngine3D.Controller.IManipulatable;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Lighting.StandardLighting;
 import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.View.ViewHandler;
 import Shapes.Split.ISplitStrategy;
-import Shapes.Split.MidPointSplit;
 import Shapes.Split.SplitIntoTriangles;
-import Shapes.Split.SubDivideOnPoint;
 
-public abstract class BaseShape implements IShape, IDrawable, IManipulatable {
+public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
 	protected double x, y, z, width, length, height;
 	double mToX, mToY, mToZ;
@@ -173,6 +170,7 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulatable {
 
 	public void hover(Polygon3D o) {
 		hover = o;
+		hover.get2DPoly().hover();
 	}
 
 	public double[] getRefPoint()

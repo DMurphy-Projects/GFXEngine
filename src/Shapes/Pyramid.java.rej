@@ -1,0 +1,61 @@
+diff a/src/Shapes/Pyramid.java b/src/Shapes/Pyramid.java	(rejected hunks)
+@@ -16,31 +16,37 @@ public class Pyramid extends ForceShape {
+ 
+ 	@Override
+ 	protected void createShape() {
+-		points.add(new RefPoint3D(x, y, z));//front left
+-		points.add(new RefPoint3D(x + width, y, z));//front right
+-		points.add(new RefPoint3D(x, y + height, z));//back left
+-		points.add(new RefPoint3D(x + width, y + height, z));//back right
+-
+-		points.add(new RefPoint3D(x + (width / 2), y + (height / 2), z + length));//top
++		points.add(new RefPoint3D(x, y, z));//0 front left
++		points.add(new RefPoint3D(x + width, y, z));//1 front right
++		points.add(new RefPoint3D(x, y + height, z));//2 back left
++		points.add(new RefPoint3D(x + width, y + height, z));//3 back right
+ 
++		points.add(new RefPoint3D(x + (width / 2), y + (height / 2), z + length));//4 top
+ 
+ 		//base
+-		addEdge(new RefPoint3D[]{points.get(0), points.get(1)});//front 0
+-		addEdge(new RefPoint3D[]{points.get(1), points.get(3)});//right 1
+-		addEdge(new RefPoint3D[]{points.get(2), points.get(3)});//back 2
+-		addEdge(new RefPoint3D[]{points.get(2), points.get(0)});//left 3
+-
+-		addEdge(new RefPoint3D[]{points.get(0), points.get(4)});//front left 4
+-		addEdge(new RefPoint3D[]{points.get(1), points.get(4)});//front right 5
+-		addEdge(new RefPoint3D[]{points.get(2), points.get(4)});//back left 6
+-		addEdge(new RefPoint3D[]{points.get(3), points.get(4)});//back right 7
+-
+-		//polygons
+-		addPoly(new int[]{0, 4, 5}, this.c);//front
+-		addPoly(new int[]{3, 6, 4}, this.c);//left
+-		addPoly(new int[]{6, 2, 7}, this.c);//back
+-		addPoly(new int[]{1, 5, 6}, this.c);//right
+-		addPoly(new int[]{2, 1, 0, 3}, this.c);//base
++		addEdge(new RefPoint3D[]{points.get(0), points.get(1)});//front
++		addEdge(new RefPoint3D[]{points.get(1), points.get(3)});//right
++		addEdge(new RefPoint3D[]{points.get(2), points.get(3)});//back
++		addEdge(new RefPoint3D[]{points.get(2), points.get(0)});//left
++
++		addEdge(new RefPoint3D[]{points.get(0), points.get(4)});//front left
++		addEdge(new RefPoint3D[]{points.get(1), points.get(4)});//front right
++		addEdge(new RefPoint3D[]{points.get(2), points.get(4)});//back left
++		addEdge(new RefPoint3D[]{points.get(3), points.get(4)});//back right
++
++		//clockwise facing object
++		addPoly(new RefPoint3D[]{points.get(0), points.get(4), points.get(1)}, this.c);//front
++		addPoly(new RefPoint3D[]{points.get(3), points.get(4), points.get(2)}, this.c);//back
++		addPoly(new RefPoint3D[]{points.get(2), points.get(4), points.get(0)}, this.c);//left
++		addPoly(new RefPoint3D[]{points.get(1), points.get(4), points.get(3)}, this.c);//right
++		addPoly(new RefPoint3D[]{points.get(0), points.get(1), points.get(3), points.get(2)}, this.c);//base
++
++		//anti clock facing object
++//		addPoly(new RefPoint3D[]{points.get(0), points.get(1), points.get(4)}, this.c);//front
++//		addPoly(new RefPoint3D[]{points.get(2), points.get(4), points.get(3)}, this.c);//back
++//		addPoly(new RefPoint3D[]{points.get(0), points.get(4), points.get(2)}, this.c);//left
++//		addPoly(new RefPoint3D[]{points.get(1), points.get(3), points.get(4)}, this.c);//right
++//		addPoly(new RefPoint3D[]{points.get(2), points.get(3), points.get(1), points.get(0)}, this.c);//base
+ 
+ 		super.createShape();
+ 	}

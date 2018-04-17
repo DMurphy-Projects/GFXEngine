@@ -1,0 +1,85 @@
+diff a/src/Shapes/BaseShape.java b/src/Shapes/BaseShape.java	(rejected hunks)
+@@ -62,14 +59,17 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulatable {
+ 		return polys;
+ 	}
+ 
++
++	public ArrayList<RefPoint3D[]> getEdges() {
++		return edges;
++	}
+ 	public ArrayList<RefPoint3D> getPoints() {
+ 		return points;
+ 	}
+ 
+-	protected void add(RefPoint3D[] d, Color c, int i) {
+-		if (i<0){i=0;}
++	protected void addPoly(RefPoint3D[] d, Color c) {
+ 		// use custom colour
+-		polys.add(i, new Polygon3D(d, c, v, this));
++		polys.add(0, new Polygon3D(d, c, v, this));
+ 		scheduleUpdate();
+ 	}
+ 
+@@ -78,62 +78,6 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulatable {
+ 		edges.add(e);
+ 	}
+ 
+-	protected void addPoly(int[] edgeIndex, Color color)
+-	{
+-		ArrayList<RefPoint3D> poly = new ArrayList<>();
+-		//add the first edge to the order
+-		poly.add(edges.get(edgeIndex[0])[0]);
+-		poly.add(edges.get(edgeIndex[0])[1]);
+-
+-		//we've already done the first one so start at 1
+-		for (int i=1;i<edgeIndex.length-1;i++)
+-		{
+-			RefPoint3D[] edge = edges.get(edgeIndex[i]);
+-			//does it attach at end?
+-			RefPoint3D end = poly.get(poly.size()-1);
+-			if (edge[0].equals(end))
+-			{
+-				poly.add(edge[1]);
+-			}
+-			else if (edge[1].equals(end))
+-			{
+-				poly.add(edge[0]);
+-			}
+-			else//does it attach at start?
+-			{
+-				RefPoint3D start = poly.get(0);
+-				if (edge[0].equals(start))
+-				{
+-					//because we're adding to the start the order is reversed
+-					poly.add(0, edge[1]);
+-				}
+-				else if (edge[1].equals(start))
+-				{
+-					poly.add(0, edge[0]);
+-				}
+-				else
+-				{
+-					//something went wrong and edges are not in a valid state
+-					System.out.println("BaseShape.addPoly: edgeIndex in an invalid order");
+-				}
+-			}
+-		}
+-		RefPoint3D[] pArr = new RefPoint3D[poly.size()];
+-		poly.toArray(pArr);
+-		polys.add(new Polygon3D(pArr, color, v, this));
+-	}
+-
+-//	protected void add(RefPoint3D[] d, Color c) {
+-//		add(d, c,  polys.size());
+-//	}
+-//	protected  void add(RefPoint3D[] d, int i)
+-//	{
+-//		add(d, c, i);
+-//	}
+-//	protected void add(RefPoint3D[] d) {
+-//		add(d, c);// use global colour
+-//	}
+-
+ 	protected void scheduleUpdate()
+ 	{
+ 		if (!mNeedUpdate)
