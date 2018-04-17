@@ -63,7 +63,7 @@ public class Polygon2D {
 			g.setColor(new Color((int) (c.getRed() * lighting), (int) (c
 					.getGreen() * lighting), (int) (c.getBlue() * lighting)));
 			belongsTo.draw(g, P);
-			if (hover) {
+			if (hover && GXController.canHover()) {
 				g.setColor(new Color(255, 255, 255, 100));
 				belongsTo.drawHighlight(g, P);
 			}

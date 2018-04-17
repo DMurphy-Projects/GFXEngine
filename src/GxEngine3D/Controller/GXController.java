@@ -30,7 +30,7 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 	long repaintTime = 0;
 
 	// TODO fix this once polygon splitting happens
-	static boolean outlines = true;
+	static boolean outlines = true, hover = false;
 
 	double moveSpeed = 1;
 
@@ -57,6 +57,10 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 	}
 	public void setup()
 	{
+		if (isKeyPressed())
+		{
+			scene.scheduleRedraw();
+		}
 		CameraMovement(cam.From(), cam.To());
 
 		// Updates each polygon for this camera position, includes draw order
@@ -87,6 +91,18 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 		}
 
 		lastRefresh = System.currentTimeMillis();
+	}
+
+	private boolean isKeyPressed()
+	{
+		for (boolean b:keys)
+		{
+			if (b)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void CameraMovement(double[] from, double[] to) {
@@ -181,6 +197,10 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 	{
 		return outlines;
 	}
+	public static boolean canHover()
+	{
+		return hover;
+	}
 
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
@@ -204,6 +224,5 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		// TODO Auto-generated method stub
 	}
 }

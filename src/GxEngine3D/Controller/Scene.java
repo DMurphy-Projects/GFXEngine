@@ -21,7 +21,6 @@ public class Scene extends SplitManager implements ICameraEventListener{
 	private int[] mNewOrder = new int[0];
 	private int orderPos = 0;
 
-	private Polygon2D PolygonOver = null;
 	private Camera cam;
 	
 	Light lightSource;
@@ -106,15 +105,12 @@ public class Scene extends SplitManager implements ICameraEventListener{
 	}
 
 	private void setPolyHover() {
-		PolygonOver = null;
 		Polygon3D dp;
 			for (int i = polygons.size()-1; i >= 0; i--) {
 			dp = polygons.get(mNewOrder[i]);
 			if (dp.canDraw())
 				if (dp.get2DPoly().MouseOver()) {
-					PolygonOver = dp.get2DPoly();
 					dp.getBelongsTo().hover(dp);
-					dp.get2DPoly().hover();
 					break;
 				}
 		}
