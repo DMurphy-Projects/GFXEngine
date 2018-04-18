@@ -40,12 +40,18 @@ public class Screen extends JPanel {
 		g.fillRect(0, 0, (int) getWidth(), (int) getHeight());
 
 		//draws polygons
-		Polygon2D pO;
-		pO = scene.nextPolygon();
-		while (pO != null) {
-			pO.drawPolygon(g);
-			pO = scene.nextPolygon();
+		PolygonIterator it = scene.getIterator();
+		while(it.hasNext())
+		{
+			Polygon2D p = it.next().get2DPoly();
+			p.drawPolygon(g);
 		}
+//		Polygon2D pO;
+//		pO = scene.nextPolygon();
+//		while (pO != null) {
+//			pO.drawPolygon(g);
+//			pO = scene.nextPolygon();
+//		}
 
 		// draw the cross in the centre of the screen
 		drawMouseAim(g);

@@ -12,6 +12,7 @@ import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.*;
 import GxEngine3D.Ordering.IOrderStrategy;
 import GxEngine3D.Ordering.OrderPolygon;
+import GxEngine3D.View.PolygonIterator;
 import Shapes.IShape;
 
 public class Scene extends SplitManager implements ICameraEventListener{
@@ -21,15 +22,12 @@ public class Scene extends SplitManager implements ICameraEventListener{
 	private ArrayList<Polygon3D> polygons = new ArrayList<Polygon3D>();
 	private ArrayList<Polygon3D> splitPolygons = new ArrayList<>();
 
-	private int[] mNewOrder = new int[0];
-	private int orderPos = 0;
-
 	private Camera cam;
 	
 	Light lightSource;
 	IOrderStrategy orderStrategy;
 
-	private boolean mNeedReDraw = true;
+	private boolean mNeedReDraw = true, needsUpdate = false;
 	
 	public Scene(Camera c, Light ls, double size) {
 		super(size);
@@ -37,6 +35,16 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		cam.add(this);
 		lightSource = ls;
 		orderStrategy = new OrderPolygon();
+	}
+
+	public void scheduleUpdate()
+	{
+		if (!needsUpdate)
+		{
+			needsUpdate = true;
+			//if we're changing the polygons we should redraw them
+			scheduleRedraw();
+		}
 	}
 
 	public void scheduleRedraw()
@@ -47,17 +55,10 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		}
 	}
 
-	private void addPolygons(IShape s)
-	{
-		for (Polygon3D dp : s.getShape()) {
-			polygons.add(dp);
-		}
-		scheduleRedraw();
-	}
 	public void addObject(IShape s) {
 		this.scheduleSplit();
 		shapes.add(s);
-		scheduleRedraw();
+		scheduleUpdate();
 	}
 	
 	public ArrayList<IShape> getShapes()
@@ -65,56 +66,57 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		return (ArrayList<IShape>) shapes.clone();
 	}
 
-	//TODO
-	//polygons are being redone while still drawing
-	public Polygon2D nextPolygon() {
-		if (orderPos > mNewOrder.length - 1)
-			return null;
-		Polygon2D d = splitPolygons.get(mNewOrder[orderPos]).get2DPoly();
-		orderPos++;
-		return d;
+	public PolygonIterator getIterator()
+	{
+		//we only need to order the polygons when we're about to draw them instead of every time we update the polygons
+		ArrayList<Polygon3D> copy = (ArrayList<Polygon3D>) splitPolygons.clone();
+		int[] o = orderStrategy.order(cam.From(), copy);
+		setPolyHover(copy, o);
+		return new PolygonIterator(copy, o);
 	}
 	
 	public void update() {
-		boolean redraw = mNeedReDraw;
+		boolean redraw = mNeedReDraw, update = needsUpdate;
 		mNeedReDraw = false;
-		cam.setup();
-		lightSource.updateLighting();
-		if (redraw){
+		needsUpdate = false;
+		if (update){
+			//somethings changed but we don't know what, either:
+			//-a shape was added
+			//-(future)a shape was removed
 			polygons.clear();
+			for (IShape s : shapes) {
+				for (Polygon3D p : s.getShape()) {
+					polygons.add(p);
+				}
+			}
 		}
 		//polygons being redrawn is based on whether they've changed onscreen
 		//this can happen either:
 		//-moving the camera
 		//-moving the polygon
-		//so we still need to update polygon incase its trying to move
-		for (IShape s : shapes)
-		{
-			s.update();
-			if (redraw) {
-				for (Polygon3D p : s.getShape()) {
-					//TODO
-					//why are we doing this again?
-					polygons.add(p);
-				}
+		//so we still need to update polygon in case its trying to move
+		if (redraw) {
+			for (IShape s : shapes)
+			{
+				s.update();
 			}
 		}
-		updateSplitting();
-		for (Polygon3D poly:splitPolygons)
-		{
-			poly.updatePolygon(cam, lightSource);
+		if (update) {
+			updateSplitting();
 		}
-		orderPos = 0;
 		if (redraw) {
-			mNewOrder = orderStrategy.order(cam.From(), splitPolygons);
+			cam.setup();
+			lightSource.updateLighting();
+			for (Polygon3D poly : splitPolygons) {
+				poly.updatePolygon(cam, lightSource);
+			}
 		}
-		setPolyHover();
 	}
 
-	private void setPolyHover() {
+	private void setPolyHover(ArrayList<Polygon3D> polys, int[] order) {
 		Polygon3D dp;
-		for (int i = splitPolygons.size()-1; i >= 0; i--) {
-		dp = splitPolygons.get(mNewOrder[i]);
+		for (int i = polys.size()-1; i >= 0; i--) {
+		dp = polys.get(order[i]);
 		if (dp.canDraw())
 			if (dp.get2DPoly().MouseOver()) {
 				dp.getBelongsTo().hover(dp);
@@ -126,7 +128,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 	@Override
 	public void updateSplitting() {
 		splitPolygons = (ArrayList<Polygon3D>) polygons.clone();
-
+//		System.out.println("S "+splitPolygons.size());
 		for (int i=0;i<splitPolygons.size();i++)
 		{
 			//find line intersection between the planes
@@ -157,12 +159,13 @@ public class Scene extends SplitManager implements ICameraEventListener{
 						SplittingPackage[] line02 = splitPolygon(p2, m);
 						if (line02 != null) {
 							//if both exist, then split p1, p2
-							Polygon3D[] splits = p1.splitAlong(line);
+							//TODO splits are generating polygons that are the same as the original
+							Polygon3D[] splits01 = p1.splitAlong(line);
 							Polygon3D[] splits02 = p2.splitAlong(line02);
 							splitPolygons.remove(i);
 							splitPolygons.remove(ii-1);//since we removed i, we need to adjust ii by 1 also
-							for (Polygon3D p : splits) {
-								splitPolygons.add(p);
+							for (Polygon3D p : splits01) {
+								splitPolygons.add(i, p);
 							}
 							i--;//since we removed the plane we split, we need to adjust the first iterator
 							for (Polygon3D p:splits02)
@@ -176,6 +179,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 			}
 			if (splitPolygons.size() > 100) break;
 		}
+//		System.out.println("E "+splitPolygons.size());
 	}
 
 	private boolean linesIntersects(SplittingPackage[] line01, SplittingPackage[] line02)
