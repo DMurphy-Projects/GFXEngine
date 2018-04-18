@@ -1,5 +1,7 @@
 package GxEngine3D.Lighting;
 
+import GxEngine3D.CalculationHelper.DistanceCalc;
+import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Vector;
@@ -8,21 +10,29 @@ import GxEngine3D.Model.Vector;
  * Created by Dean on 29/12/16.
  */
 public class StandardLighting implements ILightingStrategy {
+    //this seems to work but may be mathematically incorrect
     @Override
     public double doLighting(Light l, Plane lightingPlane, Camera c) {
         //get which side of the lightingPlane te camera is on
         //light vector is direction towards plane
         //so finding which side the camera is on tells us if the light is behind or infront of the plan we're
         //looking at
-        Vector nVector = lightingPlane.getNV(c.position());
+        double[] nVector = lightingPlane.getNV(c.position()).toArray();
+        nVector = VectorCalc.norm_v3(nVector);
 
-        Vector lightVector = l.getLightVector(lightingPlane.getP());
-        double angle = Math.acos(nVector.dot(lightVector));
-
-        //DrawablePolygon.lighting = 0.2 + 1 - Math.sqrt(angle / Math.PI);
-        double lighting = (120 + (Math.cos(angle) * 90)) / 255;
-        //clamp lighting just in case
-
-        return lighting;
+        double[] lightVector = l.getLightVector(lightingPlane.getP());
+        double lighting = VectorCalc.dot_v3v3(nVector, lightVector);
+        //get a factor to modify the lightning value with
+        //uses inverse square law
+        double dist = DistanceCalc.getDistanceNoRoot(l.lightPos, lightingPlane.getP());
+        double factor = 1d / Math.pow(dist / l.getBrightness() , 2);
+        //the factor will make the bright brighter and the dark darker
+        lighting *= factor;
+        //if its brighter than it can get, then clamp to max brightness
+        if (lighting > 1)
+            lighting = 1;
+        else if (lighting < -1)
+            lighting = -1;
+        return 0.5d+(lighting/2);
     }
 }

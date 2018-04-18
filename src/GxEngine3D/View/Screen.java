@@ -46,18 +46,9 @@ public class Screen extends JPanel {
 			Polygon2D p = it.next().get2DPoly();
 			p.drawPolygon(g);
 		}
-//		Polygon2D pO;
-//		pO = scene.nextPolygon();
-//		while (pO != null) {
-//			pO.drawPolygon(g);
-//			pO = scene.nextPolygon();
-//		}
 
 		// draw the cross in the centre of the screen
 		drawMouseAim(g);
-
-		// FPS display
-		//g.drawString("FPS: " + (int) drawFPS + " (Benchmark)", 40, 40);
 	}
 
 	public void paintComponent(Graphics g) {

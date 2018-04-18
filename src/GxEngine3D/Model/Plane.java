@@ -46,7 +46,7 @@ public class Plane {
 
 	public boolean isTowards(double[] point)
 	{
-		return new Vector(VectorCalc.sub_v3v3(this.point, point)).dot(getNV()) < 0;
+		return VectorCalc.dot_v3v3(VectorCalc.sub_v3v3(this.point, point), getNV().toArray()) > 0;
 	}
 
 

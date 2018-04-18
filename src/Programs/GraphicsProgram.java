@@ -28,28 +28,29 @@ public class GraphicsProgram {
 	public static void main(String[] args) {
 		final ViewHandler vH = new ViewHandler();
 
-		double[] lightLocation = {0, 0, 0};
+		double[] lightLocation = {0, 0, 4};
 
 		final Camera camera = new Camera(5, 5, 20, vH);
 		Line ln = new Line(0, 0, 0, lightLocation[0], lightLocation[1], lightLocation[2], vH);
-		Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 1, ln);
+		Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, ln);
 
 		final Scene scene = new Scene(camera, ls, 0);
+		scene.addObject(ln);//shows where the light is, not where its actually shining
 
 		Screen panel = new Screen(scene);
 		panel.setPreferredSize(new Dimension(500, 500));
 		
 		vH.setPanel(panel);
 
-//		Cube cube = new Cube(1, 1, 1, 1, 1, 1, Color.WHITE, vH);
+		Cube cube = new Cube(1, 1, 1, 1, 1, 1, Color.RED, vH);
 //		scene.addObject(cube);
 
 		//testing for matrix plane intersections
-		Sqaure sq01 = new Sqaure(0, 0, 1.5, 2, Color.white, vH);
+		Sqaure sq01 = new Sqaure(0, 0, 1, 2, Color.BLUE, vH);
 		sq01.yaw(Math.toRadians(45));
 		scene.addObject(sq01);
 
-		Sqaure sq02 = new Sqaure(0, 0.5, 1.5, 1, Color.white, vH);
+		Sqaure sq02 = new Sqaure(1, 2, 1, 1, Color.GREEN, vH);
 		sq02.pitch(Math.toRadians(90));
 		scene.addObject(sq02);
 

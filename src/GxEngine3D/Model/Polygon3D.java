@@ -21,7 +21,7 @@ public class Polygon3D {
 
 	BaseShape belongsTo;
 
-	double[] cen;
+	double[] cen;//is now centre of polygon not centre of object
 	
 	public Polygon3D(RefPoint3D[] shape, Color c,
                      ViewHandler v, BaseShape bTo) {
@@ -31,7 +31,17 @@ public class Polygon3D {
 		belongsTo = bTo;
 		createPolygon();
 
-		cen = belongsTo.getRefPoint();
+		double avX = 0, avY = 0, avZ = 0;
+		for (RefPoint3D p : shape) {
+			avX += p.X();
+			avY += p.Y();
+			avZ += p.Z();
+		}
+
+		avX /= shape.length;
+		avY /= shape.length;
+		avZ /= shape.length;
+		cen = new double[]{avX, avY, avZ};
 	}
 
 	void createPolygon() {
@@ -61,7 +71,9 @@ public class Polygon3D {
 
 		screenPoly.draw = draw;
 		if (draw) {
-			screenPoly.lighting = belongsTo.getLighting().doLighting(l, new Plane(this), c);
+			Plane lPlane = new Plane(this);
+			lPlane.setP(cen);
+			screenPoly.lighting = belongsTo.getLighting().doLighting(l, lPlane, c);
 			screenPoly.updatePolygon(newX, newY);
 		}
 	}

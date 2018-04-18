@@ -1,5 +1,6 @@
 package Shapes;
 
+import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Lighting.Light;
@@ -22,9 +23,9 @@ public class FakeSphere extends Circle {
             public double doLighting(Light l, Plane p, Camera c) {
                 //lighting on a sphere is equiv to lighting on a plane always facing camera
                 p = new Plane(c.W1, c.W2, p.getP());
-                Vector lightVector = l.getLightVector(p.getP());
+                double[] lightVector = l.getLightVector(p.getP());
 
-                double angle = Math.acos(p.getNV().dot(lightVector));
+                double angle = Math.acos(VectorCalc.dot_v3v3(p.getNV().toArray(), lightVector));
                 double lighting = (120 + (Math.cos(angle) * 90)) / 255;
                 if (lighting > 1)
                     lighting = 1;

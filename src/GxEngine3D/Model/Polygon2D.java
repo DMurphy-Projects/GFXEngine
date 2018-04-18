@@ -60,8 +60,9 @@ public class Polygon2D {
 
 	public void drawPolygon(Graphics g) {
 		if (draw) {
-			g.setColor(new Color((int) (c.getRed() * lighting), (int) (c
-					.getGreen() * lighting), (int) (c.getBlue() * lighting)));
+			//to edit brightness directly convert to hsb
+			float[] temp = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), new float[3]);
+			g.setColor(new Color(Color.HSBtoRGB(temp[0], temp[1], (float) lighting)));
 			belongsTo.draw(g, P);
 			if (hover && GXController.canHover()) {
 				g.setColor(new Color(255, 255, 255, 100));
