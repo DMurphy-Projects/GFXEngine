@@ -100,7 +100,7 @@ public class VectorCalc {
 		};
 		//nV . (p-p0) becomes
 		//nV.x * (p.x-p0.x), etc
-		//p.x is a point we dont know and doesnt matter what the actual values are, only that it lies on the plane
+		//p.x is a point we dont know and doesn't matter what the actual values are, only that it lies on the plane
 		for (int i=0;i<3;i++)
 		{
 			pointForm[3] -= nV[i]*(-p[i]);
@@ -108,7 +108,7 @@ public class VectorCalc {
 		return pointForm;
 	}
 
-	public static boolean v3_v3_eqauls(double[] v1, double[] v2)
+	public static boolean v3_v3_equals(double[] v1, double[] v2)
 	{
 		v1 = norm_v3(v1);
 		v2 = norm_v3(v2);
@@ -122,13 +122,25 @@ public class VectorCalc {
 		return true;
 	}
 
-	//works but not great as it needs roots
+	public static boolean v3_is_null(double[] v)
+	{
+		for (int i=0;i<3;i++)
+		{
+			if (Math.abs(v[i]) > epsilon)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//https://www.lucidarme.me/check-if-a-point-belongs-on-a-line-segment/
 	public static boolean p3_in_line_seg(double[] l0, double[] l1, double[] p)
 	{
 		double[] v0 = VectorCalc.sub_v3v3(l0, l1);
 		double[] v1 = VectorCalc.sub_v3v3(l0, p);
 		double[] cross = VectorCalc.cross(v0, v1);
-		if (Math.abs(cross[0] + cross[1] + cross[2]) > epsilon)
+		if (!v3_is_null(cross))
 		{
 			return false;
 		}

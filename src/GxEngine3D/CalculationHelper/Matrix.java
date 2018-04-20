@@ -368,6 +368,24 @@ public class Matrix {
         return solution;
     }
 
+    public boolean satisfiesEquation(double[] values)
+    {
+        for (int i=0;i<m;i++)
+        {
+            double sum = matrix[i][n-1];
+            for (int ii=0;ii<n-1;ii++)
+            {
+                sum -= matrix[i][ii] * values[ii];
+            }
+            if (Math.abs(sum) > epsilon)
+            {
+                //if the point satisfies the eq, then the sum should be 0 or "0"
+                return false;
+            }
+        }
+        return true;
+    }
+
     public double[] getPointSolution()
     {
         if (solutionType == SolutionType.POINT)

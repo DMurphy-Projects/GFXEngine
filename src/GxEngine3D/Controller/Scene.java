@@ -7,7 +7,7 @@ import GxEngine3D.CalculationHelper.PlaneCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Camera.ICameraEventListener;
-import GxEngine3D.Controller.SplitManager;
+import GxEngine3D.DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.*;
 import GxEngine3D.Ordering.IOrderStrategy;
@@ -128,7 +128,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 	@Override
 	public void updateSplitting() {
 		splitPolygons = (ArrayList<Polygon3D>) polygons.clone();
-//		System.out.println("S "+splitPolygons.size());
+		TextOutput.println("Start "+splitPolygons.size());
 		for (int i=0;i<splitPolygons.size();i++)
 		{
 			//find line intersection between the planes
@@ -140,11 +140,17 @@ public class Scene extends SplitManager implements ICameraEventListener{
 			//items behind i have been entirely checked so no need to keep checking them
 			for (int ii=i+1;ii<copy.size();ii++)
 			{
+				TextOutput.println("Split Index "+i+" "+ii);
 				Polygon3D p2 = copy.get(ii);
 				if (p2.getShape().length <= 2) continue;
 				Plane plane02 = new Plane(p2);
 				//the same planes can have extremely small differences that the matrix see's them as different planes
-				if (VectorCalc.v3_v3_eqauls(plane01.getNV().toArray(), plane02.getNV().toArray())) continue;
+				//technically we should also check their points but if they are parallel thenno split really makes sense
+				if (VectorCalc.v3_v3_equals(plane01.getNV().toArray(), plane02.getNV().toArray()))
+				{
+					TextOutput.println("Is same plane");
+					continue;
+				}
 				Matrix m = new Matrix(2, 4);
 				m.addEqautionOfPlane(plane01);
 				m.addEqautionOfPlane(plane02);
@@ -158,28 +164,75 @@ public class Scene extends SplitManager implements ICameraEventListener{
 						//find the point intersection for the other poly
 						SplittingPackage[] line02 = splitPolygon(p2, m);
 						if (line02 != null) {
-							//if both exist, then split p1, p2
-							//TODO splits are generating polygons that are the same as the original
-							Polygon3D[] splits01 = p1.splitAlong(line);
-							Polygon3D[] splits02 = p2.splitAlong(line02);
-							splitPolygons.remove(i);
-							splitPolygons.remove(ii-1);//since we removed i, we need to adjust ii by 1 also
-							for (Polygon3D p : splits01) {
-								splitPolygons.add(i, p);
-							}
-							i--;//since we removed the plane we split, we need to adjust the first iterator
-							for (Polygon3D p:splits02)
+							//we don't always want to add both splits, sometimes it will split on an already existing edge thus generating an identical polygon
+							boolean b1 = !alreadyExists(line, p1), b2 = !alreadyExists(line02, p2);
+							TextOutput.println("b1: "+b1+" b2: "+b2);
+							if (b1)
 							{
-								splitPolygons.add(p);
+								Polygon3D[] splits01 = p1.splitAlong(line);
+								splitPolygons.remove(i);
+								for (Polygon3D p : splits01) {
+									splitPolygons.add(i, p);
+								}
 							}
-							break;//we split the polygon and it no longer exists so this iteration needs to stop
+							if (b2)
+							{
+								Polygon3D[] splits02 = p2.splitAlong(line02);
+								if (!b1)
+								{
+									splitPolygons.remove(ii);
+								}
+								else
+								{
+									splitPolygons.remove(ii+1);//removes i then adds 2, so -1 + 2 == +1
+								}
+								for (Polygon3D p:splits02)
+								{
+									splitPolygons.add(p);
+								}
+							}
+							if (b1 || b2) {
+								TextOutput.println("Split done");
+								i--;
+								break;//we split the polygon and it no longer exists so this iteration needs to stop
+							}
+						}
+						else
+						{
+							TextOutput.println("Line02 is null");
 						}
 					}
+					else
+					{
+						TextOutput.println("Line01 is null");
+					}
+				}
+				else
+				{
+					TextOutput.println("Not a Line Solution: "+m.getSolutionType());
 				}
 			}
+
+			//while in WIP
 			if (splitPolygons.size() > 100) break;
 		}
-//		System.out.println("E "+splitPolygons.size());
+		TextOutput.println("End "+splitPolygons.size());
+	}
+
+	private boolean alreadyExists(SplittingPackage[] pack, Polygon3D poly)
+	{
+		RefPoint3D[] shape = poly.getShape();
+		int i, j;
+		for (i = 0, j = shape.length-1; i < shape.length; j = i++)
+		{
+			Matrix line = new Matrix(2, 4);
+			line.addEqautionOfLine(shape[i].toArray(), shape[j].toArray());
+			if (line.satisfiesEquation(pack[0].getPoint()) && line.satisfiesEquation(pack[1].getPoint()))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private boolean linesIntersects(SplittingPackage[] line01, SplittingPackage[] line02)
@@ -201,6 +254,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		return side != 0;
 	}
 
+	//TODO kind of a mess
 	private SplittingPackage[] splitPolygon(Polygon3D poly, Matrix lineIntersect)
 	{
 		RefPoint3D[] shape = poly.getShape();
@@ -254,7 +308,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		}
 		else
 		{
-			//there was no intersect
+			//there was no useful intersect
 			return null;
 		}
 	}

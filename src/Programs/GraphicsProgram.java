@@ -5,6 +5,7 @@ import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Controller.GXController;
 import GxEngine3D.Controller.Scene;
+import GxEngine3D.DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.RefPoint3D;
@@ -26,6 +27,8 @@ import java.util.Iterator;
 public class GraphicsProgram {
 
 	public static void main(String[] args) {
+		TextOutput.setDebug(false);
+
 		final ViewHandler vH = new ViewHandler();
 
 		double[] lightLocation = {0, 0, 4};
@@ -35,24 +38,24 @@ public class GraphicsProgram {
 		Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, ln);
 
 		final Scene scene = new Scene(camera, ls, 0);
-		scene.addObject(ln);//shows where the light is, not where its actually shining
+//		scene.addObject(ln);//shows where the light is, not where its actually shining
 
 		Screen panel = new Screen(scene);
 		panel.setPreferredSize(new Dimension(500, 500));
 		
 		vH.setPanel(panel);
 
-		Cube cube = new Cube(1, 1, 1, 1, 1, 1, Color.RED, vH);
-//		scene.addObject(cube);
-
 		//testing for matrix plane intersections
-		Sqaure sq01 = new Sqaure(0, 0, 1, 2, Color.BLUE, vH);
+		Sqaure sq01 = new Sqaure(0, 0, 1.5, 10, Color.BLUE, vH);
 		sq01.yaw(Math.toRadians(45));
 		scene.addObject(sq01);
 
+		Cube cube = new Cube(1, 1, 1, 1, 1, 1, Color.RED, vH);
+		scene.addObject(cube);
+
 		Sqaure sq02 = new Sqaure(1, 2, 1, 1, Color.GREEN, vH);
 		sq02.pitch(Math.toRadians(90));
-		scene.addObject(sq02);
+//		scene.addObject(sq02);
 
 //		Sqaure sq03 = new Sqaure(0, 0, 2, 5, Color.white, vH);
 //		sq03.roll(Math.toRadians(90));

@@ -90,11 +90,11 @@ public class PlaneCalc {
 
         double[] noise01 = new double[]{1, 1, 0};
         double[] noise02 = new double[]{0, 1, 1};
-        if (VectorCalc.v3_v3_eqauls(v1, noise01))
+        if (VectorCalc.v3_v3_equals(v1, noise01))
         {
             noise01 = new double[]{1, 0, 1};
         }
-        else if(VectorCalc.v3_v3_eqauls(v1, noise02))
+        else if(VectorCalc.v3_v3_equals(v1, noise02))
         {
             noise02 = new double[]{1, 0, 1};
         }
@@ -108,7 +108,7 @@ public class PlaneCalc {
     {
         double[] v1 = VectorCalc.sub_v3v3(p1, p2);
         double[] noise01 = new double[]{1, 1, 0};
-        if (VectorCalc.v3_v3_eqauls(v1, noise01))
+        if (VectorCalc.v3_v3_equals(v1, noise01))
         {
             noise01 = new double[]{1, 0, 1};
         }

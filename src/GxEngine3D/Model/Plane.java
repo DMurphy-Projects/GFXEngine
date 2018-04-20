@@ -21,7 +21,7 @@ public class Plane {
 					- p[0].Z());
 			v2 = new Vector(p[2].X() - p[0].X(), p[2].Y() - p[0].Y(), p[2].Z()
 					- p[0].Z());
-			setNV(v1.crossProduct(v2));
+			normalVector = new Vector(VectorCalc.norm_v3(VectorCalc.cross(v1.toArray(), v2.toArray())));
 		}
 	}
 
@@ -32,7 +32,7 @@ public class Plane {
 
 		v2 = VE2;
 
-		setNV(v1.crossProduct(v2));
+		normalVector = new Vector(VectorCalc.norm_v3(VectorCalc.cross(v1.toArray(), v2.toArray())));
 	}
 
 	public Vector getV1()

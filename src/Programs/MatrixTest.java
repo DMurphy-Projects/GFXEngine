@@ -3,10 +3,7 @@ package Programs;
 import GxEngine3D.CalculationHelper.Matrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Model.Plane;
-import GxEngine3D.Model.Polygon3D;
-import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.Model.Vector;
-import Shapes.Cube;
 import Shapes.Shape2D.Sqaure;
 
 import java.awt.*;
@@ -24,17 +21,21 @@ public class MatrixTest {
 
         double[] p1 = new double[]{1, 1, -10};
         double[] p2 = new double[]{1, 1, 10};
+
+        VectorCalc.p3_in_line_seg(p1, p2, p1);
+        VectorCalc.p3_in_line_seg(p1, p2, p2);
+
         double[] v1 = VectorCalc.sub_v3v3(p1, p2);
-        v1 = new double[]{0, 1, 1};
+
         double[] noise01 = new double[]{1, 1, 0};
         double[] noise02 = new double[]{0, 1, 1};
         double[] noise03 = new double[]{1, 0, 1};
-        if (VectorCalc.v3_v3_eqauls(v1, noise01))
+        if (VectorCalc.v3_v3_equals(v1, noise01))
         {
             System.out.println("v1 same as n1");
             noise01 = noise03;
         }
-        if(VectorCalc.v3_v3_eqauls(v1, noise02))
+        if(VectorCalc.v3_v3_equals(v1, noise02))
         {
             System.out.println("v1 same as n2");
             noise02 = noise03;
@@ -49,14 +50,25 @@ public class MatrixTest {
         double[] planeEq1 = VectorCalc.plane_v3_pointForm(plane1.getNV().toArray(), plane1.getP());
         double[] planeEq2 = VectorCalc.plane_v3_pointForm(plane2.getNV().toArray(), plane2.getP());
 
-        Matrix m = new Matrix(3, 4);
-        m.addEqaution(planeEq0);
+        Matrix m = new Matrix(2, 4);
         m.addEqaution(planeEq1);
         m.addEqaution(planeEq2);
+
 
         System.out.println(m);
         m.gaussJordandElimination();
         System.out.println(m);
-
+        m.determineSolution();
+        if (m.getSolutionType() == Matrix.SolutionType.LINE)
+        {
+            if (m.satisfiesEquation(p1))
+            {
+                System.out.println("True");
+            }
+            else
+            {
+                System.out.println("False");
+            }
+        }
     }
 }
