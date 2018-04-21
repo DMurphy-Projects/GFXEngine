@@ -1,7 +1,7 @@
 package GxEngine3D.CalculationHelper;
 
+import DebugTools.TextOutput;
 import GxEngine3D.Model.Plane;
-import GxEngine3D.Model.Vector;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,7 +11,6 @@ public class Matrix {
     double[][] matrix;
     int m, n, curM = 0;
     double epsilon = 1e-10;
-    boolean debug = false;
 
     public enum SolutionType
     {
@@ -66,12 +65,12 @@ public class Matrix {
     {
         if (e.length > n)
         {
-            System.out.println("Eqaution in wrong format for this "+m+" by "+n+" matrix");
+            TextOutput.println("Eqaution in wrong format for this "+m+" by "+n+" matrix", 0);
         }
         else
         {
             if (curM > m) {
-                System.out.println("Exceeds matrix length");
+                TextOutput.println("Exceeds matrix length", 0);
             }
             else
             {
@@ -88,10 +87,8 @@ public class Matrix {
         {
             newRow[i] = matrix[m][i] * v;
         }
-        if (debug) {
-            System.out.println("Scale");
-            System.out.println(this);
-        }
+        TextOutput.println("Scale", 1);
+        TextOutput.println(this, 2);
         return newRow;
     }
 
@@ -102,10 +99,8 @@ public class Matrix {
         {
             newRow[i] = matrix[m][i] + v;
         }
-        if (debug) {
-            System.out.println("Add Constant");
-            System.out.println(this);
-        }
+        TextOutput.println("Add Constant", 1);
+        TextOutput.println(this, 2);
         return newRow;
     }
 
@@ -116,10 +111,8 @@ public class Matrix {
         {
             newRow[i] = matrix[m][i] + _matrix[i];
         }
-        if (debug) {
-            System.out.println("Add Matrix");
-            System.out.println(this);
-        }
+        TextOutput.println("Add Matrix", 1);
+        TextOutput.println(this, 2);
         return newRow;
     }
 
@@ -141,19 +134,14 @@ public class Matrix {
             }
             col++;
         }while(col < m && col < n);
-        if (debug) {
-            System.out.println("Swap");
-            System.out.println(this);
-        }
+        TextOutput.println("Swap", 1);
+        TextOutput.println(this, 2);
     }
 
     public void gaussianElimination()
     {
-        if (debug)
-        {
-            System.out.println("Gaussian Elimination");
-            System.out.println(this);
-        }
+        TextOutput.println("Gaussian Elimination", 1);
+        TextOutput.println(this, 2);
         //this may need to happen after every pivot
         swapOrdering();
         for (int i=0;i<m;i++)
@@ -164,9 +152,7 @@ public class Matrix {
                 if (matrix[i][ii] == 0) continue;//if 0 we skip
                 if (matrix[i][ii] != 1) //if 1 we dont need to change to 1
                 {
-                    if (debug) {
-                        System.out.println("Set to 1");
-                    }
+                    TextOutput.println("Set to 1", 1);
                     //turn it to a 1
                     double scale = 1d / matrix[i][ii];
                     matrix[i] = scale(i, scale);
@@ -214,11 +200,8 @@ public class Matrix {
             }
         }
         cullSmallValues();
-        if (debug)
-        {
-            System.out.println("GJ Cull");
-            System.out.println(this);
-        }
+        TextOutput.println("GJ Cull", 1);
+        TextOutput.println(this, 2);
     }
 
     public void determineSolution()
@@ -283,6 +266,11 @@ public class Matrix {
         {
             solutionType = SolutionType.HIGHER_DIMENSION;
         }
+        else
+        {
+            TextOutput.println("Unknown solution type", 0);
+            solutionType = SolutionType.UNDEFINED;
+        }
     }
 
 
@@ -290,7 +278,7 @@ public class Matrix {
         return solutionType;
     }
 
-    private double[] solveViaBacksubstitution()
+    private double[] solveViaBackSubstitution()
     {
         double[] solution = new double[n-1];
         boolean[] sRef = new boolean[n-1];
@@ -390,18 +378,15 @@ public class Matrix {
     {
         if (solutionType == SolutionType.POINT)
         {
-            return solveViaBacksubstitution();
+            return solveViaBackSubstitution();
         }
-        if (debug)
-        {
-            System.out.println("Matrix - Incorrect type Solution");
-        }
+        TextOutput.println("Incorrect type Solution", 0);
         return null;
     }
 
     @Override
     public String toString() {
-        String s = "";
+        String s = "\n";
         for (int i=0;i<m;i++)
         {
             for (int ii=0;ii<n;ii++)
@@ -411,11 +396,6 @@ public class Matrix {
             s += "\n";
         }
         return s;
-    }
-
-    public void setDebug(boolean d)
-    {
-        debug = d;
     }
 
     public int getRows()

@@ -7,7 +7,7 @@ import GxEngine3D.CalculationHelper.PlaneCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Camera.ICameraEventListener;
-import GxEngine3D.DebugTools.TextOutput;
+import DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.*;
 import GxEngine3D.Ordering.IOrderStrategy;
@@ -128,7 +128,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 	@Override
 	public void updateSplitting() {
 		splitPolygons = (ArrayList<Polygon3D>) polygons.clone();
-		TextOutput.println("Start "+splitPolygons.size());
+		TextOutput.println("Start "+splitPolygons.size(), 1);
 		for (int i=0;i<splitPolygons.size();i++)
 		{
 			//find line intersection between the planes
@@ -140,7 +140,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 			//items behind i have been entirely checked so no need to keep checking them
 			for (int ii=i+1;ii<copy.size();ii++)
 			{
-				TextOutput.println("Split Index "+i+" "+ii);
+				TextOutput.println("Split Index "+i+" "+ii, 1);
 				Polygon3D p2 = copy.get(ii);
 				if (p2.getShape().length <= 2) continue;
 				Plane plane02 = new Plane(p2);
@@ -148,7 +148,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 				//technically we should also check their points but if they are parallel thenno split really makes sense
 				if (VectorCalc.v3_v3_equals(plane01.getNV().toArray(), plane02.getNV().toArray()))
 				{
-					TextOutput.println("Is same plane");
+					TextOutput.println("Is same plane", 1);
 					continue;
 				}
 				Matrix m = new Matrix(2, 4);
@@ -166,7 +166,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 						if (line02 != null) {
 							//we don't always want to add both splits, sometimes it will split on an already existing edge thus generating an identical polygon
 							boolean b1 = !alreadyExists(line, p1), b2 = !alreadyExists(line02, p2);
-							TextOutput.println("b1: "+b1+" b2: "+b2);
+							TextOutput.println("b1: "+b1+" b2: "+b2, 1);
 							if (b1)
 							{
 								Polygon3D[] splits01 = p1.splitAlong(line);
@@ -192,31 +192,31 @@ public class Scene extends SplitManager implements ICameraEventListener{
 								}
 							}
 							if (b1 || b2) {
-								TextOutput.println("Split done");
+								TextOutput.println("Split done", 1);
 								i--;
 								break;//we split the polygon and it no longer exists so this iteration needs to stop
 							}
 						}
 						else
 						{
-							TextOutput.println("Line02 is null");
+							TextOutput.println("Line02 is null", 1);
 						}
 					}
 					else
 					{
-						TextOutput.println("Line01 is null");
+						TextOutput.println("Line01 is null", 1);
 					}
 				}
 				else
 				{
-					TextOutput.println("Not a Line Solution: "+m.getSolutionType());
+					TextOutput.println("Not a Line Solution: "+m.getSolutionType(), 1);
 				}
 			}
 
 			//while in WIP
 			if (splitPolygons.size() > 100) break;
 		}
-		TextOutput.println("End "+splitPolygons.size());
+		TextOutput.println("End "+splitPolygons.size(), 1);
 	}
 
 	private boolean alreadyExists(SplittingPackage[] pack, Polygon3D poly)
@@ -233,25 +233,6 @@ public class Scene extends SplitManager implements ICameraEventListener{
 			}
 		}
 		return false;
-	}
-
-	private boolean linesIntersects(SplittingPackage[] line01, SplittingPackage[] line02)
-	{
-		boolean b1 = VectorCalc.p3_in_line_seg(line01[0].getPoint(), line01[1].getPoint(), line02[0].getPoint());
-		boolean b2 = VectorCalc.p3_in_line_seg(line01[0].getPoint(), line01[1].getPoint(), line02[1].getPoint());
-		boolean b3 = VectorCalc.p3_in_line_seg(line02[0].getPoint(), line01[1].getPoint(), line01[0].getPoint());
-		boolean b4 = VectorCalc.p3_in_line_seg(line02[0].getPoint(), line01[1].getPoint(), line01[1].getPoint());
-
-		return (b1 || b2) && (b3 || b4);
-	}
-
-
-	//returns true if the entire poly is above or below the plane
-	private boolean sameSide(Plane p, Polygon3D poly)
-	{
-		double[] nV = p.getNV().toArray();
-		int side = PlaneCalc.whichSide(poly.getShape(), nV, p.getP());
-		return side != 0;
 	}
 
 	//TODO kind of a mess

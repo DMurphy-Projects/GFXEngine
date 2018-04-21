@@ -1,14 +1,15 @@
 package Programs;
 
+import DebugTools.TextModule.TextBlacklist;
+import DebugTools.TextModule.TextToggle;
+import DebugTools.TextModule.TextWhitelist;
 import GxEngine3D.CalculationHelper.Matrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Controller.GXController;
 import GxEngine3D.Controller.Scene;
-import GxEngine3D.DebugTools.TextOutput;
+import DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
-import GxEngine3D.Model.Plane;
-import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.View.Screen;
 import GxEngine3D.View.ViewHandler;
 import MenuController.LookMenuController;
@@ -22,12 +23,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class GraphicsProgram {
 
 	public static void main(String[] args) {
-		TextOutput.setDebug(false);
+		TextOutput.setModule(new TextToggle(
+				new TextBlacklist(new String[]{Matrix.class.getName()}),
+				true));
 
 		final ViewHandler vH = new ViewHandler();
 
