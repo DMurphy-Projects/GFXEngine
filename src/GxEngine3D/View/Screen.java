@@ -18,8 +18,6 @@ import javax.swing.JPanel;
 public class Screen extends JPanel {
 	
 	double aimSight = 4;
-
-	boolean debug = false;
 	
 	Scene scene;
 	
@@ -34,11 +32,10 @@ public class Screen extends JPanel {
 
 	@Override
 	public void paint(Graphics g) {
-		//super.paint(g);
+		super.paint(g);
 		// Clear screen and draw background color
 		g.setColor(new Color(140, 180, 180));
 		g.fillRect(0, 0, (int) getWidth(), (int) getHeight());
-
 		//draws polygons
 		PolygonIterator it = scene.getIterator();
 		while(it.hasNext())
@@ -50,15 +47,8 @@ public class Screen extends JPanel {
 		// draw the cross in the centre of the screen
 		drawMouseAim(g);
 	}
-
-	public void paintComponent(Graphics g) {
-
-	}
-	
 	
 	void invisibleMouse() {
-		if (debug)
-			return;
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		BufferedImage cursorImage = new BufferedImage(1, 1,
 				BufferedImage.TRANSLUCENT);

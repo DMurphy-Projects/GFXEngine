@@ -70,7 +70,7 @@ public class VectorCalc {
 	}
 
 	public static double len_v3_fl(double[] v0) {
-		return (double) Math.sqrt(len_squared_v3(v0));
+		return Math.sqrt(len_squared_v3(v0));
 	}
 
 	public static double[] cross(double[] v0, double[] v1) {

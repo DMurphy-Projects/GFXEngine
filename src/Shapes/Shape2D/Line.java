@@ -3,7 +3,6 @@ package Shapes.Shape2D;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
-
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Lighting.Light;
@@ -52,14 +51,10 @@ public class Line extends BaseShape {
 
 	@Override
 	public void draw(Graphics g, Polygon p) {
-		//System.out.println("S");
 		for (int i=0;i<p.npoints-1;i++)
 		{
-			//System.out.println(i+" "+p.xpoints[i]+" "+ p.ypoints[i]);
-			//System.out.println((i+1)+" "+p.xpoints[i+1]+" "+ p.ypoints[i+1]);
 			g.drawLine(p.xpoints[i], p.ypoints[i], p.xpoints[i+1], p.ypoints[i+1]);
 		}
-		//System.out.println("E");
 	}
 
 	@Override

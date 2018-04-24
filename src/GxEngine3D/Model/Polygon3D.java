@@ -1,10 +1,8 @@
 package GxEngine3D.Model;
 
 import java.awt.Color;
-
 import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.ProjectionCalc;
-import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.View.ViewHandler;
@@ -146,8 +144,6 @@ public class Polygon3D {
 
 	public Polygon2D get2DPoly()
 	{
-		if (screenPoly == null)
-			createPolygon();
 		return screenPoly;
 	}
 

@@ -53,8 +53,8 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 		this.height = height;
 		this.v = v;
 		curId = BaseShape.id++;
-		createShape();
 		lighting = new StandardLighting();
+		createShape();
 	}
 
 	public ArrayList<Polygon3D> getShape() {

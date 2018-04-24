@@ -48,14 +48,22 @@ public class PlaneCalc {
         return false;
     }
 
+    public enum Side
+    {
+        POSITIVE,
+        PLANAR,
+        BOTH,
+        NEGATIVE
+    }
+
     public static double whichSide(double[] point, double[] planeNormal, double[] planePoint)
     {
-        double[] v = VectorCalc.sub_v3v3(planePoint, point);
+        double[] v = VectorCalc.norm_v3(VectorCalc.sub_v3v3(planePoint, point));
         double dot = VectorCalc.dot_v3v3(v, planeNormal);
         return dot;
     }
 
-    public static int whichSide(RefPoint3D[] testPoints, double[] planeNormal, double[] planePoint)
+    public static Side whichSide(RefPoint3D[] testPoints, double[] planeNormal, double[] planePoint)
     {
         int pos = 0, neg = 0;
         for (RefPoint3D testPoint:testPoints) {
@@ -70,16 +78,20 @@ public class PlaneCalc {
             }
             if (pos > 0 && neg > 0)
             {
-                return 0;
+                return Side.BOTH;
             }
         }
         if (pos > 0)
         {
-            return 1;
+            return Side.POSITIVE;
+        }
+        else if(neg > 0)
+        {
+            return Side.NEGATIVE;
         }
         else
         {
-            return 0;
+            return Side.PLANAR;
         }
     }
 

@@ -3,7 +3,6 @@ package GxEngine3D.Model;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
-
 import GxEngine3D.Controller.GXController;
 import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
@@ -20,13 +19,6 @@ public class Polygon2D {
 
 	private boolean hover = false;
 
-	String debug = "";
-
-	@Override
-	public String toString() {
-		return debug;
-	}
-
 	public Polygon2D(double[] x, double[] y, Color c,
 					 ViewHandler v, BaseShape bTo) {
 		belongsTo = bTo;
@@ -34,7 +26,6 @@ public class Polygon2D {
 		P = new Polygon();
 		for (int i = 0; i < x.length; i++) {
 			P.addPoint((int) x[i], (int) y[i]);
-			debug += "{"+x[i]+" "+y[i]+"}";
 		}
 		this.c = c;
 	}
@@ -50,11 +41,10 @@ public class Polygon2D {
 	}
 
 	public void updatePolygon(double[] x, double[] y) {
-		P.reset();
-		for (int i = 0; i < x.length; i++) {
-			P.xpoints[i] = (int) x[i];
-			P.ypoints[i] = (int) y[i];
-			P.npoints = x.length;
+		P = new Polygon();
+		for (int i=0;i<x.length;i++)
+		{
+			P.addPoint((int)x[i], (int)y[i]);
 		}
 	}
 
