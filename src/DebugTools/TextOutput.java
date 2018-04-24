@@ -2,7 +2,11 @@ package DebugTools;
 
 import DebugTools.TextModule.BaseTextModule;
 import DebugTools.TextModule.NullImplement;
-
+//Note:
+//categories are used as follows:
+//0: default
+//1: permanent debug but only occasional
+//2: permanent debug and constant
 public class TextOutput {
 
     private static BaseTextModule module;
