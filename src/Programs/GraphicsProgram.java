@@ -1,8 +1,9 @@
 package Programs;
 
+import DebugTools.TextModule.GlobalCategoryBlacklist;
+import DebugTools.TextModule.SpecificCategoryBlacklist;
 import DebugTools.TextModule.TextBlacklist;
 import DebugTools.TextModule.TextToggle;
-import DebugTools.TextModule.TextWhitelist;
 import GxEngine3D.CalculationHelper.Matrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
@@ -10,6 +11,7 @@ import GxEngine3D.Controller.GXController;
 import GxEngine3D.Controller.Scene;
 import DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
+import GxEngine3D.View.PolygonIterator;
 import GxEngine3D.View.Screen;
 import GxEngine3D.View.ViewHandler;
 import MenuController.LookMenuController;
@@ -22,15 +24,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 public class GraphicsProgram {
 
 	public static void main(String[] args) {
-		TextOutput.setModule(new TextToggle(
-				new TextBlacklist(new String[]{Matrix.class.getName()}),
-				true));
-
+		TextOutput.setModule(
+				new TextToggle(
+						new TextBlacklist(
+//								new SpecificCategoryBlacklist(PolygonIterator.class.getName(), 1),
+								new GlobalCategoryBlacklist(1, 2),
+								Matrix.class.getName()),
+						true));
 		final ViewHandler vH = new ViewHandler();
 
 		double[] lightLocation = {0, 0, 4};
@@ -48,15 +52,15 @@ public class GraphicsProgram {
 		vH.setPanel(panel);
 
 		//testing for matrix plane intersections
-		Sqaure sq01 = new Sqaure(0, 0, 1.5, 10, Color.BLUE, vH);
+		Sqaure sq01 = new Sqaure(2.5, 2.5, 1.5, 2, Color.BLUE, vH);
 		sq01.yaw(Math.toRadians(45));
 		scene.addObject(sq01);
 
 		Cube cube = new Cube(1, 1, 1, 1, 1, 1, Color.RED, vH);
 		scene.addObject(cube);
 
-		Sqaure sq02 = new Sqaure(1, 2, 1, 1, Color.GREEN, vH);
-		sq02.pitch(Math.toRadians(90));
+		Sqaure sq02 = new Sqaure(1, 3, 1, 1, Color.GREEN, vH);
+//		sq02.pitch(Math.toRadians(90));
 //		scene.addObject(sq02);
 
 //		Sqaure sq03 = new Sqaure(0, 0, 2, 5, Color.white, vH);

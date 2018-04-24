@@ -1,16 +1,26 @@
 package GxEngine3D.Ordering;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Dean on 31/12/16.
  */
 public abstract class BaseOrdering implements IOrderStrategy {
-    protected int[] sortIndex(double[] k) {
+    //technically doesn't need to be great as it does not work
+    //only exists for historical reasons
+    protected List<Integer> sortIndex(double[] k) {
         int[] newOrder = new int[k.length];
 
         for (int i = 0; i < k.length; i++) {
             newOrder[i] = i;
         }
-        return sortIndex(k, newOrder);
+        ArrayList<Integer> order = new ArrayList<>();
+        for (int i:sortIndex(k, newOrder))
+        {
+            order.add(i);
+        }
+        return order;
     }
 
     // gives a new indice order for k without sorting k - faster

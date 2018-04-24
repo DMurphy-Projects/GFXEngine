@@ -12,8 +12,11 @@ import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.*;
 import GxEngine3D.Ordering.IOrderStrategy;
 import GxEngine3D.Ordering.OrderPolygon;
+import GxEngine3D.Ordering.SidedOrdering;
 import GxEngine3D.View.PolygonIterator;
+import Shapes.BaseShape;
 import Shapes.IShape;
+import Shapes.Shape2D.Line;
 
 public class Scene extends SplitManager implements ICameraEventListener{
 
@@ -27,6 +30,8 @@ public class Scene extends SplitManager implements ICameraEventListener{
 	Light lightSource;
 	IOrderStrategy orderStrategy;
 
+	PolygonIterator iterator = null;
+
 	private boolean mNeedReDraw = true, needsUpdate = false;
 	
 	public Scene(Camera c, Light ls, double size) {
@@ -34,7 +39,8 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		cam = c;
 		cam.add(this);
 		lightSource = ls;
-		orderStrategy = new OrderPolygon();
+//		orderStrategy = new OrderPolygon();
+		orderStrategy = new SidedOrdering();
 	}
 
 	public void scheduleUpdate()
@@ -68,11 +74,15 @@ public class Scene extends SplitManager implements ICameraEventListener{
 
 	public PolygonIterator getIterator()
 	{
-		//we only need to order the polygons when we're about to draw them instead of every time we update the polygons
-		ArrayList<Polygon3D> copy = (ArrayList<Polygon3D>) splitPolygons.clone();
-		int[] o = orderStrategy.order(cam.From(), copy);
-		setPolyHover(copy, o);
-		return new PolygonIterator(copy, o);
+		//can now leave and come back to the previous iterator, useful for debugging
+		if (iterator == null || !iterator.hasNext()) {
+			//we only need to order the polygons when we're about to draw them instead of every time we update the polygons
+			ArrayList<Polygon3D> copy = (ArrayList<Polygon3D>) splitPolygons.clone();
+			List<Integer> o = orderStrategy.order(cam.From(), copy);
+			setPolyHover(copy, o);
+			iterator = new PolygonIterator(copy, o);
+		}
+		return iterator;
 	}
 	
 	public void update() {
@@ -96,8 +106,7 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		//-moving the polygon
 		//so we still need to update polygon in case its trying to move
 		if (redraw) {
-			for (IShape s : shapes)
-			{
+			for (IShape s : shapes) {
 				s.update();
 			}
 		}
@@ -105,22 +114,25 @@ public class Scene extends SplitManager implements ICameraEventListener{
 			updateSplitting();
 		}
 		if (redraw) {
-			cam.setup();
 			lightSource.updateLighting();
+			cam.setup();
 			for (Polygon3D poly : splitPolygons) {
 				poly.updatePolygon(cam, lightSource);
 			}
 		}
 	}
 
-	private void setPolyHover(ArrayList<Polygon3D> polys, int[] order) {
+	private void setPolyHover(List<Polygon3D> polys, List<Integer> order) {
 		Polygon3D dp;
-		for (int i = polys.size()-1; i >= 0; i--) {
-		dp = polys.get(order[i]);
-		if (dp.canDraw())
-			if (dp.get2DPoly().MouseOver()) {
-				dp.getBelongsTo().hover(dp);
-				break;
+		for (int i = polys.size() - 1; i >= 0; i--) {
+			int pos = order.get(i);
+			dp = polys.get(pos);
+			if (dp.canDraw()) {
+				if (dp.get2DPoly().MouseOver()) {
+					TextOutput.println(pos, 2);
+					dp.getBelongsTo().hover(dp);
+					break;
+				}
 			}
 		}
 	}

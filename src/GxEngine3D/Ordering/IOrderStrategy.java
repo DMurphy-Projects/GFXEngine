@@ -1,13 +1,12 @@
 package GxEngine3D.Ordering;
 
 import GxEngine3D.Model.Polygon3D;
-import Shapes.IShape;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Dean on 31/12/16.
  */
 public interface IOrderStrategy {
-    public int[] order(double[] from, ArrayList<Polygon3D> polygons);
+    List<Integer> order(double[] from, List<Polygon3D> polygons);
 }
