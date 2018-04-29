@@ -38,6 +38,7 @@ public class GXController extends GXTickEvent implements KeyListener,
 		for (ViewHandler vH:viewCon.getHandlers())
 		{
 			vH.getCamera().lookAt((BaseShape) vH.getScene().getShapes().get(0));
+			vH.getCamera().setup();
 		}
 	}
 
@@ -59,6 +60,10 @@ public class GXController extends GXTickEvent implements KeyListener,
 		for (ViewHandler vH:viewController.getHandlers())
 		{
 			vH.update();
+		}
+		for (Scene s:viewController.getScenes())
+		{
+			s.updateFinished();
 		}
 		for (JPanel p:viewController.getViews())
 		{

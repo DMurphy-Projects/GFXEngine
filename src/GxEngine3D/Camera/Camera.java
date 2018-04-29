@@ -108,6 +108,7 @@ public class Camera implements ICameraEvent{
 		*/
 		double angle = Math.atan2(zDist , xyDist);
 		vLook = angle;
+		updateView();
 	}
 
 	public void MoveTo(double x, double y, double z) {

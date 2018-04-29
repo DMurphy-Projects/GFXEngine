@@ -10,9 +10,7 @@ import GxEngine3D.Controller.GXController;
 import GxEngine3D.Controller.Scene;
 import DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
-import GxEngine3D.View.Screen;
-import GxEngine3D.View.ViewController;
-import GxEngine3D.View.ViewHandler;
+import GxEngine3D.View.*;
 import MenuController.LookMenuController;
 import ObjectFactory.*;
 import Shapes.*;
@@ -55,7 +53,7 @@ public class GraphicsProgram {
 		scene.addObject(cube);
 
 		ViewController viewCon = new ViewController();
-		Screen panel1 = new Screen();
+		PIPScreen panel1 = new PIPScreen();
 		panel1.setPreferredSize(new Dimension(500, 500));
 
 		Screen panel2 = new Screen();
@@ -63,16 +61,29 @@ public class GraphicsProgram {
 
 		Screen panel3 = new Screen();
 		panel3.setPreferredSize(new Dimension(500, 500));
+
+		//pip panels don't actually get drawn its just used as a container for dimensions
+		JPanel pipPanel = new JPanel();
+		pipPanel.setSize(100, 100);
 		//-----View handler setup
 		ViewHandler vH;
+
 		vH = viewCon.add(panel1, camera1, scene);
-		panel1.setHandler(vH);
+		PIPView pip = new PIPView(new int[]{0, 0}, vH);
+		panel1.addView(pip);
 
-		vH = viewCon.add(panel2, camera1, scene);
-		panel2.setHandler(vH);
+		Scene pipScene = new Scene(ls);
+		Pyramid pyr = new Pyramid(0, 0, 0, 1, 1, 1, Color.RED);
+		pipScene.addObject(pyr);
+		vH = viewCon.add(pipPanel, camera2, pipScene);
+		pip = new PIPView(new int[]{0, 0}, vH);
+		panel1.addView(pip);
 
-		vH = viewCon.add(panel3, camera3, scene);
-		panel3.setHandler(vH);
+//		vH = viewCon.add(panel2, camera2, scene);
+//		panel2.setHandler(vH);
+
+//		vH = viewCon.add(panel3, camera3, scene);
+//		panel3.setHandler(vH);
 		//-----View handler end
 
 		final ShapeFactory factory = new ShapeFactory();

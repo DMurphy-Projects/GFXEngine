@@ -51,6 +51,11 @@ public class Scene{
 		}
 	}
 
+	public void updateFinished()
+	{
+		globalRedraw = false;
+	}
+
 	public void addObject(IShape s) {
 		shapes.add(s);
 		scheduleUpdate();

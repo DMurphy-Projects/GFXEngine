@@ -63,6 +63,10 @@ public class ViewController implements MouseListener{
         return uniqueViews;
     }
 
+    public List<Scene> getScenes() {
+        return uniqueScenes;
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
 
