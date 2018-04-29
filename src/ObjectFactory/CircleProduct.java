@@ -14,8 +14,8 @@ public class CircleProduct implements IProduct{
 	}
 
 	@Override
-	public BaseShape create(double x, double y, double z, ViewHandler v) {
-		return new Circle(x, y, z, 1, Color.BLUE, v);
+	public BaseShape create(double x, double y, double z) {
+		return new Circle(x, y, z, 1, Color.BLUE);
 	}
 
 }

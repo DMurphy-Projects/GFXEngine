@@ -16,8 +16,8 @@ import java.awt.*;
  * Created by Dean on 28/12/16.
  */
 public class FakeSphere extends Circle {
-    public FakeSphere(double x, double y, double z, double rad, Color c, final ViewHandler v) {
-        super(x, y, z, rad, c, v);
+    public FakeSphere(double x, double y, double z, double rad, Color c) {
+        super(x, y, z, rad, c);
         lighting = new ILightingStrategy() {
             @Override
             public double doLighting(Light l, Plane p, Camera c) {

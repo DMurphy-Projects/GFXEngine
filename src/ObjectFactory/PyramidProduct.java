@@ -14,8 +14,8 @@ public class PyramidProduct implements IProduct{
 	}
 
 	@Override
-	public BaseShape create(double x, double y, double z, ViewHandler v) {
-		return new Pyramid(x, y, z, 1, 1, 1, Color.BLUE, v);
+	public BaseShape create(double x, double y, double z) {
+		return new Pyramid(x, y, z, 1, 1, 1, Color.BLUE);
 	}
 
 }

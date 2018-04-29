@@ -5,49 +5,39 @@ import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.*;
 
+import DebugTools.TextOutput;
 import GxEngine3D.Camera.Camera;
-import GxEngine3D.Model.Vector;
-import GxEngine3D.View.Screen;
+import GxEngine3D.View.ViewController;
 import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
-public class GXController extends GXTickEvent implements KeyListener, MouseListener,
+import javax.swing.*;
+
+public class GXController extends GXTickEvent implements KeyListener,
 		MouseMotionListener, MouseWheelListener {
-
-	private Scene scene;
-	private Camera cam;
-
 	Robot r;
 
-	double drawFPS = 0, mxFPS = 60, sleepTime = 1000.0 / mxFPS,
-			lastRefresh = 0, start = System.currentTimeMillis(), lastFPS = 0,
+	double drawFPS = 0, mxFPS = 60,
+			lastRefresh = 0, lastFPS = 0,
 			fpsChecks = 0;
-	long repaintTime = 0;
 
 	// TODO fix this once polygon splitting happens
 	static boolean outlines = true, hover = true;
 
-	double moveSpeed = 1;
+	Map<Camera.Direction, Boolean> keys = new HashMap<>();
 
-	boolean[] keys = new boolean[4];
+	ViewController viewController;
 
-	private ViewHandler vHandler;
-
-	private Screen screen;
-
-	public GXController(Scene s, Camera c, Screen sc, ViewHandler vH) {
-		scene = s;
-		cam = c;
-		vHandler = vH;
-		screen = sc;
-		try {
-			c.lookAt((BaseShape) s.getShapes().get(0));
-		} catch (Exception e) {
+	public GXController(ViewController viewCon) {
+		viewController = viewCon;
+		for (ViewHandler vH:viewCon.getHandlers())
+		{
+			vH.getCamera().lookAt((BaseShape) vH.getScene().getShapes().get(0));
 		}
 	}
 
@@ -58,17 +48,22 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 
 	public void setup()
 	{
+		//redraw the view we're currently controlling
 		if (isKeyPressed())
 		{
-			scene.scheduleRedraw();
+			ViewHandler active = viewController.getActive();
+			active.getCamera().CameraMovement(keys);
+			active.getScene().scheduleRedraw();
 		}
-		CameraMovement(cam.From(), cam.To());
-
-		// Updates each polygon for this camera position, includes draw order
-		scene.update();
-
-		screen.repaint();
-
+		//update scenes that each handler has
+		for (ViewHandler vH:viewController.getHandlers())
+		{
+			vH.update();
+		}
+		for (JPanel p:viewController.getViews())
+		{
+			p.repaint();
+		}
 		sleep();
 	}
 
@@ -96,72 +91,29 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 
 	private boolean isKeyPressed()
 	{
-		for (boolean b:keys)
-		{
-			if (b)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private void CameraMovement(double[] from, double[] to) {
-		Vector ViewVector = new Vector(to[0] - from[0], to[1] - from[1], to[2]
-				- from[2]);
-		double xMove = 0, yMove = 0, zMove = 0;
-		Vector VerticalVector = new Vector(0, 0, 1);
-		Vector SideViewVector = ViewVector.crossProduct(VerticalVector);
-
-		if (keys[0]) {
-			xMove += ViewVector.X();
-			yMove += ViewVector.Y();
-			zMove += ViewVector.Z();
-		}
-
-		if (keys[2]) {
-			xMove -= ViewVector.X();
-			yMove -= ViewVector.Y();
-			zMove -= ViewVector.Z();
-		}
-
-		if (keys[1]) {
-			xMove += SideViewVector.X();
-			yMove += SideViewVector.Y();
-			zMove += SideViewVector.Z();
-		}
-
-		if (keys[3]) {
-			xMove -= SideViewVector.X();
-			yMove -= SideViewVector.Y();
-			zMove -= SideViewVector.Z();
-		}
-
-		Vector MoveVector = new Vector(xMove, yMove, zMove);
-		cam.MoveTo(from[0] + MoveVector.X() * moveSpeed, from[1] + MoveVector.Y()
-				* moveSpeed, from[2] + MoveVector.Z() * moveSpeed);
+		return keys.containsValue(true);
 	}
 
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_W)
-			keys[0] = false;
+			keys.put(Camera.Direction.UP, false);
 		if (e.getKeyCode() == KeyEvent.VK_A)
-			keys[1] = false;
+			keys.put(Camera.Direction.LEFT, false);
 		if (e.getKeyCode() == KeyEvent.VK_S)
-			keys[2] = false;
+			keys.put(Camera.Direction.RIGHT, false);
 		if (e.getKeyCode() == KeyEvent.VK_D)
-			keys[3] = false;
+			keys.put(Camera.Direction.DOWN, false);
 	}
 
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_W)
-			keys[0] = true;
+			keys.put(Camera.Direction.UP, true);
 		if (e.getKeyCode() == KeyEvent.VK_A)
-			keys[1] = true;
+			keys.put(Camera.Direction.LEFT, true);
 		if (e.getKeyCode() == KeyEvent.VK_S)
-			keys[2] = true;
+			keys.put(Camera.Direction.RIGHT, true);
 		if (e.getKeyCode() == KeyEvent.VK_D)
-			keys[3] = true;
+			keys.put(Camera.Direction.DOWN, true);
 		if (e.getKeyCode() == KeyEvent.VK_O)
 			outlines = !outlines;
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
@@ -169,26 +121,29 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 	}
 
 	public void mouseWheelMoved(MouseWheelEvent arg0) {
-		vHandler.doZoom(arg0.getUnitsToScroll());
+		viewController.getActive().doZoom(arg0.getUnitsToScroll());
 	}
 
 	public void mousePressed(MouseEvent arg0) {
 	}
 
 	public void mouseDragged(MouseEvent arg0) {
-		cam.MouseMovement(arg0.getX(), arg0.getY());
-		CenterMouse();
+		viewController.getActive().getCamera().MouseMovement(arg0.getX(), arg0.getY());
+		centreMouse();
 	}
 
 	public void mouseMoved(MouseEvent arg0) {
-		cam.MouseMovement(arg0.getX(), arg0.getY());
-		CenterMouse();
+		ViewHandler vH = viewController.getActive();
+		int[] centre = vH.getCentre();
+		vH.getCamera().MouseMovement(arg0.getX() - centre[0], arg0.getY() - centre[1]);
+		centreMouse();
 	}
 
-	public void CenterMouse() {
+	public void centreMouse() {
 		try {
 			r = new Robot();
-			r.mouseMove(vHandler.CenterScreenX(), vHandler.CenterScreenY());
+			int[] centre = viewController.getActive().getScreenCentre();
+			r.mouseMove(centre[0], centre[1]);
 		} catch (AWTException e) {
 			e.printStackTrace();
 		}
@@ -201,26 +156,6 @@ public class GXController extends GXTickEvent implements KeyListener, MouseListe
 	public static boolean canHover()
 	{
 		return hover;
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override

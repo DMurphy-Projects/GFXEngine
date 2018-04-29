@@ -2,14 +2,12 @@ package Shapes;
 
 import java.awt.Color;
 
-import GxEngine3D.View.ViewHandler;
 import Shapes.Shape2D.Circle;
 
 public class Sphere extends Circle {
 
-	public Sphere(double x, double y, double z, double rad, Color c,
-			ViewHandler v) {
-		super(x, y, z, rad, c, v);
+	public Sphere(double x, double y, double z, double rad, Color c) {
+		super(x, y, z, rad, c);
 	}
 
 	@Override

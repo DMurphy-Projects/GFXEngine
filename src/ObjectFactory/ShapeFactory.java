@@ -9,9 +9,9 @@ public class ShapeFactory {
 	
 	ArrayList<IProduct> shapes = new ArrayList<IProduct>();
 	
-	public BaseShape createObject(int i, double x, double y, double z, ViewHandler v)
+	public BaseShape createObject(int i, double x, double y, double z)
 	{
-		return shapes.get(i).create(x, y, z, v);
+		return shapes.get(i).create(x, y, z);
 	}
 	public ArrayList<IProduct> shapeList()
 	{

@@ -10,9 +10,9 @@ public class Cube extends BaseShape {
 	protected static String name = "Cube";
 	
 	public Cube(double x, double y, double z, double width, double length,
-			double height, Color c, ViewHandler v) {
+			double height, Color c) {
 
-		super(x, y, z, width, length, height, c, v);
+		super(x, y, z, width, length, height, c);
 	}
 
 	protected void createShape(Color[] c) {

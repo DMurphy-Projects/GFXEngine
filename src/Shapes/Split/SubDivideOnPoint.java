@@ -14,8 +14,8 @@ import java.util.ArrayList;
 public class SubDivideOnPoint extends BaseSplit {
     int i0=0, i1 = 1, i2=2;
     @Override
-    public void split(double maxSize, ArrayList<Polygon3D> polys, Color c, ViewHandler vH, BaseShape bTo) {
-        super.split(maxSize, polys, c, vH, bTo);
+    public void split(double maxSize, ArrayList<Polygon3D> polys, Color c, BaseShape bTo) {
+        super.split(maxSize, polys, c, bTo);
         for (int i=0;i<polys.size();i++) {
             Polygon3D polygonToSplit = polys.get(i);
             RefPoint3D[] sPoints = polygonToSplit.getShape();
@@ -28,8 +28,8 @@ public class SubDivideOnPoint extends BaseSplit {
                             (sPoints[i1].Y() + sPoints[i2].Y()) / 2,
                             (sPoints[i1].Z() + sPoints[i2].Z()) / 2);
                     i++;
-                    polys.add(0, new Polygon3D(new RefPoint3D[]{sPoints[i0], sPoints[i1], split}, c, vH, bTo));
-                    polys.add(0, new Polygon3D(new RefPoint3D[]{sPoints[i0], split, sPoints[i2]}, c, vH, bTo));
+                    polys.add(0, new Polygon3D(new RefPoint3D[]{sPoints[i0], sPoints[i1], split}, c, bTo));
+                    polys.add(0, new Polygon3D(new RefPoint3D[]{sPoints[i0], split, sPoints[i2]}, c, bTo));
                 }
             }
         }
@@ -38,7 +38,7 @@ public class SubDivideOnPoint extends BaseSplit {
             i0 = i1;
             i1 = i2;
             i2 = i;
-            split(maxSize, polys, c, vH, bTo);
+            split(maxSize, polys, c, bTo);
         }
     }
 }

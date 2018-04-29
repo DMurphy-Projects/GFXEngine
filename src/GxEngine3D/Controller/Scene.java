@@ -3,43 +3,33 @@ package GxEngine3D.Controller;
 import java.util.*;
 
 import GxEngine3D.CalculationHelper.Matrix;
-import GxEngine3D.CalculationHelper.PlaneCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
-import GxEngine3D.Camera.ICameraEventListener;
 import DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.*;
 import GxEngine3D.Ordering.IOrderStrategy;
-import GxEngine3D.Ordering.OrderPolygon;
 import GxEngine3D.Ordering.SidedOrdering;
 import GxEngine3D.View.PolygonIterator;
-import Shapes.BaseShape;
+import GxEngine3D.View.ViewHandler;
 import Shapes.IShape;
-import Shapes.Shape2D.Line;
 
-public class Scene extends SplitManager implements ICameraEventListener{
+public class Scene{
 
 	private ArrayList<IShape> shapes = new ArrayList<IShape>();
 
 	private ArrayList<Polygon3D> polygons = new ArrayList<Polygon3D>();
-	private ArrayList<Polygon3D> splitPolygons = new ArrayList<>();
+	private ArrayList<Polygon3D> splitPolygons = new ArrayList<Polygon3D>();
+	private Map<ViewHandler, ArrayList<Polygon2D>> drawablePolygons = new HashMap<>();
 
-	private Camera cam;
-	
 	Light lightSource;
 	IOrderStrategy orderStrategy;
 
-	PolygonIterator iterator = null;
-
-	private boolean mNeedReDraw = true, needsUpdate = false;
+	private boolean globalRedraw = true, needsUpdate = false;
 	
-	public Scene(Camera c, Light ls, double size) {
-		super(size);
-		cam = c;
-		cam.add(this);
+	public Scene(Light ls) {
+		super();
 		lightSource = ls;
-//		orderStrategy = new OrderPolygon();
 		orderStrategy = new SidedOrdering();
 	}
 
@@ -55,14 +45,13 @@ public class Scene extends SplitManager implements ICameraEventListener{
 
 	public void scheduleRedraw()
 	{
-		if (!mNeedReDraw)
+		if (!globalRedraw)
 		{
-			mNeedReDraw = true;
+			globalRedraw = true;
 		}
 	}
 
 	public void addObject(IShape s) {
-		this.scheduleSplit();
 		shapes.add(s);
 		scheduleUpdate();
 	}
@@ -72,23 +61,26 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		return (ArrayList<IShape>) shapes.clone();
 	}
 
-	public PolygonIterator getIterator()
+	public PolygonIterator getIterator(ViewHandler vH)
 	{
-		//can now leave and come back to the previous iterator, useful for debugging
-		if (iterator == null || !iterator.hasNext()) {
+		if (drawablePolygons.containsKey(vH)) {
 			//we only need to order the polygons when we're about to draw them instead of every time we update the polygons
 			ArrayList<Polygon3D> copy = (ArrayList<Polygon3D>) splitPolygons.clone();
-			List<Integer> o = orderStrategy.order(cam.From(), copy);
-			setPolyHover(copy, o);
-			iterator = new PolygonIterator(copy, o);
+			List<Integer> o = orderStrategy.order(vH.getCamera().From(), copy);
+			List<Polygon2D> drawable = (List<Polygon2D>) drawablePolygons.get(vH).clone();
+			setPolyHover(drawable, o);
+			return new PolygonIterator(drawable, o);
 		}
-		return iterator;
+		//the views want to render before we're setup, bug?
+		TextOutput.println(vH.hashCode() + " is null");
+		return null;
 	}
 	
-	public void update() {
-		boolean redraw = mNeedReDraw, update = needsUpdate;
-		mNeedReDraw = false;
+	public void update(ViewHandler v) {
+		boolean update = needsUpdate, redraw = v.canRedraw() || globalRedraw;
 		needsUpdate = false;
+		v.setRedraw(false);
+		Camera cam = v.getCamera();
 		if (update){
 			//somethings changed but we don't know what, either:
 			//-a shape was added
@@ -116,28 +108,27 @@ public class Scene extends SplitManager implements ICameraEventListener{
 		if (redraw) {
 			lightSource.updateLighting();
 			cam.setup();
+			ArrayList<Polygon2D> draw = new ArrayList<>();
 			for (Polygon3D poly : splitPolygons) {
-				poly.updatePolygon(cam, lightSource);
+				draw.add(poly.updatePolygon(cam, lightSource, v));
 			}
+			drawablePolygons.put(v, draw);
 		}
 	}
 
-	private void setPolyHover(List<Polygon3D> polys, List<Integer> order) {
-		Polygon3D dp;
+	private void setPolyHover(List<Polygon2D> polys, List<Integer> order) {
+		Polygon2D dp;
 		for (int i = polys.size() - 1; i >= 0; i--) {
 			int pos = order.get(i);
 			dp = polys.get(pos);
-			if (dp.canDraw()) {
-				if (dp.get2DPoly().MouseOver()) {
+				if (dp.isMouseOver()) {
 					TextOutput.println(pos, 2);
-					dp.getBelongsTo().hover(dp);
+					dp.hover();
 					break;
-				}
 			}
 		}
 	}
 
-	@Override
 	public void updateSplitting() {
 		splitPolygons = (ArrayList<Polygon3D>) polygons.clone();
 		TextOutput.println("Start "+splitPolygons.size(), 1);
@@ -304,15 +295,5 @@ public class Scene extends SplitManager implements ICameraEventListener{
 			//there was no useful intersect
 			return null;
 		}
-	}
-
-	@Override
-	public void onLook(double v, double h) {
-		scheduleRedraw();
-	}
-
-	@Override
-	public void onMove(double x, double y, double z) {
-		scheduleRedraw();
 	}
 }

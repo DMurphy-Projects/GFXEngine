@@ -22,8 +22,8 @@ public class RubixCube extends Cube implements KeyListener {
 	private boolean[] keys = new boolean[2];
 
 	public RubixCube(double x, double y, double z, double width, double length,
-			double height, Color c, ViewHandler v) {
-		super(x, y, z, width, length, height, c, v);
+			double height, Color c) {
+		super(x, y, z, width, length, height, c);
 	}
 
 	private ArrayList<RefPoint3D> createBlock(int x, int y, int z) {
@@ -310,9 +310,7 @@ public class RubixCube extends Cube implements KeyListener {
 	RefPoint3D lookAt;
 	int or = 0;
 
-	@Override
 	public void hover(Polygon3D o) {
-		super.hover(o);
 		double[] c = findCentre();
 		Plane plane = new Plane(o);
 		double[] pV = new double[] { plane.getNV().X(), plane.getNV().Y(), plane.getNV().Z() };
@@ -362,7 +360,6 @@ public class RubixCube extends Cube implements KeyListener {
 		lookAt.setY(Math.round(lookAt.Y()));
 		lookAt.setZ((lookAt.Z() - c[2] + height) / height);
 		lookAt.setZ(Math.round(lookAt.Z()));
-		// System.out.println(lookAt);
 	}
 
 	@Override

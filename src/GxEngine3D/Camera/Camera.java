@@ -8,9 +8,11 @@ import GxEngine3D.Model.Projection;
 import GxEngine3D.Model.Vector;
 import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Camera implements ICameraEvent{
 
@@ -24,13 +26,18 @@ public class Camera implements ICameraEvent{
 	private double[] viewFrom, viewTo, prevFrom;
 	private double prevVLook = 0, prevHLook = 0;
 
-	private ViewHandler vHandler;
-
-	private double vLook = -0, hLook = 0, hSpeed = 900, vSpeed = 2200;
+	private double vLook = -0, hLook = 0, hSpeed = 900, vSpeed = 2200, moveSpeed = 1;
 	private double upper = (Math.PI/2)-0.001, lower = (-Math.PI/2)+0.001;
 
-	public Camera(double x, double y, double z, ViewHandler vH) {
-		vHandler = vH;
+	public enum Direction
+	{
+		UP,
+		DOWN,
+		LEFT,
+		RIGHT
+	}
+
+	public Camera(double x, double y, double z) {
 		viewFrom = new double[] { x, y, z };
 		viewTo = new double[] { 0, 0, 0 };
 		prevFrom = new double[] { 0, 0, 0 };
@@ -62,8 +69,6 @@ public class Camera implements ICameraEvent{
 	}
 
 	public void setup() {
-		// System.out.println(VertLook+" "+HorLook);
-		// System.out.println(ViewTo[0] + " " + ViewTo[1] + " " + ViewTo[2]);
 		viewVector = new Vector(VectorCalc.sub_v3v3(viewTo, viewFrom));
 		directionVector = new Vector(1, 1, 1);
 		Vector planeVector1 = viewVector.crossProduct(directionVector);
@@ -116,9 +121,44 @@ public class Camera implements ICameraEvent{
 		updateView();
 	}
 
+	public void CameraMovement(Map<Direction, Boolean> directions)
+	{
+		Vector ViewVector = new Vector(viewTo[0] - viewFrom[0], viewTo[1] - viewFrom[1], viewTo[2]
+				- viewFrom[2]);
+		double xMove = 0, yMove = 0, zMove = 0;
+		Vector VerticalVector = new Vector(0, 0, 1);
+		Vector SideViewVector = ViewVector.crossProduct(VerticalVector);
+
+		for (Map.Entry<Direction, Boolean> dir:directions.entrySet()) {
+			if (dir.getValue()) {
+				Direction d = dir.getKey();
+				if (d == Direction.UP) {
+					xMove += ViewVector.X();
+					yMove += ViewVector.Y();
+					zMove += ViewVector.Z();
+				} else if (d == Direction.DOWN) {
+					xMove -= SideViewVector.X();
+					yMove -= SideViewVector.Y();
+					zMove -= SideViewVector.Z();
+				} else if (d == Direction.LEFT) {
+					xMove += SideViewVector.X();
+					yMove += SideViewVector.Y();
+					zMove += SideViewVector.Z();
+				} else if (d == Direction.RIGHT) {
+					xMove -= ViewVector.X();
+					yMove -= ViewVector.Y();
+					zMove -= ViewVector.Z();
+				}
+			}
+		}
+
+		Vector MoveVector = new Vector(xMove, yMove, zMove);
+		MoveTo(viewFrom[0] + MoveVector.X() * moveSpeed, viewFrom[1] + MoveVector.Y()
+				* moveSpeed, viewFrom[2] + MoveVector.Z() * moveSpeed);
+	}
 	public void MouseMovement(double NewMouseX, double NewMouseY) {
-		double difX = NewMouseX - vHandler.CenterX();
-		double difY = NewMouseY - vHandler.CenterY();
+		double difX = NewMouseX;
+		double difY = NewMouseY;
 
 		vLook -= difY / vSpeed;
 		hLook += difX / hSpeed;

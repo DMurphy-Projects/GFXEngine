@@ -13,8 +13,8 @@ public class Sqaure extends NSidedPolygon{
 
     IIntersection3DStrategy finder = new TriangleSideIntersection();
 
-    public Sqaure(double x, double y, double z, double rad, Color c, ViewHandler v) {
-        super(x, y, z, rad, c, v);
+    public Sqaure(double x, double y, double z, double rad, Color c) {
+        super(x, y, z, rad, c);
     }
 
     @Override

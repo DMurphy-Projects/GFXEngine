@@ -13,8 +13,8 @@ import Shapes.BaseShape;
 
 public class Line extends BaseShape {
 	
-	public Line(double sx, double sy, double sz, double ex, double ey, double ez, ViewHandler v) {
-		super(sx, sy, sz, ex-sx, ey-sy, ez-sz, Color.black, v);
+	public Line(double sx, double sy, double sz, double ex, double ey, double ez) {
+		super(sx, sy, sz, ex-sx, ey-sy, ez-sz, Color.black);
 
 		lighting = new ILightingStrategy() {
 			@Override

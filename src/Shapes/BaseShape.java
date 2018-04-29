@@ -5,17 +5,13 @@ import java.awt.Graphics;
 import java.awt.Polygon;
 import java.util.ArrayList;
 
-import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.RotationCalc;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Lighting.StandardLighting;
 import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Model.RefPoint3D;
-import GxEngine3D.View.ViewHandler;
 import Shapes.Split.ISplitStrategy;
-import Shapes.Split.MidPointSplit;
 import Shapes.Split.SplitIntoTriangles;
-import Shapes.Split.SubDivideOnPoint;
 
 public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
@@ -27,14 +23,11 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
 	static int id = 0;
 	int curId;
+	private boolean needsUpdate = true;
 
 	protected ArrayList<RefPoint3D> points = new ArrayList<RefPoint3D>();
 	protected ArrayList<RefPoint3D[]> edges = new ArrayList<RefPoint3D[]>();
 	protected ArrayList<Polygon3D> polys = new ArrayList<Polygon3D>();
-
-	protected ViewHandler v;
-
-	private Polygon3D hover;
 	
 	protected static String name = "Shape";
 	protected ILightingStrategy lighting;
@@ -42,7 +35,7 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 	protected ISplitStrategy triangles = new SplitIntoTriangles();
 
 	public BaseShape(double x, double y, double z, double width, double length,
-			double height, Color c, ViewHandler v) {
+			double height, Color c) {
 		this.c = c;
 		this.x = x;
 		this.y = y;
@@ -51,7 +44,6 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 		this.width = width;
 		this.length = length;
 		this.height = height;
-		this.v = v;
 		curId = BaseShape.id++;
 		lighting = new StandardLighting();
 		createShape();
@@ -74,14 +66,14 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 	}
 	protected void addPoly(RefPoint3D[] poly, Color c)
 	{
-		polys.add(new Polygon3D(poly, c, v, this));
+		polys.add(new Polygon3D(poly, c, this));
 	}
 
 	protected void scheduleUpdate()
 	{
-		if (!mNeedUpdate)
+		if (!needsUpdate)
 		{
-			mNeedUpdate = true;
+			needsUpdate = true;
 		}
 	}
 
@@ -124,17 +116,10 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 		return new double[] { avX, avY, avZ };
 	}
 
-	public double getDistanceFrom(double[] point) {
-		return DistanceCalc.getDistance(point, findCentre());
-	}
-
 	// gives back rotated points x, y, z :0, 1, 2
-
-	private boolean mNeedUpdate = true;
-
 	public void update() {
-		if (mNeedUpdate) {
-			mNeedUpdate = false;
+		if (needsUpdate) {
+			needsUpdate = false;
 			// middle of object
 			double[] origin = findCentre();
 			double[] p;
@@ -158,14 +143,9 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
 	public void split(double maxSize)
 	{
-		triangles.split(maxSize, polys, c, v, this);
+//		triangles.split(maxSize, polys, c, this);
 		//subDivide.split(maxSize, polys, c, v, this);
 		//middleSplit.split(maxSize, polys, c, v, this);
-	}
-
-	public void hover(Polygon3D o) {
-		hover = o;
-		hover.get2DPoly().hover();
 	}
 
 	public double[] getRefPoint()

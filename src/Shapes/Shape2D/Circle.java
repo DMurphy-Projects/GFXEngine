@@ -13,8 +13,8 @@ public class Circle extends BaseShape {
 
 	protected int orientation = 0;
 
-	public Circle(double x, double y, double z, double rad, Color c, ViewHandler v) {
-		super(x, y, z, rad, rad, rad, c, v);
+	public Circle(double x, double y, double z, double rad, Color c) {
+		super(x, y, z, rad, rad, rad, c);
 	}
 
 	@Override
@@ -34,7 +34,6 @@ public class Circle extends BaseShape {
 			points.add(p);
 			shape.add(p);
 		}
-//		add(shape.toArray(new RefPoint3D[shape.size()]));
 	}
 	public static String getName()
 	{

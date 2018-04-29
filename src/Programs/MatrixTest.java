@@ -12,7 +12,7 @@ public class MatrixTest {
 
     public static void main(String[] args)
     {
-        Sqaure sq01 = new Sqaure(0, 0, 2, 5, Color.white, null);
+        Sqaure sq01 = new Sqaure(0, 0, 2, 5, Color.white);
         //plane based from a square
         Plane plane = new Plane(sq01.getShape().get(0));
         double[] nV = plane.getNV().toArray();

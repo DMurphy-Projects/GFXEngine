@@ -11,8 +11,8 @@ import java.util.ArrayList;
 public class SplittingTest {
     public static void main(String[] args)
     {
-        Sqaure sq01 = new Sqaure(0, 0, 2, 5, Color.white, null);
-        Sqaure sq02 = new Sqaure(0, 0, 2, 5, Color.white, null);
+        Sqaure sq01 = new Sqaure(0, 0, 2, 5, Color.white);
+        Sqaure sq02 = new Sqaure(0, 0, 2, 5, Color.white);
         sq02.roll(Math.toRadians(90));
         sq02.pitch(Math.toRadians(20));
         sq02.yaw(Math.toRadians(45));

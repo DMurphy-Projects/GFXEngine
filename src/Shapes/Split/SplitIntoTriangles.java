@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class SplitIntoTriangles implements ISplitStrategy {
     //turns any polygon into triangles
     @Override
-    public void split(double maxSize, ArrayList<Polygon3D> polys, Color c, ViewHandler vH, BaseShape bTo) {
+    public void split(double maxSize, ArrayList<Polygon3D> polys, Color c, BaseShape bTo) {
         for (int i=0;i<polys.size();i++) {
             Polygon3D polygonToSplit = polys.get(i);
             RefPoint3D[] sPoints = polygonToSplit.getShape();
@@ -34,7 +34,7 @@ public class SplitIntoTriangles implements ISplitStrategy {
                             index -= sPoints.length;
                         newShape[ii] = sPoints[index];
                     }
-                    polys.add(0, new Polygon3D(newShape, c, vH, bTo));
+                    polys.add(0, new Polygon3D(newShape, c, bTo));
                     //i++;//due to adding at 0
                     if (start > 0) i++;
                     totalPoints--;

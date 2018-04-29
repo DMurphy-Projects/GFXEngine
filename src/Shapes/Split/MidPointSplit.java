@@ -14,8 +14,8 @@ import java.util.ArrayList;
 public class MidPointSplit extends BaseSplit
 {
     @Override
-    public void split(double maxSize, ArrayList<Polygon3D> polys, Color c, ViewHandler vH, BaseShape bTo) {
-        super.split(maxSize, polys, c, vH, bTo);
+    public void split(double maxSize, ArrayList<Polygon3D> polys, Color c, BaseShape bTo) {
+        super.split(maxSize, polys, c, bTo);
         for (int i=0;i<polys.size();i++) {
             Polygon3D polygonToSplit = polys.get(i);
             RefPoint3D[] sPoints = polygonToSplit.getShape();
@@ -35,14 +35,14 @@ public class MidPointSplit extends BaseSplit
                 for (int ii = 1; ii <= sPoints.length - 1; ii++) {
                     RefPoint3D p1 = sPoints[ii];
                     RefPoint3D p2 = sPoints[ii - 1];
-                    polys.add(0, new Polygon3D(new RefPoint3D[]{p1, p2, middle}, c, vH, bTo));
+                    polys.add(0, new Polygon3D(new RefPoint3D[]{p1, p2, middle}, c, bTo));
                 }
-                polys.add(0, new Polygon3D(new RefPoint3D[]{sPoints[0], sPoints[sPoints.length - 1], middle}, c, vH, bTo));
+                polys.add(0, new Polygon3D(new RefPoint3D[]{sPoints[0], sPoints[sPoints.length - 1], middle}, c, bTo));
             }
         }
         if (needMore)
         {
-            split(maxSize, polys, c, vH, bTo);
+            split(maxSize, polys, c, bTo);
         }
     }
 }

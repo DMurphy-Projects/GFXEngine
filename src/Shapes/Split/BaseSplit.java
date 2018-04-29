@@ -34,7 +34,7 @@ public class BaseSplit implements ISplitStrategy
     }
 
     @Override
-    public void split(double maxSize, ArrayList<Polygon3D> polys, Color c, ViewHandler vH, BaseShape bTo) {
+    public void split(double maxSize, ArrayList<Polygon3D> polys, Color c, BaseShape bTo) {
         needMore = false;
         //this class is to provide easy methods for determining properties of shape
         //implementation of split is not one

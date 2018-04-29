@@ -10,8 +10,8 @@ public class Prism extends BaseShape {
 	protected static String name = "Prism";
 	
 	public Prism(double x, double y, double z, double width, double length,
-			double height, Color c, ViewHandler v) {
-		super(x, y, z, width, length, height, c, v);
+			double height, Color c) {
+		super(x, y, z, width, length, height, c);
 	}
 
 	@Override
@@ -39,10 +39,10 @@ public class Prism extends BaseShape {
 		//clockwise facing object
 		addPoly(new RefPoint3D[]{points.get(0), points.get(2), points.get(1)}, c);//front face
 		addPoly(new RefPoint3D[]{points.get(4), points.get(5), points.get(3)}, c);//back face
-		addPoly(new RefPoint3D[]{points.get(0), points.get(1), points.get(4), points.get(3)}, Color.RED);//bottom
+		addPoly(new RefPoint3D[]{points.get(0), points.get(1), points.get(4), points.get(3)}, c);//bottom
 		addPoly(new RefPoint3D[]{points.get(3), points.get(5), points.get(2), points.get(0)}, c);//left face
 
-		addPoly(new RefPoint3D[]{points.get(1), points.get(2), points.get(5), points.get(4)}, Color.BLUE);//right face
+		addPoly(new RefPoint3D[]{points.get(1), points.get(2), points.get(5), points.get(4)}, c);//right face
 	}
 	public static String getName()
 	{

@@ -11,5 +11,5 @@ import java.util.ArrayList;
  * Created by Dean on 08/01/17.
  */
 public interface ISplitStrategy {
-    public void split(double maxSize, ArrayList<Polygon3D> polys, Color c, ViewHandler vH, BaseShape bTo);
+    public void split(double maxSize, ArrayList<Polygon3D> polys, Color c, BaseShape bTo);
 }

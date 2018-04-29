@@ -23,7 +23,7 @@ public class PointInPolygon {
 
         //TODO
         //at some point i should really fix this mess
-        Plane plane = new Plane(new Polygon3D(poly, null, null, new BaseShape(0, 0, 0, 0, 0, 0, null, null) {
+        Plane plane = new Plane(new Polygon3D(poly, null, new BaseShape(0, 0, 0, 0, 0, 0, null) {
             @Override
             protected void createShape() {
                 points.add(new RefPoint3D(0, 0, 0));

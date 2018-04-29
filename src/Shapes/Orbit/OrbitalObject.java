@@ -23,8 +23,8 @@ public class OrbitalObject extends BaseShape {
 	OrbitalObject parent;
 
 	public OrbitalObject(double x, double y, double z, double xR, double yR,
-			double zR, Color c, ViewHandler v) {
-		super(x, y, z, .1, .1, .1, c, v);
+			double zR, Color c) {
+		super(x, y, z, .1, .1, .1, c);
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -90,7 +90,7 @@ public class OrbitalObject extends BaseShape {
 
 	@Override
 	protected void createShape() {
-		IShape cube = new Cube(x, y, z, width, height, length, c, v);
+		IShape cube = new Cube(x, y, z, width, height, length, c);
 		points = cube.getPoints();
 		polys = cube.getShape();
 	}

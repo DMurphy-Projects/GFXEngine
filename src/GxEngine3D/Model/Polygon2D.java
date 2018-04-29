@@ -66,7 +66,8 @@ public class Polygon2D {
 		}
 	}
 
-	public boolean MouseOver() {
-		return P.contains(vHandler.CenterX(), vHandler.CenterY());
+	public boolean isMouseOver() {
+		int[] center = vHandler.getCentre();
+		return P.contains(center[0], center[1]);
 	}
 }

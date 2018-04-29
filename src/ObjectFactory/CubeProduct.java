@@ -14,8 +14,8 @@ public class CubeProduct implements IProduct{
 	}
 
 	@Override
-	public BaseShape create(double x, double y, double z, ViewHandler v) {
-		return new Cube(x, y, z, 1, 1, 1, Color.BLUE, v);
+	public BaseShape create(double x, double y, double z) {
+		return new Cube(x, y, z, 1, 1, 1, Color.BLUE);
 	}
 
 }

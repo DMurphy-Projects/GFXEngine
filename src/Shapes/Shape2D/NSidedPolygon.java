@@ -7,8 +7,8 @@ import Shapes.BaseShape;
 import java.awt.*;
 
 public class NSidedPolygon extends BaseShape {
-    public NSidedPolygon(double x, double y, double z, double rad, Color c, ViewHandler v) {
-        super(x, y, z, rad, rad, rad, c, v);
+    public NSidedPolygon(double x, double y, double z, double rad, Color c) {
+        super(x, y, z, rad, rad, rad, c);
     }
 
     protected double getSides()

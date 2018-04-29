@@ -10,8 +10,8 @@ public class Pyramid extends BaseShape {
 	protected static String name = "Pyramid";
 	
 	public Pyramid(double x, double y, double z, double width, double length,
-			double height, Color c, ViewHandler v) {
-		super(x, y, z, width, length, height, c, v);
+			double height, Color c) {
+		super(x, y, z, width, length, height, c);
 	}
 
 	@Override
