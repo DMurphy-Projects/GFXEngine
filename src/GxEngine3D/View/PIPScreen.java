@@ -1,11 +1,8 @@
 package GxEngine3D.View;
 
-import DebugTools.TextOutput;
 import GxEngine3D.Model.Polygon2D;
 
-import javax.xml.soap.Text;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 

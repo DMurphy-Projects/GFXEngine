@@ -2,16 +2,19 @@ package GxEngine3D.View;
 
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Camera.ICameraEventListener;
+import GxEngine3D.Controller.ITickListener;
 import GxEngine3D.Controller.Scene;
 
 import javax.swing.JPanel;
 
-public class ViewHandler implements ICameraEventListener{
+public class ViewHandler implements ICameraEventListener, ITickListener {
 
 	JPanel view;
 	Scene scene;
 	Camera camera;
 	boolean needsRedraw = true;
+
+	boolean hasOutlines = true, canHover = true;
 
 	private int zoom = 1000, mnZoom = 500, mxZoom = 2500;
 
@@ -70,6 +73,23 @@ public class ViewHandler implements ICameraEventListener{
 	{
 		return camera;
 	}
+
+	public boolean canHover()
+	{
+		return canHover;
+	}
+	public boolean hasOutlines()
+	{
+		return hasOutlines;
+	}
+	public void setOutlines(boolean b)
+	{
+		hasOutlines = b;
+	}
+	public void setHover(boolean b)
+	{
+		canHover = b;
+	}
 	
 	public void doZoom(int direction)
 	{
@@ -88,5 +108,10 @@ public class ViewHandler implements ICameraEventListener{
 	@Override
 	public void onMove(double x, double y, double z) {
 		needsRedraw = true;
+	}
+
+	@Override
+	public void onTick() {
+		scene.update(this);
 	}
 }

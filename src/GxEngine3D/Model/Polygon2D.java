@@ -54,11 +54,11 @@ public class Polygon2D {
 			float[] temp = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), new float[3]);
 			g.setColor(new Color(Color.HSBtoRGB(temp[0], temp[1], (float) lighting)));
 			belongsTo.draw(g, P);
-			if (hover && GXController.canHover()) {
+			if (hover && vHandler.canHover()) {
 				g.setColor(new Color(255, 255, 255, 100));
 				belongsTo.drawHighlight(g, P);
 			}
-			if (GXController.hasOutlines()) {
+			if (vHandler.hasOutlines()) {
 				g.setColor(new Color(0, 0, 0));
 				belongsTo.drawOutlines(g, P);
 			}

@@ -26,29 +26,17 @@ public class GXController extends GXTickEvent implements KeyListener,
 			lastRefresh = 0, lastFPS = 0,
 			fpsChecks = 0;
 
-	// TODO fix this once polygon splitting happens
-	static boolean outlines = true, hover = true;
-
 	Map<Camera.Direction, Boolean> keys = new HashMap<>();
 
 	ViewController viewController;
 
 	public GXController(ViewController viewCon) {
 		viewController = viewCon;
-		for (ViewHandler vH:viewCon.getHandlers())
-		{
-			vH.getCamera().lookAt((BaseShape) vH.getScene().getShapes().get(0));
-			vH.getCamera().setup();
-		}
 	}
 
-	public void update() {
-		notifyTick();
-		setup();
-	}
-
-	public void setup()
+	public void update()
 	{
+		notifyTick();
 		//redraw the view we're currently controlling
 		if (isKeyPressed())
 		{
@@ -56,11 +44,7 @@ public class GXController extends GXTickEvent implements KeyListener,
 			active.getCamera().CameraMovement(keys);
 			active.getScene().scheduleRedraw();
 		}
-		//update scenes that each handler has
-		for (ViewHandler vH:viewController.getHandlers())
-		{
-			vH.update();
-		}
+		//not a fan of this, more detailed event system for gx controller?
 		for (Scene s:viewController.getScenes())
 		{
 			s.updateFinished();
@@ -120,7 +104,9 @@ public class GXController extends GXTickEvent implements KeyListener,
 		if (e.getKeyCode() == KeyEvent.VK_D)
 			keys.put(Camera.Direction.DOWN, true);
 		if (e.getKeyCode() == KeyEvent.VK_O)
-			outlines = !outlines;
+			viewController.getActive().setOutlines(!viewController.getActive().hasOutlines());
+		if (e.getKeyCode() == KeyEvent.VK_H)
+			viewController.getActive().setHover(!viewController.getActive().canHover());
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
 			System.exit(0);
 	}
@@ -152,15 +138,6 @@ public class GXController extends GXTickEvent implements KeyListener,
 		} catch (AWTException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static boolean hasOutlines()
-	{
-		return outlines;
-	}
-	public static boolean canHover()
-	{
-		return hover;
 	}
 
 	@Override

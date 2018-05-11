@@ -6,6 +6,7 @@ import DebugTools.TextModule.TextToggle;
 import GxEngine3D.CalculationHelper.Matrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
+import GxEngine3D.Camera.OrbitingCamera;
 import GxEngine3D.Controller.GXController;
 import GxEngine3D.Controller.Scene;
 import DebugTools.TextOutput;
@@ -65,35 +66,37 @@ public class GraphicsProgram {
 		//pip panels don't actually get drawn its just used as a container for dimensions
 		JPanel pipPanel = new JPanel();
 		pipPanel.setSize(100, 100);
-		//-----View handler setup
-		ViewHandler vH;
-
-		vH = viewCon.add(panel1, camera1, scene);
-		PIPView pip = new PIPView(new int[]{0, 0}, vH);
-		panel1.addView(pip);
-
-		Scene pipScene = new Scene(ls);
-		Pyramid pyr = new Pyramid(0, 0, 0, 1, 1, 1, Color.RED);
-		pipScene.addObject(pyr);
-		vH = viewCon.add(pipPanel, camera2, pipScene);
-		pip = new PIPView(new int[]{0, 0}, vH);
-		panel1.addView(pip);
-
-//		vH = viewCon.add(panel2, camera2, scene);
-//		panel2.setHandler(vH);
-
-//		vH = viewCon.add(panel3, camera3, scene);
-//		panel3.setHandler(vH);
-		//-----View handler end
-
-		final ShapeFactory factory = new ShapeFactory();
-		JMenu lookMenu = new JMenu("Look At");
-		final LookMenuController lookCon = new LookMenuController();
 
 		final GXController gCon = new GXController(viewCon);
 		addListeners(panel1, gCon);
 		addListeners(panel2, gCon);
 		addListeners(panel3, gCon);
+
+		//-----View handler setup
+		ViewHandler vH;
+
+		//-----Picture in picture setup
+		vH = viewCon.add(panel1, camera1, scene);
+		gCon.add(vH);
+		PIPView pip = new PIPView(new int[]{0, 0}, vH);
+		panel1.addView(pip);
+
+		Scene pipScene = new Scene(ls);
+		Cube pyr = new Cube(0, 0, 0, 1, 1, 1, Color.RED);
+		pipScene.addObject(pyr);
+		OrbitingCamera camera4 = new OrbitingCamera(5, 0, 5, 5, pyr);
+		gCon.add(camera4);
+		vH = viewCon.add(pipPanel, camera4, pipScene);
+		vH.setHover(false);
+		gCon.add(vH);
+		pip = new PIPView(new int[]{0, 0}, vH);
+		panel1.addView(pip);
+		//-----Picture in picture setup end
+		//-----View handler end
+
+		final ShapeFactory factory = new ShapeFactory();
+		JMenu lookMenu = new JMenu("Look At");
+		final LookMenuController lookCon = new LookMenuController();
 
 		ActionListener actions = new ActionListener() {
 			@Override
@@ -151,8 +154,13 @@ public class GraphicsProgram {
 //		setupFrame(panel2, "Panel 2");
 //		setupFrame(panel3, "Panel 3");
 
+		for (ViewHandler _vH:viewCon.getHandlers())
+		{
+			_vH.getCamera().lookAt((BaseShape) vH.getScene().getShapes().get(0));
+			_vH.getCamera().setup();
+		}
+
 		lookCon.updateMenu(lookMenu, scene, actions);
-		gCon.setup();
 		while (true) {
 			gCon.update();
 		}

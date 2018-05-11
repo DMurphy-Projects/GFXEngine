@@ -23,10 +23,10 @@ public class Camera implements ICameraEvent{
 	public Vector W1, W2;
 	private Projection focusPos;
 
-	private double[] viewFrom, viewTo, prevFrom;
+	protected double[] viewFrom, viewTo, prevFrom;
 	private double prevVLook = 0, prevHLook = 0;
 
-	private double vLook = -0, hLook = 0, hSpeed = 900, vSpeed = 2200, moveSpeed = 1;
+	protected double vLook = -0, hLook = 0, hSpeed = 900, vSpeed = 2200, moveSpeed = 1;
 	private double upper = (Math.PI/2)-0.001, lower = (-Math.PI/2)+0.001;
 
 	public enum Direction
@@ -125,7 +125,7 @@ public class Camera implements ICameraEvent{
 	public void CameraMovement(Map<Direction, Boolean> directions)
 	{
 		Vector ViewVector = new Vector(viewTo[0] - viewFrom[0], viewTo[1] - viewFrom[1], viewTo[2]
-				- viewFrom[2]);
+			- viewFrom[2]);
 		double xMove = 0, yMove = 0, zMove = 0;
 		Vector VerticalVector = new Vector(0, 0, 1);
 		Vector SideViewVector = ViewVector.crossProduct(VerticalVector);
@@ -189,8 +189,8 @@ public class Camera implements ICameraEvent{
 	@Override
 	public void notifyMove() {
 		//if are different
-		if (prevFrom[0] != viewFrom[0] &&
-				prevFrom[1] != viewFrom[1] &&
+		if (prevFrom[0] != viewFrom[0] ||
+				prevFrom[1] != viewFrom[1] ||
 				prevFrom[2] != viewFrom[2]) {
 			for (ICameraEventListener e : mListeners) {
 				e.onMove(viewFrom[0], viewFrom[1], viewFrom[2]);
