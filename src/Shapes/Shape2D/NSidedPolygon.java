@@ -44,13 +44,4 @@ public class NSidedPolygon extends BaseShape {
         }
         return poly;
     }
-//    private void add(int offset, int split)
-//    {
-//        RefPoint3D[] p = new RefPoint3D[points.size()/split];
-//        for (int i=offset;i<points.size();i+=split)
-//        {
-//            p[(i-offset)/split] = points.get(i);
-//        }
-//        add(p);
-//    }
 }

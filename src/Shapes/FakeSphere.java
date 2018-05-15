@@ -1,5 +1,6 @@
 package Shapes;
 
+import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.ILightingStrategy;
@@ -21,17 +22,7 @@ public class FakeSphere extends Circle {
         lighting = new ILightingStrategy() {
             @Override
             public double doLighting(Light l, Plane p, Camera c) {
-                //lighting on a sphere is equiv to lighting on a plane always facing camera
-                p = new Plane(c.W1, c.W2, p.getP());
-                double[] lightVector = l.getLightVector(p.getP());
-
-                double angle = Math.acos(VectorCalc.dot_v3v3(p.getNV().toArray(), lightVector));
-                double lighting = (120 + (Math.cos(angle) * 90)) / 255;
-                if (lighting > 1)
-                    lighting = 1;
-                if (lighting < 0)
-                    lighting = 0;
-                return lighting;
+                return 1;
             }
         };
     }
@@ -48,7 +39,11 @@ public class FakeSphere extends Circle {
         points.add(new RefPoint3D(x-width/2, y+height/2, z+offset));
         points.add(new RefPoint3D(x+width/2, y-height/2, z+offset));
         points.add(new RefPoint3D(x+width/2, y+height/2, z+offset));
-//        add(new RefPoint3D[]{points.get(0), points.get(1), points.get(3), points.get(2)});
+        addEdge(new RefPoint3D[]{points.get(0), points.get(1)});
+        addEdge(new RefPoint3D[]{points.get(1), points.get(2)});
+        addEdge(new RefPoint3D[]{points.get(2), points.get(3)});
+        addEdge(new RefPoint3D[]{points.get(3), points.get(0)});
+        addPoly(new RefPoint3D[]{points.get(0), points.get(1), points.get(2), points.get(3), }, c);
     }
 
     @Override
