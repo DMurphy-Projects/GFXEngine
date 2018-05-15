@@ -2,6 +2,7 @@ package GxEngine3D.View;
 
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Camera.ICameraEventListener;
+import GxEngine3D.Controller.GXTickEvent;
 import GxEngine3D.Controller.ITickListener;
 import GxEngine3D.Controller.Scene;
 
@@ -26,6 +27,7 @@ public class ViewHandler implements ICameraEventListener, ITickListener {
 		c.add(this);
 	}
 
+	//this should be the last thing to update, always
 	public void update()
 	{
 		scene.update(this);
@@ -111,7 +113,7 @@ public class ViewHandler implements ICameraEventListener, ITickListener {
 	}
 
 	@Override
-	public void onTick() {
+	public void onTick(GXTickEvent.Type t) {
 		scene.update(this);
 	}
 }

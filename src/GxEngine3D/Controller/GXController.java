@@ -36,18 +36,15 @@ public class GXController extends GXTickEvent implements KeyListener,
 
 	public void update()
 	{
+		notifyPreTick();
 		notifyTick();
+		notifyPostTick();
 		//redraw the view we're currently controlling
 		if (isKeyPressed())
 		{
 			ViewHandler active = viewController.getActive();
 			active.getCamera().CameraMovement(keys);
 			active.getScene().scheduleRedraw();
-		}
-		//not a fan of this, more detailed event system for gx controller?
-		for (Scene s:viewController.getScenes())
-		{
-			s.updateFinished();
 		}
 		for (JPanel p:viewController.getViews())
 		{

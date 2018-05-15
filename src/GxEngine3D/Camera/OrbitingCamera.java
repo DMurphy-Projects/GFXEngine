@@ -3,6 +3,7 @@ package GxEngine3D.Camera;
 import DebugTools.TextOutput;
 import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
+import GxEngine3D.Controller.GXTickEvent;
 import GxEngine3D.Controller.ITickListener;
 import Shapes.BaseShape;
 
@@ -19,7 +20,7 @@ public class OrbitingCamera extends Camera implements ITickListener{
     }
 
     @Override
-    public void onTick() {
+    public void onTick(GXTickEvent.Type t) {
         double[] viewVector = VectorCalc.norm_v3(VectorCalc.sub_v3v3(viewTo, viewFrom));
         double[] sideVector = VectorCalc.norm_v3(VectorCalc.cross(viewVector, new double[]{0, 0, 1}));
 

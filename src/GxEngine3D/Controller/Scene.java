@@ -14,7 +14,7 @@ import GxEngine3D.View.PolygonIterator;
 import GxEngine3D.View.ViewHandler;
 import Shapes.IShape;
 
-public class Scene{
+public class Scene implements ITickListener {
 
 	private ArrayList<IShape> shapes = new ArrayList<IShape>();
 
@@ -299,6 +299,14 @@ public class Scene{
 		{
 			//there was no useful intersect
 			return null;
+		}
+	}
+
+	@Override
+	public void onTick(GXTickEvent.Type t) {
+		if (t.equals(GXTickEvent.Type.PostTick))
+		{
+			globalRedraw = false;
 		}
 	}
 }
