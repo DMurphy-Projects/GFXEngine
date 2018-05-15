@@ -1,5 +1,6 @@
 package GxEngine3D.Ordering;
 
+import DebugTools.TextOutput;
 import GxEngine3D.CalculationHelper.PlaneCalc;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Polygon3D;
@@ -28,7 +29,6 @@ public class SidedOrdering extends BaseOrdering {
         if (array.size() <= 1) return array;
         ArrayList<Integer> pos = new ArrayList<>();
         ArrayList<Integer> neg = new ArrayList<>();
-        ArrayList<Integer> other = new ArrayList<>();
         int pivot = array.get(array.size()/2);
         Plane plane = new Plane(polygons.get(pivot));
         double[] nv = plane.getNV(from).toArray();
@@ -36,7 +36,8 @@ public class SidedOrdering extends BaseOrdering {
         {
             if (pivot == i) continue;
             PlaneCalc.Side side = PlaneCalc.whichSide(polygons.get(i).getShape(), nv, plane.getP());
-            if (side == PlaneCalc.Side.NEGATIVE)
+            //encompasses planar, negative and both sided nature
+            if (side.ordinal() > 0)
             {
                 neg.add(i);
             }
@@ -44,15 +45,10 @@ public class SidedOrdering extends BaseOrdering {
             {
                 pos.add(i);
             }
-            else
-            {
-                other.add(i);
-            }
         }
         ArrayList<Integer> order = new ArrayList<>();
         order.addAll(treeSort(neg, polygons, from));
         order.add(pivot);
-        order.addAll(treeSort(other, polygons, from));
         order.addAll(treeSort(pos, polygons, from));
         return order;
     }

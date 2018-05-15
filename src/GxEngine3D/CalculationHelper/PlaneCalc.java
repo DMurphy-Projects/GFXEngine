@@ -91,6 +91,7 @@ public class PlaneCalc {
         }
         else
         {
+            //all dots were 0
             return Side.PLANAR;
         }
     }
