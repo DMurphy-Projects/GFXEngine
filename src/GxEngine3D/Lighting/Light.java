@@ -24,14 +24,18 @@ public class Light {
 		line.setEnd(new double[]{lightPos[0], lightPos[1], lightPos[2]});
 	}
 	
-	public double[] getLightVector(double[] from)
+	public double[] getLightVector(double[] to)
 	{
-		return VectorCalc.norm_v3(VectorCalc.sub_v3v3(from, lightPos));
+		return VectorCalc.norm_v3(VectorCalc.sub_v3v3(lightPos, to));
 	}
 	
 	public int getBrightness()
 	{
 		return brightness;
+	}
+	public double[] getPosition()
+	{
+		return lightPos;
 	}
 
 }

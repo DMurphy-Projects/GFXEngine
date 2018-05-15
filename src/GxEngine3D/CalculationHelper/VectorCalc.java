@@ -12,8 +12,6 @@ public class VectorCalc {
 		dot *= -2;
 		double[] bounce = mul_v3_fl(planeNorm, dot);
 		bounce = add_v3v3(bounce, vector);
-		//System.out.println(bounce[0]+" "+bounce[1]+" "+bounce[2]);
-
 		return bounce;
 	}
 

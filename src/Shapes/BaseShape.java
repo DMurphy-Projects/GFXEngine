@@ -6,6 +6,7 @@ import java.awt.Polygon;
 import java.util.ArrayList;
 
 import GxEngine3D.CalculationHelper.RotationCalc;
+import GxEngine3D.Lighting.AltLighting;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Lighting.StandardLighting;
 import GxEngine3D.Model.Polygon3D;
@@ -45,7 +46,7 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 		this.length = length;
 		this.height = height;
 		curId = BaseShape.id++;
-		lighting = new StandardLighting();
+		lighting = new AltLighting();
 		createShape();
 	}
 

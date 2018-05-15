@@ -11,6 +11,7 @@ import GxEngine3D.Controller.GXController;
 import GxEngine3D.Controller.Scene;
 import DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
+import GxEngine3D.Ordering.SidedOrdering;
 import GxEngine3D.View.*;
 import MenuController.LookMenuController;
 import ObjectFactory.*;
@@ -33,7 +34,7 @@ public class GraphicsProgram {
 								Matrix.class.getName()),
 						true));
 
-		double[] lightLocation = {0, 0, 4};
+		double[] lightLocation = {0, 0, 3};
 
 		Camera camera1 = new Camera(5, 5, 20);
 		Camera camera2 = new Camera(5, 5, 20);
@@ -42,7 +43,9 @@ public class GraphicsProgram {
 		Line ln = new Line(0, 0, 0, lightLocation[0], lightLocation[1], lightLocation[2]);
 		Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, ln);
 
-		final Scene scene = new Scene(ls);
+		final Scene scene = new Scene(ls, new SidedOrdering());
+		scene.setSplitting(true);
+		scene.addObject(new FakeSphere(lightLocation[0], lightLocation[1], lightLocation[2], 1, Color.YELLOW));
 //		scene.addObject(ln);//shows where the light is, not where its actually shining
 
 		//testing for matrix plane intersections
@@ -81,7 +84,7 @@ public class GraphicsProgram {
 		PIPView pip = new PIPView(new int[]{0, 0}, vH);
 		panel1.addView(pip);
 
-		Scene pipScene = new Scene(ls);
+		Scene pipScene = new Scene(ls, new SidedOrdering());
 		Cube pyr = new Cube(0, 0, 0, 1, 1, 1, Color.RED);
 		pipScene.addObject(pyr);
 		OrbitingCamera camera4 = new OrbitingCamera(5, 0, 5, 5, pyr);
