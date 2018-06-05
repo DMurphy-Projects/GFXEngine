@@ -15,9 +15,9 @@ public class BarycentricIntersection implements IIntersection3DStrategy {
     public double[] intersects(double[] from, double[] point, double[] isect, ArrayList<Polygon3D> polysToCheck) {
         isect = finder.intersects(from, point, null, polysToCheck);
         for (Polygon3D poly:polysToCheck) {
-            Vector v0 = new Vector(VectorCalc.sub_v3v3(poly.getShape()[0].toArray(), poly.getShape()[2].toArray()));
-            Vector v1 = new Vector(VectorCalc.sub_v3v3(poly.getShape()[0].toArray(), poly.getShape()[1].toArray()));
-            Vector v2 = new Vector(VectorCalc.sub_v3v3(poly.getShape()[0].toArray(), isect));
+            Vector v0 = new Vector(VectorCalc.sub(poly.getShape()[0].toArray(), poly.getShape()[2].toArray()));
+            Vector v1 = new Vector(VectorCalc.sub(poly.getShape()[0].toArray(), poly.getShape()[1].toArray()));
+            Vector v2 = new Vector(VectorCalc.sub(poly.getShape()[0].toArray(), isect));
 
             double dot00 = v0.dot(v0);
             double dot01 = v0.dot(v1);

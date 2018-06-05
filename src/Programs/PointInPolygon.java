@@ -1,6 +1,5 @@
 package Programs;
 
-import GxEngine3D.CalculationHelper.Matrix;
 import GxEngine3D.CalculationHelper.PlaneCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Model.Plane;
@@ -36,9 +35,9 @@ public class PointInPolygon {
         {
             int i, j, c=0;
                 for (i = 0, j = poly.length-1; i < poly.length; j = i++) {
-                double[] v1 = VectorCalc.sub_v3v3(poly[i].toArray(), poly[j].toArray());
-                double[] v2 = VectorCalc.sub_v3v3(poly[i].toArray(), point.toArray());
-                double dot = VectorCalc.dot_v3v3(v1, v2);
+                double[] v1 = VectorCalc.sub(poly[i].toArray(), poly[j].toArray());
+                double[] v2 = VectorCalc.sub(poly[i].toArray(), point.toArray());
+                double dot = VectorCalc.dot(v1, v2);
                 c = (dot>=0)?c+1:c-1;
             }
             if (Math.abs(c) == poly.length)

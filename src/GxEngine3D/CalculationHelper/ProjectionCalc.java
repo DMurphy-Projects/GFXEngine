@@ -17,7 +17,7 @@ public class ProjectionCalc {
 	public static Projection getProj(double[] ViewFrom, double x,
 			double y, double z, Plane P) {
 
-		return VectorCalc.isect_line_plane_perspective(ViewFrom, new double[]{x, y, z},
+		return isect_line_plane_perspective(ViewFrom, new double[]{x, y, z},
 				P.getP(), P.getNV().toArray());
 	}
 
@@ -41,5 +41,42 @@ public class ProjectionCalc {
 
 		Vector V = new Vector(xRot, yRot, 0);
 		return V;
+	}
+
+	public static double[] bounce_on_plane(double[] planeNorm, double[] vector)
+	{
+		double dot = VectorCalc.dot(vector, planeNorm);
+		dot *= -2;
+		double[] bounce = VectorCalc.mul_v_d(planeNorm, dot);
+		bounce = VectorCalc.add(bounce, vector);
+		return bounce;
+	}
+
+	public static Projection isect_line_plane(double[] p0, double[] p1,
+											  double[] p_co, double[] p_no) {
+		double[] u = VectorCalc.sub(p1, p0);
+		return isect_vec_plane(p0, u, p_co, p_no);
+	}
+	public static Projection isect_vec_plane(double[] from,
+											 double[] vec, double[] pp, double[] pnv) {
+		double dot = VectorCalc.dot(pnv, from);
+		double dot3 = VectorCalc.dot(pnv, pp);
+		double f = dot3 - dot;
+		return new Projection(VectorCalc.add(VectorCalc.mul_v_d(vec, f), from), f);
+	}
+
+
+	public static Projection isect_line_plane_perspective(double[] p0, double[] p1,
+														  double[] p_co, double[] p_no) {
+		double[] u = VectorCalc.sub(p1, p0);
+		return isect_vec_plane_perspective(p0, u, p_co, p_no);
+	}
+	public static Projection isect_vec_plane_perspective(double[] from,
+														 double[] viewToPoint, double[] pp, double[] pnv) {
+		double dot = VectorCalc.dot(pnv, from);
+		double dot2 = VectorCalc.dot(pnv, viewToPoint);
+		double dot3 = VectorCalc.dot(pnv, pp);
+		double f = (dot3 - dot)/dot2;//dot2 not needed for iset plane as its for perspective
+		return new Projection(VectorCalc.add(VectorCalc.mul_v_d(viewToPoint, f), from), f);
 	}
 }

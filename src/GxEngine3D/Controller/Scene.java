@@ -9,7 +9,6 @@ import DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.*;
 import GxEngine3D.Ordering.IOrderStrategy;
-import GxEngine3D.Ordering.SidedOrdering;
 import GxEngine3D.View.PolygonIterator;
 import GxEngine3D.View.ViewHandler;
 import Shapes.IShape;
@@ -154,7 +153,7 @@ public class Scene implements ITickListener {
 					Plane plane02 = new Plane(p2);
 					//the same planes can have extremely small differences that the matrix see's them as different planes
 					//technically we should also check their points but if they are parallel thenno split really makes sense
-					if (VectorCalc.v3_v3_equals(plane01.getNV().toArray(), plane02.getNV().toArray())) {
+					if (VectorCalc.v_v_equals(plane01.getNV().toArray(), plane02.getNV().toArray())) {
 						TextOutput.println("Is same plane", 1);
 						continue;
 					}

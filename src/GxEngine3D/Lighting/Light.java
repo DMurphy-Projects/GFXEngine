@@ -1,7 +1,6 @@
 package GxEngine3D.Lighting;
 
 import GxEngine3D.CalculationHelper.VectorCalc;
-import GxEngine3D.Model.Vector;
 import Shapes.Shape2D.Line;
 
 public class Light {
@@ -26,7 +25,7 @@ public class Light {
 	
 	public double[] getLightVector(double[] to)
 	{
-		return VectorCalc.norm_v3(VectorCalc.sub_v3v3(lightPos, to));
+		return VectorCalc.norm(VectorCalc.sub(lightPos, to));
 	}
 	
 	public int getBrightness()

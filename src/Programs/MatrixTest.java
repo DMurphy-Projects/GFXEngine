@@ -25,17 +25,17 @@ public class MatrixTest {
         VectorCalc.p3_in_line_seg(p1, p2, p1);
         VectorCalc.p3_in_line_seg(p1, p2, p2);
 
-        double[] v1 = VectorCalc.sub_v3v3(p1, p2);
+        double[] v1 = VectorCalc.sub(p1, p2);
 
         double[] noise01 = new double[]{1, 1, 0};
         double[] noise02 = new double[]{0, 1, 1};
         double[] noise03 = new double[]{1, 0, 1};
-        if (VectorCalc.v3_v3_equals(v1, noise01))
+        if (VectorCalc.v_v_equals(v1, noise01))
         {
             System.out.println("v1 same as n1");
             noise01 = noise03;
         }
-        if(VectorCalc.v3_v3_equals(v1, noise02))
+        if(VectorCalc.v_v_equals(v1, noise02))
         {
             System.out.println("v1 same as n2");
             noise02 = noise03;
@@ -44,8 +44,8 @@ public class MatrixTest {
         //to do this we setup a plane with the vector + a random/arbitrary vector
         //the random vector needs to be different and not parallel in both planes
         //in short the difference between numbers cannot be one of the numbers, ie 1 and 2 => 2-1=1
-        Plane plane1 = new Plane(new Vector(v1), new Vector(VectorCalc.add_v3v3(v1, noise01)), p1);
-        Plane plane2 = new Plane(new Vector(v1), new Vector(VectorCalc.add_v3v3(v1, noise02)), p1);
+        Plane plane1 = new Plane(new Vector(v1), new Vector(VectorCalc.add(v1, noise01)), p1);
+        Plane plane2 = new Plane(new Vector(v1), new Vector(VectorCalc.add(v1, noise02)), p1);
 
         double[] planeEq1 = VectorCalc.plane_v3_pointForm(plane1.getNV().toArray(), plane1.getP());
         double[] planeEq2 = VectorCalc.plane_v3_pointForm(plane2.getNV().toArray(), plane2.getP());

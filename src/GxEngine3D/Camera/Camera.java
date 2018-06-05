@@ -6,12 +6,9 @@ import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Projection;
 import GxEngine3D.Model.Vector;
-import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -66,11 +63,11 @@ public class Camera implements ICameraEvent{
 	}
 	public double[] direction()
 	{
-		return VectorCalc.sub_v3v3(viewTo, viewFrom);
+		return VectorCalc.sub(viewTo, viewFrom);
 	}
 
 	public void setup() {
-		viewVector = new Vector(VectorCalc.sub_v3v3(viewTo, viewFrom));
+		viewVector = new Vector(VectorCalc.sub(viewTo, viewFrom));
 		directionVector = new Vector(1, 1, 1);
 		Vector planeVector1 = viewVector.crossProduct(directionVector);
 		Vector planeVector2 = viewVector.crossProduct(planeVector1);
@@ -125,7 +122,7 @@ public class Camera implements ICameraEvent{
 
 	public void CameraMovement(Map<Direction, Boolean> directions)
 	{
-		double[] viewVector = VectorCalc.sub_v3v3(viewFrom, viewTo);
+		double[] viewVector = VectorCalc.sub(viewFrom, viewTo);
 		double[] move = new double[3];
 		double[] verticalVector = new double[]{0, 0, 1};
 		double[] sideViewVector = VectorCalc.cross(viewVector, verticalVector);
@@ -134,18 +131,18 @@ public class Camera implements ICameraEvent{
 			if (dir.getValue()) {
 				Direction d = dir.getKey();
 				if (d == Direction.UP) {
-					move = VectorCalc.sub_v3v3(move, viewVector);
+					move = VectorCalc.sub(move, viewVector);
 				} else if (d == Direction.DOWN) {
-					move = VectorCalc.add_v3v3(move, viewVector);
+					move = VectorCalc.add(move, viewVector);
 				} else if (d == Direction.LEFT) {
-					move = VectorCalc.sub_v3v3(move, sideViewVector);
+					move = VectorCalc.sub(move, sideViewVector);
 				} else if (d == Direction.RIGHT) {
-					move = VectorCalc.add_v3v3(move, sideViewVector);
+					move = VectorCalc.add(move, sideViewVector);
 				}
 			}
 		}
 
-		move = VectorCalc.add_v3v3(viewFrom, VectorCalc.mul_v3_fl(move, moveSpeed));
+		move = VectorCalc.add(viewFrom, VectorCalc.mul_v_d(move, moveSpeed));
 		MoveTo(move[0], move[1], move[2]);
 	}
 	public void MouseMovement(double NewMouseX, double NewMouseY) {

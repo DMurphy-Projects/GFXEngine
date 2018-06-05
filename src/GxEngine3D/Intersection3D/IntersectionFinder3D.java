@@ -1,5 +1,6 @@
 package GxEngine3D.Intersection3D;
 
+import GxEngine3D.CalculationHelper.ProjectionCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Polygon3D;
@@ -15,7 +16,7 @@ public class IntersectionFinder3D implements IIntersection3DStrategy{
     @Override
     public double[] intersects(double[] from, double[] p, double[] isect, ArrayList<Polygon3D> polysToCheck) {
         Plane plane = new Plane(polysToCheck.get(0));
-        Projection pr = VectorCalc.isect_line_plane_perspective(from, new double[]{ p[0], p[1], p[2]},
+        Projection pr = ProjectionCalc.isect_line_plane_perspective(from, new double[]{ p[0], p[1], p[2]},
                 plane.getP(), plane.getFlipNV().toArray());
         return pr.Point();
     }

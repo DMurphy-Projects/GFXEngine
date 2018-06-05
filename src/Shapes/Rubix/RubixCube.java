@@ -5,12 +5,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
+import GxEngine3D.CalculationHelper.ProjectionCalc;
 import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.CalculationHelper.RotationCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
-import GxEngine3D.View.ViewHandler;
 import Shapes.Cube;
 
 public class RubixCube extends Cube implements KeyListener {
@@ -314,8 +314,8 @@ public class RubixCube extends Cube implements KeyListener {
 		double[] c = findCentre();
 		Plane plane = new Plane(o);
 		double[] pV = new double[] { plane.getNV().X(), plane.getNV().Y(), plane.getNV().Z() };
-		double[] pI = VectorCalc.isect_vec_plane_perspective(pV, c, plane.getP(), pV).Point();//TODO
-		pI = VectorCalc.sub_v3v3(pI, c);
+		double[] pI = ProjectionCalc.isect_vec_plane_perspective(pV, c, plane.getP(), pV).Point();//TODO
+		pI = VectorCalc.sub(pI, c);
 		
 		pI = RotationCalc.rotateFull(pI[0], pI[1], pI[2], 0, 0, 0, rotXY, rotXZ, rotYZ);
 		

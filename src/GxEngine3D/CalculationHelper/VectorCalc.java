@@ -1,74 +1,55 @@
 package GxEngine3D.CalculationHelper;
 
-import GxEngine3D.Model.Projection;
-
 public class VectorCalc {
 
 	private static double epsilon = 1e-10;;
 
-	public static double[] bounce_on_plane(double[] planeNorm, double[] vector)
-	{
-		double dot = dot_v3v3(vector, planeNorm);
-		dot *= -2;
-		double[] bounce = mul_v3_fl(planeNorm, dot);
-		bounce = add_v3v3(bounce, vector);
-		return bounce;
+	public static double[] add(double[] v0, double[] v1) {
+		double[] dArr = new double[v0.length];
+		for (int i=0;i<v0.length;i++)
+		{
+			dArr[i] = v0[i] + v1[i];
+		}
+		return dArr;
 	}
 
-	public static Projection isect_line_plane(double[] p0, double[] p1,
-											  double[] p_co, double[] p_no) {
-		double[] u = sub_v3v3(p1, p0);
-		return isect_vec_plane(p0, u, p_co, p_no);
-	}
-	public static Projection isect_vec_plane(double[] from,
-											 double[] vec, double[] pp, double[] pnv) {
-		double dot = dot_v3v3(pnv, from);
-		double dot3 = dot_v3v3(pnv, pp);
-		double f = dot3 - dot;
-		return new Projection(add_v3v3(mul_v3_fl(vec, f), from), f);
+	public static double[] sub(double[] v0, double[] v1) {
+		double[] dArr = new double[v0.length];
+		for (int i=0;i<v0.length;i++)
+		{
+			dArr[i] = v0[i] - v1[i];
+		}
+		return dArr;
 	}
 
-
-	public static Projection isect_line_plane_perspective(double[] p0, double[] p1,
-														  double[] p_co, double[] p_no) {
-		double[] u = sub_v3v3(p1, p0);
-		return isect_vec_plane_perspective(p0, u, p_co, p_no);
-	}
-	public static Projection isect_vec_plane_perspective(double[] from,
-														 double[] viewToPoint, double[] pp, double[] pnv) {
-		double dot = dot_v3v3(pnv, from);
-		double dot2 = dot_v3v3(pnv, viewToPoint);
-		double dot3 = dot_v3v3(pnv, pp);
-		double f = (dot3 - dot)/dot2;//dot2 not needed for iset plane as its for perspective
-		return new Projection(add_v3v3(mul_v3_fl(viewToPoint, f), from), f);
+	public static double dot(double[] v0, double[] v1) {
+		double d = 0;
+		for (int i=0;i<v0.length;i++)
+		{
+			d += v0[i] * v1[i];
+		}
+		return d;
 	}
 
-	public static double[] add_v3v3(double[] v0, double[] v1) {
-		return new double[] { v0[0] + v1[0], v0[1] + v1[1], v0[2] + v1[2], };
+	public static double len_squared(double[] v0) {
+		return dot(v0, v0);
 	}
 
-	public static double[] sub_v3v3(double[] v0, double[] v1) {
-		return new double[] { v0[0] - v1[0], v0[1] - v1[1], v0[2] - v1[2], };
+	public static double[] mul_v_d(double[] v0, double d) {
+		double[] dArr = new double[v0.length];
+		for (int i=0;i<v0.length;i++)
+		{
+			dArr[i] = v0[i] * d;
+		}
+		return dArr;
 	}
 
-	public static double dot_v3v3(double[] v0, double[] v1) {
-		return (v0[0] * v1[0]) + (v0[1] * v1[1]) + (v0[2] * v1[2]);
+	public static double[] div_v_d(double[] v0, double d) {
+		return mul_v_d(v0, 1d/d);
 	}
 
-	public static double len_squared_v3(double[] v0) {
-		return dot_v3v3(v0, v0);
-	}
-
-	public static double[] mul_v3_fl(double[] v0, double f) {
-		return new double[] { v0[0] * f, v0[1] * f, v0[2] * f, };
-	}
-
-	public static double[] div_v3_fl(double[] v0, double f) {
-		return new double[] { v0[0] / f, v0[1] / f, v0[2] / f, };
-	}
-
-	public static double len_v3_fl(double[] v0) {
-		return Math.sqrt(len_squared_v3(v0));
+	public static double len(double[] v0) {
+		return Math.sqrt(len_squared(v0));
 	}
 
 	public static double[] cross(double[] v0, double[] v1) {
@@ -76,13 +57,18 @@ public class VectorCalc {
 				(v0[2] * v1[0]) - (v0[0] * v1[2]), (v0[0] * v1[1]) - (v0[1] * v1[0]) };
 	}
 
-	public static double[] mul_arr(double[] v0, double[] v1) {
-		return new double[] { (v0[0] * v1[0]), (v0[1] * v1[1]), (v0[2] * v1[2]) };
+	public static double[] mul(double[] v0, double[] v1) {
+		double[] dArr = new double[v0.length];
+		for (int i=0;i<v0.length;i++)
+		{
+			dArr[i] = v0[i] * v1[i];
+		}
+		return dArr;
 	}
 
-	public static double[] norm_v3(double[] v0)
+	public static double[] norm(double[] v0)
 	{
-		return div_v3_fl(v0, len_v3_fl(v0));
+		return div_v_d(v0, len(v0));
 	}
 
 	public static double[] plane_v3_pointForm(double[] nV, double[] p)
@@ -106,10 +92,10 @@ public class VectorCalc {
 		return pointForm;
 	}
 
-	public static boolean v3_v3_equals(double[] v1, double[] v2)
+	public static boolean v_v_equals(double[] v1, double[] v2)
 	{
-		v1 = norm_v3(v1);
-		v2 = norm_v3(v2);
+		v1 = norm(v1);
+		v2 = norm(v2);
 		for (int i=0;i<v1.length;i++)
 		{
 			if (Math.abs(v1[i] - v2[i]) > epsilon)
@@ -120,9 +106,9 @@ public class VectorCalc {
 		return true;
 	}
 
-	public static boolean v3_is_null(double[] v)
+	public static boolean v_is_null(double[] v)
 	{
-		for (int i=0;i<3;i++)
+		for (int i=0;i<v.length;i++)
 		{
 			if (Math.abs(v[i]) > epsilon)
 			{
@@ -135,14 +121,14 @@ public class VectorCalc {
 	//https://www.lucidarme.me/check-if-a-point-belongs-on-a-line-segment/
 	public static boolean p3_in_line_seg(double[] l0, double[] l1, double[] p)
 	{
-		double[] v0 = VectorCalc.sub_v3v3(l0, l1);
-		double[] v1 = VectorCalc.sub_v3v3(l0, p);
+		double[] v0 = VectorCalc.sub(l0, l1);
+		double[] v1 = VectorCalc.sub(l0, p);
 		double[] cross = VectorCalc.cross(v0, v1);
-		if (!v3_is_null(cross))
+		if (!v_is_null(cross))
 		{
 			return false;
 		}
-		double k_ac = VectorCalc.dot_v3v3(v0, v1);
+		double k_ac = VectorCalc.dot(v0, v1);
 		if (k_ac < 0)
 		{
 			return false;
@@ -152,7 +138,7 @@ public class VectorCalc {
 			//p shares with l0
 			return true;
 		}
-		double k_ab = VectorCalc.dot_v3v3(v0, v0);
+		double k_ab = VectorCalc.dot(v0, v0);
 		if (k_ac > k_ab)
 		{
 			return false;

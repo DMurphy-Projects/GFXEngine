@@ -4,7 +4,6 @@ import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Model.Plane;
-import GxEngine3D.Model.Vector;
 
 /**
  * Created by Dean on 29/12/16.
@@ -18,10 +17,10 @@ public class StandardLighting implements ILightingStrategy {
         //so finding which side the camera is on tells us if the light is behind or infront of the plan we're
         //looking at
         double[] nVector = lightingPlane.getNV(c.position()).toArray();
-        nVector = VectorCalc.norm_v3(nVector);
+        nVector = VectorCalc.norm(nVector);
 
         double[] lightVector = l.getLightVector(lightingPlane.getP());
-        double lighting = VectorCalc.dot_v3v3(nVector, lightVector);
+        double lighting = VectorCalc.dot(nVector, lightVector);
         //get a factor to modify the lightning value with
         //uses inverse square law
         double dist = DistanceCalc.getDistanceNoRoot(l.lightPos, lightingPlane.getP());

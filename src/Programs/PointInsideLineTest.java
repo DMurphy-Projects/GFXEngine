@@ -2,20 +2,19 @@ package Programs;
 
 import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
-import GxEngine3D.Model.Vector;
 
 public class PointInsideLineTest {
     static double epsilon = 1e-10;
     public static boolean linePointOrientationFast(double[] l0, double[] l1, double[] p)
     {
-        double[] v0 = VectorCalc.sub_v3v3(l0, l1);
-        double[] v1 = VectorCalc.sub_v3v3(l0, p);
+        double[] v0 = VectorCalc.sub(l0, l1);
+        double[] v1 = VectorCalc.sub(l0, p);
         double[] cross = VectorCalc.cross(v0, v1);
         if (Math.abs(cross[0] + cross[1] + cross[2]) > epsilon)
         {
             return false;
         }
-        double k_ac = VectorCalc.dot_v3v3(v0, v1);
+        double k_ac = VectorCalc.dot(v0, v1);
         if (k_ac < 0)
         {
             return false;
@@ -25,7 +24,7 @@ public class PointInsideLineTest {
             //p shares with l0
             return true;
         }
-        double k_ab = VectorCalc.dot_v3v3(v0, v0);
+        double k_ab = VectorCalc.dot(v0, v0);
         if (k_ac > k_ab)
         {
             return false;
