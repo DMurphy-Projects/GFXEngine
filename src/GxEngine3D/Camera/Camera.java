@@ -11,6 +11,7 @@ import Shapes.BaseShape;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -92,7 +93,7 @@ public class Camera implements ICameraEvent{
 	public void lookAt(BaseShape s) {
 		double[] look = s.findCentre();
 		//System.out.println(look[0]+" "+look[1]+" "+look[2]);
-		hLook = Math.atan2(look[1] - viewFrom[1], look[0] - viewFrom[0]);
+		hLook = Math.atan2(look[0] - viewFrom[0], look[1] - viewFrom[1]);
 
 		// get x,y distance
 		double xyDist = DistanceCalc.getDistance(new double[] { look[0],
@@ -124,64 +125,52 @@ public class Camera implements ICameraEvent{
 
 	public void CameraMovement(Map<Direction, Boolean> directions)
 	{
-		Vector ViewVector = new Vector(viewTo[0] - viewFrom[0], viewTo[1] - viewFrom[1], viewTo[2]
-			- viewFrom[2]);
-		double xMove = 0, yMove = 0, zMove = 0;
-		Vector VerticalVector = new Vector(0, 0, 1);
-		Vector SideViewVector = ViewVector.crossProduct(VerticalVector);
+		double[] viewVector = VectorCalc.sub_v3v3(viewFrom, viewTo);
+		double[] move = new double[3];
+		double[] verticalVector = new double[]{0, 0, 1};
+		double[] sideViewVector = VectorCalc.cross(viewVector, verticalVector);
 
 		for (Map.Entry<Direction, Boolean> dir:directions.entrySet()) {
 			if (dir.getValue()) {
 				Direction d = dir.getKey();
 				if (d == Direction.UP) {
-					xMove += ViewVector.X();
-					yMove += ViewVector.Y();
-					zMove += ViewVector.Z();
+					move = VectorCalc.sub_v3v3(move, viewVector);
 				} else if (d == Direction.DOWN) {
-					xMove -= SideViewVector.X();
-					yMove -= SideViewVector.Y();
-					zMove -= SideViewVector.Z();
+					move = VectorCalc.add_v3v3(move, viewVector);
 				} else if (d == Direction.LEFT) {
-					xMove += SideViewVector.X();
-					yMove += SideViewVector.Y();
-					zMove += SideViewVector.Z();
+					move = VectorCalc.sub_v3v3(move, sideViewVector);
 				} else if (d == Direction.RIGHT) {
-					xMove -= ViewVector.X();
-					yMove -= ViewVector.Y();
-					zMove -= ViewVector.Z();
+					move = VectorCalc.add_v3v3(move, sideViewVector);
 				}
 			}
 		}
 
-		Vector MoveVector = new Vector(xMove, yMove, zMove);
-		MoveTo(viewFrom[0] + MoveVector.X() * moveSpeed, viewFrom[1] + MoveVector.Y()
-				* moveSpeed, viewFrom[2] + MoveVector.Z() * moveSpeed);
+		move = VectorCalc.add_v3v3(viewFrom, VectorCalc.mul_v3_fl(move, moveSpeed));
+		MoveTo(move[0], move[1], move[2]);
 	}
 	public void MouseMovement(double NewMouseX, double NewMouseY) {
 		double difX = NewMouseX;
 		double difY = NewMouseY;
 
-		vLook -= difY / vSpeed;
+		vLook += difY / vSpeed;
 		hLook += difX / hSpeed;
+		if (vLook >= upper)
+			vLook = upper;
+		if (vLook <= lower)
+			vLook = lower;
 
 		if (prevHLook != hLook || prevVLook != vLook) {
 			prevHLook = hLook;
 			prevVLook = vLook;
-
-			if (vLook >= upper)
-				vLook = upper;
-			if (vLook <= lower)
-				vLook = lower;
 			updateView();
 			notifyLook();
 		}
 	}
 
-	void updateView() {
-		//its finally over
+	void updateView() {	
 		double r = Math.cos(vLook);
-		viewTo[0] = viewFrom[0] + (r * Math.cos(hLook));
-		viewTo[1] = viewFrom[1] + (r * Math.sin(hLook));
+		viewTo[0] = viewFrom[0] + (r * Math.sin(hLook));
+		viewTo[1] = viewFrom[1] + (r * Math.cos(hLook));
 		viewTo[2] = viewFrom[2] + Math.sin(vLook);
 	}
 

@@ -13,6 +13,8 @@ import DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Ordering.SidedOrdering;
 import GxEngine3D.View.*;
+import GxEngine3D.View.PIP.PIPScreen;
+import GxEngine3D.View.PIP.PIPView;
 import MenuController.LookMenuController;
 import ObjectFactory.*;
 import Shapes.*;
@@ -60,11 +62,11 @@ public class GraphicsProgram {
 		PIPScreen panel1 = new PIPScreen();
 		panel1.setPreferredSize(new Dimension(500, 500));
 
-		Screen panel2 = new Screen();
-		panel2.setPreferredSize(new Dimension(500, 500));
-
-		Screen panel3 = new Screen();
-		panel3.setPreferredSize(new Dimension(500, 500));
+//		Screen panel2 = new Screen();
+//		panel2.setPreferredSize(new Dimension(500, 500));
+//
+//		Screen panel3 = new Screen();
+//		panel3.setPreferredSize(new Dimension(500, 500));
 
 		//pip panels don't actually get drawn its just used as a container for dimensions
 		JPanel pipPanel = new JPanel();
@@ -72,8 +74,8 @@ public class GraphicsProgram {
 
 		final GXController gCon = new GXController(viewCon);
 		addListeners(panel1, gCon);
-		addListeners(panel2, gCon);
-		addListeners(panel3, gCon);
+//		addListeners(panel2, gCon);
+//		addListeners(panel3, gCon);
 
 		//-----View handler setup
 		ViewHandler vH;
@@ -81,7 +83,8 @@ public class GraphicsProgram {
 		//-----Picture in picture setup
 		vH = viewCon.add(panel1, camera1, scene);
 		gCon.add(vH);
-		PIPView pip = new PIPView(new int[]{0, 0}, vH);
+		PIPView pip = new Screen(new int[]{0, 0});
+		pip.setViewHandler(vH);
 		panel1.addView(pip);
 
 		Scene pipScene = new Scene(ls, new SidedOrdering());
@@ -92,7 +95,8 @@ public class GraphicsProgram {
 		vH = viewCon.add(pipPanel, camera4, pipScene);
 		vH.setHover(false);
 		gCon.add(vH);
-		pip = new PIPView(new int[]{0, 0}, vH);
+		pip = new Screen(new int[]{0, 0});
+		pip.setViewHandler(vH);
 		panel1.addView(pip);
 		//-----Picture in picture setup end
 		//-----View handler end
@@ -160,7 +164,6 @@ public class GraphicsProgram {
 		for (ViewHandler _vH:viewCon.getHandlers())
 		{
 			_vH.getCamera().lookAt((BaseShape) vH.getScene().getShapes().get(0));
-			_vH.getCamera().setup();
 		}
 
 		lookCon.updateMenu(lookMenu, scene, actions);

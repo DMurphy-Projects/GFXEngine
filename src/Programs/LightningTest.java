@@ -88,7 +88,7 @@ public class LightningTest {
         vH = viewCon.add(pipPanel, camera1, scene);
         gCon.add(vH);
 
-        pipPanel.setHandler(vH);
+        pipPanel.setViewHandler(vH);
         //-----Picture in picture setup end
         //-----View handler end
 

@@ -86,9 +86,9 @@ public class GXController extends GXTickEvent implements KeyListener,
 		if (e.getKeyCode() == KeyEvent.VK_A)
 			keys.put(Camera.Direction.LEFT, false);
 		if (e.getKeyCode() == KeyEvent.VK_S)
-			keys.put(Camera.Direction.RIGHT, false);
-		if (e.getKeyCode() == KeyEvent.VK_D)
 			keys.put(Camera.Direction.DOWN, false);
+		if (e.getKeyCode() == KeyEvent.VK_D)
+			keys.put(Camera.Direction.RIGHT, false);
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -97,9 +97,9 @@ public class GXController extends GXTickEvent implements KeyListener,
 		if (e.getKeyCode() == KeyEvent.VK_A)
 			keys.put(Camera.Direction.LEFT, true);
 		if (e.getKeyCode() == KeyEvent.VK_S)
-			keys.put(Camera.Direction.RIGHT, true);
-		if (e.getKeyCode() == KeyEvent.VK_D)
 			keys.put(Camera.Direction.DOWN, true);
+		if (e.getKeyCode() == KeyEvent.VK_D)
+			keys.put(Camera.Direction.RIGHT, true);
 		if (e.getKeyCode() == KeyEvent.VK_O)
 			viewController.getActive().setOutlines(!viewController.getActive().hasOutlines());
 		if (e.getKeyCode() == KeyEvent.VK_H)
@@ -123,7 +123,7 @@ public class GXController extends GXTickEvent implements KeyListener,
 	public void mouseMoved(MouseEvent arg0) {
 		ViewHandler vH = viewController.getActive();
 		int[] centre = vH.getCentre();
-		vH.getCamera().MouseMovement(arg0.getX() - centre[0], arg0.getY() - centre[1]);
+		vH.getCamera().MouseMovement(centre[0] - arg0.getX(), centre[1] - arg0.getY());
 		centreMouse();
 	}
 
