@@ -18,9 +18,7 @@ public class CubeProduct implements IProduct{
 	@Override
 	public BaseShape create(double x, double y, double z) {
 		Cube c = new Cube(Color.BLUE);
-		TextOutput.println(c.translation);
 		c.translate(x, y, z);
-		TextOutput.println(c.translation);
 		return c;
 	}
 

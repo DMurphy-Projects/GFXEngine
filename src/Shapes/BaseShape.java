@@ -21,7 +21,7 @@ import Shapes.Split.SplitIntoTriangles;
 public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
 	double pitch = 0, yaw = 0, roll = 0;
-	public Matrix scale, xRotation, yRotation, zRotation, translation;
+	Matrix scale, xRotation, yRotation, zRotation, translation;
 
 	protected Color c;
 

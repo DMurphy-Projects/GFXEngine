@@ -12,7 +12,14 @@ public class SplittingTest {
     public static void main(String[] args)
     {
         Sqaure sq01 = new Sqaure(Color.white);
+        sq01.scale(5, 5, 5);
+        sq01.translate(0, 0, 2);
         Sqaure sq02 = new Sqaure(Color.white);
+        sq01.scale(5, 5, 5);
+        sq02.translate(0, 0, 2);
+        sq02.roll(Math.toRadians(90));
+        sq02.pitch(Math.toRadians(20));
+        sq02.yaw(Math.toRadians(45));
         sq02.update();
 
         AlgebraicMatrix m = new AlgebraicMatrix(2, 4);
