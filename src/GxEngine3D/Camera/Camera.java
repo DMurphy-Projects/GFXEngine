@@ -38,6 +38,7 @@ public class Camera implements ICameraEvent{
 	public Camera(double x, double y, double z) {
 		viewFrom = new double[] { x, y, z };
 		viewTo = new double[] { 0, 0, 0 };
+		updateView();
 		prevFrom = new double[] { 0, 0, 0 };
 	}
 
