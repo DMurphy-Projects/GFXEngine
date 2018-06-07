@@ -3,27 +3,24 @@ package Shapes;
 import java.awt.Color;
 
 import GxEngine3D.Model.RefPoint3D;
-import GxEngine3D.View.ViewHandler;
 
 public class Cube extends BaseShape {
 
 	protected static String name = "Cube";
 	
-	public Cube(double x, double y, double z, double width, double length,
-			double height, Color c) {
-
-		super(x, y, z, width, length, height, c);
+	public Cube(Color c) {
+		super(c);
 	}
 
 	protected void createShape(Color[] c) {
-		points.add(new RefPoint3D(x, y, z));//0 bottom back left
-		points.add(new RefPoint3D(x + width, y, z));//1 bottom back right
-		points.add(new RefPoint3D(x, y + length, z));//2 bottom front left
-		points.add(new RefPoint3D(x + width, y + length, z));//3 bottom front right
-		points.add(new RefPoint3D(x, y, z + height));//4 top back left
-		points.add(new RefPoint3D(x + width, y, z + height));//5 top back right
-		points.add(new RefPoint3D(x, y + length, z + height));//6 top front left
-		points.add(new RefPoint3D(x + width, y + length, z + height));//7 top front right
+		addPoint(new double[]{0, 0, 0});//0 bottom back left
+		addPoint(new double[]{1, 0, 0});//1 bottom back right
+		addPoint(new double[]{0, 1, 0});//2 bottom front left
+		addPoint(new double[]{1, 1, 0});//3 bottom front right
+		addPoint(new double[]{0, 0, 1});//4 top back left
+		addPoint(new double[]{1, 0, 1});//5 top back right
+		addPoint(new double[]{0, 1,  1});//6 top front left
+		addPoint(new double[]{1, 1, 1});//7 top front right
 
 		addEdge(new RefPoint3D[]{points.get(3), points.get(2)});//bottom front
 		addEdge(new RefPoint3D[]{points.get(3), points.get(1)});//bottom right

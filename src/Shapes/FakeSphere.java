@@ -1,14 +1,10 @@
 package Shapes;
 
-import GxEngine3D.CalculationHelper.DistanceCalc;
-import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.RefPoint3D;
-import GxEngine3D.Model.Vector;
-import GxEngine3D.View.ViewHandler;
 import Shapes.Shape2D.Circle;
 
 import java.awt.*;
@@ -17,8 +13,8 @@ import java.awt.*;
  * Created by Dean on 28/12/16.
  */
 public class FakeSphere extends Circle {
-    public FakeSphere(double x, double y, double z, double rad, Color c) {
-        super(x, y, z, rad, c);
+    public FakeSphere(Color c) {
+        super(c);
         lighting = new ILightingStrategy() {
             @Override
             public double doLighting(Light l, Plane p, Camera c) {
@@ -34,11 +30,10 @@ public class FakeSphere extends Circle {
 
     @Override
     protected void createShape() {
-        double offset = length/2;//technically l==h==w
-        points.add(new RefPoint3D(x-width/2, y-height/2, z+offset));
-        points.add(new RefPoint3D(x-width/2, y+height/2, z+offset));
-        points.add(new RefPoint3D(x+width/2, y-height/2, z+offset));
-        points.add(new RefPoint3D(x+width/2, y+height/2, z+offset));
+        addPoint(new double[]{0, 0, 0});
+        addPoint(new double[]{1, 0, 0});
+        addPoint(new double[]{1, 1, 0});
+        addPoint(new double[]{0, 1, 0});
         addEdge(new RefPoint3D[]{points.get(0), points.get(1)});
         addEdge(new RefPoint3D[]{points.get(1), points.get(2)});
         addEdge(new RefPoint3D[]{points.get(2), points.get(3)});

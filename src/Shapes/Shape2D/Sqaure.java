@@ -1,9 +1,5 @@
 package Shapes.Shape2D;
 
-import GxEngine3D.Intersection3D.IIntersection3DStrategy;
-import GxEngine3D.Intersection3D.TriangleSideIntersection;
-import GxEngine3D.View.ViewHandler;
-
 import java.awt.*;
 
 /**
@@ -11,10 +7,8 @@ import java.awt.*;
  */
 public class Sqaure extends NSidedPolygon{
 
-    IIntersection3DStrategy finder = new TriangleSideIntersection();
-
-    public Sqaure(double x, double y, double z, double rad, Color c) {
-        super(x, y, z, rad, c);
+    public Sqaure(Color c) {
+        super(c);
     }
 
     @Override

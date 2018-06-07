@@ -17,6 +17,8 @@ public class FakeSphereProduct implements IProduct {
 
     @Override
     public BaseShape create(double x, double y, double z) {
-        return new FakeSphere(x, y, z, 1, Color.red);
+        FakeSphere s = new FakeSphere(Color.red);
+        s.translate(x, y, z);
+        return s;
     }
 }

@@ -1,15 +1,15 @@
-package GxEngine3D.CalculationHelper;
+package GxEngine3D.Model.Matrix;
 
 import DebugTools.TextOutput;
+import GxEngine3D.CalculationHelper.PlaneCalc;
+import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Model.Plane;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Matrix {
+public class AlgebraicMatrix extends Matrix{
 
-    double[][] matrix;
-    int m, n, curM = 0;
     double epsilon = 1e-10;
 
     public enum SolutionType
@@ -24,23 +24,9 @@ public class Matrix {
 
     SolutionType solutionType = SolutionType.UNDEFINED;
 
-    public Matrix(int m, int n)
+    public AlgebraicMatrix(int m, int n)
     {
-        matrix = new double[m][n];
-        this.m = m;
-        this.n = n;
-    }
-
-    public void addMatrixOfEqautions(Matrix m)
-    {
-        //compatibility checks
-        if (m.n != this.n) return;
-        if (m.m <= curM) return;
-
-        for (double[] e:m.matrix)
-        {
-            addEqaution(e);
-        }
+        super(m, n);
     }
 
     //a plane counts as 1 but a line counts as 2
@@ -59,61 +45,6 @@ public class Matrix {
                 plane.getNV().toArray(),
                 plane.getP());
         addEqaution(eq);
-    }
-
-    public void addEqaution(double[] e)
-    {
-        if (e.length > n)
-        {
-            TextOutput.println("Eqaution in wrong format for this "+m+" by "+n+" matrix", 0);
-        }
-        else
-        {
-            if (curM > m) {
-                TextOutput.println("Exceeds matrix length", 0);
-            }
-            else
-            {
-                matrix[curM] = e;
-                curM++;
-            }
-        }
-    }
-
-    public double[] scale(int m, double v)
-    {
-        double[] newRow = new double[this.n];
-        for (int i=0;i<n;i++)
-        {
-            newRow[i] = matrix[m][i] * v;
-        }
-        TextOutput.println("Scale", 1);
-        TextOutput.println(this, 2);
-        return newRow;
-    }
-
-    public double[] add(int m, double v)
-    {
-        double[] newRow = new double[this.n];
-        for (int i=0;i<n;i++)
-        {
-            newRow[i] = matrix[m][i] + v;
-        }
-        TextOutput.println("Add Constant", 1);
-        TextOutput.println(this, 2);
-        return newRow;
-    }
-
-    public double[] add(int m, double[] _matrix)
-    {
-        double[] newRow = new double[this.n];
-        for (int i=0;i<n;i++)
-        {
-            newRow[i] = matrix[m][i] + _matrix[i];
-        }
-        TextOutput.println("Add Matrix", 1);
-        TextOutput.println(this, 2);
-        return newRow;
     }
 
     private void swapOrdering()
@@ -382,24 +313,5 @@ public class Matrix {
         }
         TextOutput.println("Incorrect type Solution", 0);
         return null;
-    }
-
-    @Override
-    public String toString() {
-        String s = "\n";
-        for (int i=0;i<m;i++)
-        {
-            for (int ii=0;ii<n;ii++)
-            {
-                s += matrix[i][ii] +" ";
-            }
-            s += "\n";
-        }
-        return s;
-    }
-
-    public int getRows()
-    {
-        return m;
     }
 }

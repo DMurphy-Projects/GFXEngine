@@ -3,27 +3,25 @@ package Shapes;
 import java.awt.Color;
 
 import GxEngine3D.Model.RefPoint3D;
-import GxEngine3D.View.ViewHandler;
 
 public class Prism extends BaseShape {
 
 	protected static String name = "Prism";
 	
-	public Prism(double x, double y, double z, double width, double length,
-			double height, Color c) {
-		super(x, y, z, width, length, height, c);
+	public Prism(Color c) {
+		super(c);
 	}
 
 	@Override
 	protected void createShape() {
 		// triangle faces
-		points.add(new RefPoint3D(x, y, z));//0 front left
-		points.add(new RefPoint3D(x + width, y, z));//1 front right
-		points.add(new RefPoint3D(x + (width / 2), y + height, z));//2 front top
+		addPoint(new double[]{0, 0, 0});//0 front left
+		addPoint(new double[]{1, 0, 0});//1 front right
+		addPoint(new double[]{0.5, 1, 0});//2 front top
 
-		points.add(new RefPoint3D(x, y, z + length));//3 back left
-		points.add(new RefPoint3D(x + width, y, z + length));//4 back right
-		points.add(new RefPoint3D(x + (width / 2), y + height, z + length));//5 back top
+		addPoint(new double[]{0, 0, 1});//3 back left
+		addPoint(new double[]{1, 0, 1});//4 back right
+		addPoint(new double[]{0.5, 1, 1});//5 back top
 
 		addEdge(new RefPoint3D[]{points.get(0), points.get(1)});//front bottom
 		addEdge(new RefPoint3D[]{points.get(0), points.get(2)});//front left

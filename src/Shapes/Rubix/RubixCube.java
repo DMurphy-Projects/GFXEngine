@@ -13,6 +13,7 @@ import GxEngine3D.CalculationHelper.RotationCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import Shapes.Cube;
 
+//TODO reimplement this class with newer systems
 public class RubixCube extends Cube implements KeyListener {
 
 	private RubixCubelet[][][] cube;
@@ -21,9 +22,8 @@ public class RubixCube extends Cube implements KeyListener {
 
 	private boolean[] keys = new boolean[2];
 
-	public RubixCube(double x, double y, double z, double width, double length,
-			double height, Color c) {
-		super(x, y, z, width, length, height, c);
+	public RubixCube(Color c) {
+		super(c);
 	}
 
 	private ArrayList<RefPoint3D> createBlock(int x, int y, int z) {
@@ -60,49 +60,49 @@ public class RubixCube extends Cube implements KeyListener {
 				c[i] = this.c;
 			}
 		}
-		if (points.size() == 0) {
+		if (relativePoints.size() == 0) {
 			super.createShape(c);
 		}
-		ArrayList<RefPoint3D> block = (ArrayList<RefPoint3D>) points.clone();
-		points.clear();
+		ArrayList<RefPoint3D> block = (ArrayList<RefPoint3D>) relativePoints.clone();
+		relativePoints.clear();
 
 		return block;
 	}
 
 	@Override
 	protected void createShape() {
-		x -= width;
-		y -= length;
-		z -= height;
-
-		double startX = x;
-		double startY = y;
+//		x -= width;
+//		y -= length;
+//		z -= height;
+//
+//		double startX = x;
+//		double startY = y;
 
 		cube = new RubixCubelet[3][3][3];
 
-		for (int l = 0; l < 3; l++) {
-			for (int h = 0; h < 3; h++) {
-				for (int w = 0; w < 3; w++) {
-					cube[w][h][l] = new RubixCubelet(createBlock(w, h, l));
-					x += width;
-				}
-				x = startX;
-				y += length;
-			}
-			y = startY;
-			z += height;
-		}
+//		for (int l = 0; l < 3; l++) {
+//			for (int h = 0; h < 3; h++) {
+//				for (int w = 0; w < 3; w++) {
+//					cube[w][h][l] = new RubixCubelet(createBlock(w, h, l));
+//					x += width;
+//				}
+//				x = startX;
+//				y += length;
+//			}
+//			y = startY;
+//			z += height;
+//		}
 
 		setRotation(0, 3, 0, 3, 0, 3);
 	}
 
 	private void setRotation(int ls, int le, int hs, int he, int ws, int we) {
-		points.clear();
+		relativePoints.clear();
 		for (int l = ls; l < le; l++) {
 			for (int h = hs; h < he; h++) {
 				for (int w = ws; w < we; w++) {
 					for (RefPoint3D p : cube[w][h][l].Cube()) {
-						points.add(p);
+//						relativePoints.add(p);
 					}
 				}
 			}
@@ -139,12 +139,12 @@ public class RubixCube extends Cube implements KeyListener {
 	private void partRotation(int i) {
 		if (curCycle == 0) {
 			// printCube();
-			t1 = rotXY;
-			t2 = rotXZ;
-			t3 = rotYZ;
-			t4 = tXY;
-			t5 = tXZ;
-			t6 = tYZ;
+//			t1 = rotXY;
+//			t2 = rotXZ;
+//			t3 = rotYZ;
+//			t4 = tXY;
+//			t5 = tXZ;
+//			t6 = tYZ;
 			t7 = lookAt.X();
 			t8 = lookAt.Y();
 			t9 = Math.round(lookAt.Z());
@@ -153,12 +153,12 @@ public class RubixCube extends Cube implements KeyListener {
 		if (curCycle >= animationCycles) {
 			// printCube();
 			animation = false;
-			rotXY = t1;
-			rotXZ = t2;
-			rotYZ = t3;
-			tXY = t4;
-			tXZ = t5;
-			tYZ = t6;
+//			rotXY = t1;
+//			rotXZ = t2;
+//			rotYZ = t3;
+//			tXY = t4;
+//			tXZ = t5;
+//			tYZ = t6;
 			curCycle = 0;
 			if (i == 0) {
 				// setRotation(0, 3, 0, 3, 0, 3);
@@ -171,13 +171,13 @@ public class RubixCube extends Cube implements KeyListener {
 		} else {
 			if (i == 0) {
 				setRotation((int) t9, (int) t9 + 1, 0, 3, 0, 3);
-				yaw(Math.PI / 2 / animationCycles);
+//				yaw(Math.PI / 2 / animationCycles);
 			} else if (i == 1) {
 				setRotation(0, 3, (int) t8, (int) t8 + 1, 0, 3);
-				pitch(Math.PI / 2 / animationCycles);
+//				pitch(Math.PI / 2 / animationCycles);
 			} else if (i == 2) {
 				setRotation(0, 3, 0, 3, (int) t7, (int) t7 + 1);
-				roll(Math.PI / 2 / animationCycles);
+//				roll(Math.PI / 2 / animationCycles);
 			}
 			super.update();
 			setRotation(0, 3, 0, 3, 0, 3);// set rotation back to normal
@@ -317,7 +317,7 @@ public class RubixCube extends Cube implements KeyListener {
 		double[] pI = ProjectionCalc.isect_vec_plane_perspective(pV, c, plane.getP(), pV).Point();//TODO
 		pI = VectorCalc.sub(pI, c);
 		
-		pI = RotationCalc.rotateFull(pI[0], pI[1], pI[2], 0, 0, 0, rotXY, rotXZ, rotYZ);
+//		pI = RotationCalc.rotateFull(pI[0], pI[1], pI[2], 0, 0, 0, rotXY, rotXZ, rotYZ);
 		
 		if (pI[0] > tol) {
 			or = 2;// top
@@ -354,12 +354,12 @@ public class RubixCube extends Cube implements KeyListener {
 			if (b)
 				break;
 		}
-		lookAt.setX((lookAt.X() - c[0] + width) / width);
-		lookAt.setX(Math.round(lookAt.X()));
-		lookAt.setY((lookAt.Y() - c[1] + length) / length);
-		lookAt.setY(Math.round(lookAt.Y()));
-		lookAt.setZ((lookAt.Z() - c[2] + height) / height);
-		lookAt.setZ(Math.round(lookAt.Z()));
+//		lookAt.setX((lookAt.X() - c[0] + width) / width);
+//		lookAt.setX(Math.round(lookAt.X()));
+//		lookAt.setY((lookAt.Y() - c[1] + length) / length);
+//		lookAt.setY(Math.round(lookAt.Y()));
+//		lookAt.setZ((lookAt.Z() - c[2] + height) / height);
+//		lookAt.setZ(Math.round(lookAt.Z()));
 	}
 
 	@Override

@@ -1,45 +1,42 @@
 package Shapes.Shape2D;
 
 import java.awt.Color;
-import java.util.ArrayList;
 
 import GxEngine3D.Model.RefPoint3D;
-import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
 public class Circle extends BaseShape {
 	
 	protected static String name = "Circle";
-
 	protected int orientation = 1;
 
-	public Circle(double x, double y, double z, double rad, Color c) {
-		super(x, y, z, rad, rad, rad, c);
+	public Circle(Color c) {
+		super(c);
 	}
 
 	@Override
 	protected void createShape() {
-		RefPoint3D p, prevP = null;
+		int index = 0;
 		for (double i=0;i<Math.PI*2;i+=Math.PI/180)
 		{
+			double[] p;
 			if(orientation==0) {
-				p = new RefPoint3D(x + (width * Math.cos(i)), y + (width * Math.sin(i)), z);
+				p = new double[]{Math.cos(i), Math.sin(i), 0};
 			}
 			else if(orientation == 1) {
-				p = new RefPoint3D(x, y + (width * Math.cos(i)), z + (width * Math.sin(i)));
+				p = new double[]{0, Math.cos(i), Math.sin(i)};
 			}
 			else {
-				p = new RefPoint3D(x + (width * Math.cos(i)), y, z + (width * Math.sin(i)));
+				p = new double[]{Math.cos(i), 0, Math.sin(i)};
 			}
-			points.add(p);
-			if (prevP == null)
+			addPoint(p);
+			if (index > 0)
 			{
-				addEdge(new RefPoint3D[]{p, prevP});
+				addEdge(new RefPoint3D[]{points.get(index), points.get(index-1)});
 			}
-			prevP = p;
 		}
 		addEdge(new RefPoint3D[]{points.get(points.size()-1), points.get(0)});
-		RefPoint3D[] s = new RefPoint3D[points.size()];
+		RefPoint3D[] s = new RefPoint3D[relativePoints.size()];
 		points.toArray(s);
 		addPoly(s, c);
 	}

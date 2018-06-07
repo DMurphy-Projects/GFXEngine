@@ -8,13 +8,13 @@ import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.RefPoint3D;
-import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
 public class Line extends BaseShape {
-	
-	public Line(double sx, double sy, double sz, double ex, double ey, double ez) {
-		super(sx, sy, sz, ex-sx, ey-sy, ez-sz, Color.black);
+
+	//Note: to get direction, scale the line by the normalised vector
+	public Line() {
+		super(Color.black);
 
 		lighting = new ILightingStrategy() {
 			@Override
@@ -26,15 +26,15 @@ public class Line extends BaseShape {
 
 	@Override
 	protected void createShape() {
-		points.add(new RefPoint3D(x, y, z));
-		points.add(new RefPoint3D(x+width, y+length, z+height));
+		addPoint(new double[]{0, 0, 0});
+		addPoint(new double[]{1, 1, 1});
 
 		addEdge(new RefPoint3D[]{points.get(0), points.get(1)});
 		addPoly(new RefPoint3D[]{points.get(0), points.get(1)}, c);
 	}
 
 	public void setStart(double[] pos) {
-		RefPoint3D p = points.get(points.size()-2);
+		RefPoint3D p = points.get(0);
 		p.setX(pos[0]);
 		p.setY(pos[1]);
 		p.setZ(pos[2]);
@@ -42,7 +42,7 @@ public class Line extends BaseShape {
 	}
 
 	public void setEnd(double[] pos) {
-		RefPoint3D p = points.get(points.size()-1);
+		RefPoint3D p = points.get(1);
 		p.setX(pos[0]);
 		p.setY(pos[1]);
 		p.setZ(pos[2]);

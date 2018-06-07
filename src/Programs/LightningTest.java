@@ -4,7 +4,7 @@ import DebugTools.TextModule.GlobalCategoryBlacklist;
 import DebugTools.TextModule.TextBlacklist;
 import DebugTools.TextModule.TextToggle;
 import DebugTools.TextOutput;
-import GxEngine3D.CalculationHelper.Matrix;
+import GxEngine3D.Model.Matrix.AlgebraicMatrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Controller.GXController;
@@ -24,6 +24,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+//TODO lighting appears to be backwards
 public class LightningTest {
 
     public static void main(String[] args) {
@@ -31,48 +32,48 @@ public class LightningTest {
                 new TextToggle(
                         new TextBlacklist(
                                 new GlobalCategoryBlacklist(1, 2),
-                                Matrix.class.getName()),
+                                AlgebraicMatrix.class.getName()),
                         true));
 
         double[] lightLocation = {0, 0, 5};
 
         Camera camera1 = new Camera(5, 5, 20);
 
-        Line ln = new Line(0, 0, 0, lightLocation[0], lightLocation[1], lightLocation[2]);
+        Line ln = new Line();
         Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, ln);
 
         final Scene scene = new Scene(ls, new SidedOrdering());
         scene.setSplitting(true);
 //		scene.addObject(ln);//shows where the light is, not where its actually shining
-        scene.addObject(new FakeSphere(lightLocation[0], lightLocation[1], lightLocation[2], 1, Color.YELLOW));
+        scene.addObject(new FakeSphere(Color.YELLOW){{translate(lightLocation[0], lightLocation[1], lightLocation[2]);}});
 
         //testing for matrix plane intersections
-        Sqaure sq01 = new Sqaure(1, 0, 0, 2, Color.BLUE);
-        sq01.yaw(Math.toRadians(45));
+        Sqaure sq01 = new Sqaure(Color.BLUE);
+        sq01.translate(1, 0, 0);
         scene.addObject(sq01);
 
-        sq01 = new Sqaure(0, 5, 5, 2, Color.RED);
-        sq01.yaw(Math.toRadians(45));
-        sq01.roll(Math.toRadians(90));
-        scene.addObject(sq01);
-
-        sq01 = new Sqaure(0, -5, 5, 2, Color.GREEN);
-        sq01.yaw(Math.toRadians(45));
-        sq01.roll(Math.toRadians(90));
-        scene.addObject(sq01);
-
-        sq01 = new Sqaure(5, 0, 5, 2, Color.CYAN);
-        sq01.yaw(Math.toRadians(45));
+        sq01 = new Sqaure(Color.RED);
+        sq01.translate(0, 5, 5);
         sq01.pitch(Math.toRadians(90));
         scene.addObject(sq01);
 
-        sq01 = new Sqaure(-5, 0, 5, 2, Color.MAGENTA);
-        sq01.yaw(Math.toRadians(45));
+        sq01 = new Sqaure(Color.GREEN);
+        sq01.translate(0, -5, 5);
         sq01.pitch(Math.toRadians(90));
         scene.addObject(sq01);
 
-        sq01 = new Sqaure(0, 0, 10, 2, Color.WHITE);
-        sq01.yaw(Math.toRadians(45));
+        sq01 = new Sqaure(Color.CYAN);
+        sq01.translate(5, 0, 5);
+        sq01.yaw(Math.toRadians(90));
+        scene.addObject(sq01);
+
+        sq01 = new Sqaure(Color.MAGENTA);
+        sq01.translate(-5, 0, 5);
+        sq01.yaw(Math.toRadians(90));
+        scene.addObject(sq01);
+
+        sq01 = new Sqaure(Color.WHITE);
+        sq01.translate(0, 0, 10);
         scene.addObject(sq01);
 
         ViewController viewCon = new ViewController();

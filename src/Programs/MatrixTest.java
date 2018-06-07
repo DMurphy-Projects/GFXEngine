@@ -1,6 +1,6 @@
 package Programs;
 
-import GxEngine3D.CalculationHelper.Matrix;
+import GxEngine3D.Model.Matrix.AlgebraicMatrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Vector;
@@ -12,7 +12,7 @@ public class MatrixTest {
 
     public static void main(String[] args)
     {
-        Sqaure sq01 = new Sqaure(0, 0, 2, 5, Color.white);
+        Sqaure sq01 = new Sqaure(Color.white);
         //plane based from a square
         Plane plane = new Plane(sq01.getShape().get(0));
         double[] nV = plane.getNV().toArray();
@@ -50,7 +50,7 @@ public class MatrixTest {
         double[] planeEq1 = VectorCalc.plane_v3_pointForm(plane1.getNV().toArray(), plane1.getP());
         double[] planeEq2 = VectorCalc.plane_v3_pointForm(plane2.getNV().toArray(), plane2.getP());
 
-        Matrix m = new Matrix(2, 4);
+        AlgebraicMatrix m = new AlgebraicMatrix(2, 4);
         m.addEqaution(planeEq1);
         m.addEqaution(planeEq2);
 
@@ -59,7 +59,7 @@ public class MatrixTest {
         m.gaussJordandElimination();
         System.out.println(m);
         m.determineSolution();
-        if (m.getSolutionType() == Matrix.SolutionType.LINE)
+        if (m.getSolutionType() == AlgebraicMatrix.SolutionType.LINE)
         {
             if (m.satisfiesEquation(p1))
             {

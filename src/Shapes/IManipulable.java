@@ -7,4 +7,5 @@ public interface IManipulable {
     void yaw(double angle);
     void roll(double angle);
     void pitch(double angle);
+    void rotate(double pitch, double yaw, double roll);
 }

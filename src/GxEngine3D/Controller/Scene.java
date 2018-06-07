@@ -2,7 +2,7 @@ package GxEngine3D.Controller;
 
 import java.util.*;
 
-import GxEngine3D.CalculationHelper.Matrix;
+import GxEngine3D.Model.Matrix.AlgebraicMatrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import DebugTools.TextOutput;
@@ -152,17 +152,17 @@ public class Scene implements ITickListener {
 					if (p2.getShape().length <= 2) continue;
 					Plane plane02 = new Plane(p2);
 					//the same planes can have extremely small differences that the matrix see's them as different planes
-					//technically we should also check their points but if they are parallel thenno split really makes sense
+					//technically we should also check their relativePoints but if they are parallel thenno split really makes sense
 					if (VectorCalc.v_v_equals(plane01.getNV().toArray(), plane02.getNV().toArray())) {
 						TextOutput.println("Is same plane", 1);
 						continue;
 					}
-					Matrix m = new Matrix(2, 4);
+					AlgebraicMatrix m = new AlgebraicMatrix(2, 4);
 					m.addEqautionOfPlane(plane01);
 					m.addEqautionOfPlane(plane02);
 					m.gaussJordandElimination();
 					m.determineSolution();
-					if (m.getSolutionType() == Matrix.SolutionType.LINE) {
+					if (m.getSolutionType() == AlgebraicMatrix.SolutionType.LINE) {
 						//find point intersection between the line intersection and the edges of the poly
 						SplittingPackage[] line = splitPolygon(p1, m);
 						if (line != null) {
@@ -217,7 +217,7 @@ public class Scene implements ITickListener {
 		int i, j;
 		for (i = 0, j = shape.length-1; i < shape.length; j = i++)
 		{
-			Matrix line = new Matrix(2, 4);
+			AlgebraicMatrix line = new AlgebraicMatrix(2, 4);
 			line.addEqautionOfLine(shape[i].toArray(), shape[j].toArray());
 			if (line.satisfiesEquation(pack[0].getPoint()) && line.satisfiesEquation(pack[1].getPoint()))
 			{
@@ -228,7 +228,7 @@ public class Scene implements ITickListener {
 	}
 
 	//TODO kind of a mess
-	private SplittingPackage[] splitPolygon(Polygon3D poly, Matrix lineIntersect)
+	private SplittingPackage[] splitPolygon(Polygon3D poly, AlgebraicMatrix lineIntersect)
 	{
 		RefPoint3D[] shape = poly.getShape();
 		ArrayList<SplittingPackage> points = new ArrayList<>();
@@ -264,19 +264,19 @@ public class Scene implements ITickListener {
 				};
 			}
 		}
-		//not enough intersection points were found
+		//not enough intersection relativePoints were found
 		return null;
 	}
 
-	private double[] splitEdge(double[] e1, double[] e2, Matrix lineIntersect)
+	private double[] splitEdge(double[] e1, double[] e2, AlgebraicMatrix lineIntersect)
 	{
 		//we need to add another line so +2 length required
-		Matrix edgeIntersect = new Matrix(lineIntersect.getRows() + 2, 4);
-		edgeIntersect.addMatrixOfEqautions(lineIntersect);
+		AlgebraicMatrix edgeIntersect = new AlgebraicMatrix(lineIntersect.getRows() + 2, 4);
+		edgeIntersect.insertMatrix(lineIntersect);
 		edgeIntersect.addEqautionOfLine(e1, e2);
 		edgeIntersect.gaussJordandElimination();
 		edgeIntersect.determineSolution();
-		if (edgeIntersect.getSolutionType() == Matrix.SolutionType.POINT) {
+		if (edgeIntersect.getSolutionType() == AlgebraicMatrix.SolutionType.POINT) {
 			return edgeIntersect.getPointSolution();
 		}
 		else

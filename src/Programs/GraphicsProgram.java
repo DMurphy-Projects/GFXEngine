@@ -3,7 +3,7 @@ package Programs;
 import DebugTools.TextModule.GlobalCategoryBlacklist;
 import DebugTools.TextModule.TextBlacklist;
 import DebugTools.TextModule.TextToggle;
-import GxEngine3D.CalculationHelper.Matrix;
+import GxEngine3D.Model.Matrix.AlgebraicMatrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Camera.OrbitingCamera;
@@ -11,6 +11,7 @@ import GxEngine3D.Controller.GXController;
 import GxEngine3D.Controller.Scene;
 import DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;
+import GxEngine3D.Ordering.OrderPolygon;
 import GxEngine3D.Ordering.SidedOrdering;
 import GxEngine3D.View.*;
 import GxEngine3D.View.PIP.PIPScreen;
@@ -18,6 +19,7 @@ import GxEngine3D.View.PIP.PIPView;
 import MenuController.LookMenuController;
 import ObjectFactory.*;
 import Shapes.*;
+import Shapes.Shape2D.Circle;
 import Shapes.Shape2D.Line;
 import Shapes.Shape2D.Sqaure;
 
@@ -33,7 +35,7 @@ public class GraphicsProgram {
 				new TextToggle(
 						new TextBlacklist(
 								new GlobalCategoryBlacklist(1, 2),
-								Matrix.class.getName()),
+								AlgebraicMatrix.class.getName()),
 						true));
 
 		double[] lightLocation = {0, 0, 3};
@@ -42,20 +44,15 @@ public class GraphicsProgram {
 		Camera camera2 = new Camera(5, 5, 20);
 		Camera camera3 = new Camera(5, 5, 20);
 
-		Line ln = new Line(0, 0, 0, lightLocation[0], lightLocation[1], lightLocation[2]);
+		Line ln = new Line();
 		Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, ln);
 
-		final Scene scene = new Scene(ls, new SidedOrdering());
-		scene.setSplitting(true);
-		scene.addObject(new FakeSphere(lightLocation[0], lightLocation[1], lightLocation[2], 1, Color.YELLOW));
+		final Scene scene = new Scene(ls, new OrderPolygon());
+		scene.setSplitting(false);
+//		scene.addObject(new FakeSphere(Color.YELLOW){{translate(lightLocation[0], lightLocation[1], lightLocation[2]);}});
 //		scene.addObject(ln);//shows where the light is, not where its actually shining
 
-		//testing for matrix plane intersections
-		Sqaure sq01 = new Sqaure(2.5, 2.5, 1.5, 2, Color.BLUE);
-		sq01.yaw(Math.toRadians(45));
-		scene.addObject(sq01);
-
-		Cube cube = new Cube(1, 1, 1, 1, 1, 1, Color.RED);
+		Cube cube = new Cube(Color.RED);
 		scene.addObject(cube);
 
 		ViewController viewCon = new ViewController();
@@ -88,9 +85,9 @@ public class GraphicsProgram {
 		panel1.addView(pip);
 
 		Scene pipScene = new Scene(ls, new SidedOrdering());
-		Cube pyr = new Cube(0, 0, 0, 1, 1, 1, Color.RED);
-		pipScene.addObject(pyr);
-		OrbitingCamera camera4 = new OrbitingCamera(5, 0, 5, 5, pyr);
+		BaseShape rotatingShape = new Sqaure(Color.RED);
+		pipScene.addObject(rotatingShape);
+		OrbitingCamera camera4 = new OrbitingCamera(5, 0, 5, 5, rotatingShape);
 		gCon.add(camera4);
 		vH = viewCon.add(pipPanel, camera4, pipScene);
 		vH.setHover(false);
@@ -111,8 +108,11 @@ public class GraphicsProgram {
 				String act = e.getActionCommand();
 				Camera camera = viewCon.getActive().getCamera();
 				if (act.startsWith("spawn")) {
-					double[] l = VectorCalc.add(camera.position(), VectorCalc
-							.mul_v_d(camera.direction(), 0.01d * viewCon.getActive().getZoom()));
+
+					ViewHandler vH = viewCon.getActive();
+					Camera c = vH.getCamera();
+					double[] l = VectorCalc.add(c.position(), VectorCalc
+							.mul_v_d(c.direction(), 0.01d * vH.getZoom()));
 					scene.addObject(factory.createObject(
 							Integer.parseInt(act.split(":")[1]), l[0], l[1], l[2]));
 					lookCon.updateMenu(lookMenu, scene, this);

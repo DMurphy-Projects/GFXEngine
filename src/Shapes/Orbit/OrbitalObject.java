@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.CalculationHelper.RotationCalc;
-import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 import Shapes.Cube;
 import Shapes.IShape;
@@ -22,12 +21,8 @@ public class OrbitalObject extends BaseShape {
 
 	OrbitalObject parent;
 
-	public OrbitalObject(double x, double y, double z, double xR, double yR,
-			double zR, Color c) {
-		super(x, y, z, .1, .1, .1, c);
-		this.x = x;
-		this.y = y;
-		this.z = z;
+	public OrbitalObject(Color c) {
+		super(c);
 		this.xR = xR;
 		this.yR = yR;
 		this.zR = zR;
@@ -51,47 +46,46 @@ public class OrbitalObject extends BaseShape {
 	}
 
 	private void updateValues() {
-		x += xT;
-		y += yT;
-		z += zT;
-		for (RefPoint3D p : points) {
-			p.setX(p.X() + xT);
-			p.setY(p.Y() + yT);
-			p.setZ(p.Z() + zT);
-		}
-		xT = 0;
-		yT = 0;
-		zT = 0;
-		/*xA += xR;
-		yA += yR;
-		zA += zR;
-		*/
+//		x += xT;
+//		y += yT;
+//		z += zT;
+////		for (RefPoint3D p : relativePoints) {
+////			p.setX(p.X() + xT);
+////			p.setY(p.Y() + yT);
+////			p.setZ(p.Z() + zT);
+////		}
+//		xT = 0;
+//		yT = 0;
+//		zT = 0;
+//		/*xA += xR;
+//		yA += yR;
+//		zA += zR;
 	}
 
 	public void update() {
 		// work out orbit
 		// new position - only want ho much it moves by
-		if (parent == null) {
-			parent = this;
-		}
-		double[] nPoints = RotationCalc.rotateFull(x, y, z, parent.x, parent.y,
-				parent.z, xR, yR, zR);
-		nPoints[0] = nPoints[0] - x;
-		nPoints[1] = nPoints[1] - y;
-		nPoints[2] = nPoints[2] - z;
-		// cascade to children
-		move(nPoints[0], nPoints[1], nPoints[2]);
-		// update children
-		for (OrbitalObject o : children)
-			o.update();
-		// update values
-		updateValues();
+//		if (parent == null) {
+//			parent = this;
+//		}
+//		double[] nPoints = RotationCalc.rotateFull(x, y, z, parent.x, parent.y,
+//				parent.z, xR, yR, zR);
+//		nPoints[0] = nPoints[0] - x;
+//		nPoints[1] = nPoints[1] - y;
+//		nPoints[2] = nPoints[2] - z;
+//		// cascade to children
+//		move(nPoints[0], nPoints[1], nPoints[2]);
+//		// update children
+//		for (OrbitalObject o : children)
+//			o.update();
+//		// update values
+//		updateValues();
 	}
 
 	@Override
 	protected void createShape() {
-		IShape cube = new Cube(x, y, z, width, height, length, c);
-		points = cube.getPoints();
-		polys = cube.getShape();
+//		IShape cube = new Cube(x, y, z, width, height, length, c);
+////		relativePoints = cube.getPoints();
+//		polys = cube.getShape();
 	}
 }

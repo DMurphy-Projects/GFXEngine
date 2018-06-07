@@ -47,6 +47,12 @@ public class RefPoint3D {
 	{
 		this.z = z;
 	}
+	public void setArray(double[] arr)
+	{
+		setX(arr[0]);
+		setY(arr[1]);
+		setZ(arr[2]);
+	}
 	
 	public double[] toArray()
 	{
