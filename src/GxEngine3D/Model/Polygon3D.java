@@ -14,25 +14,11 @@ public class Polygon3D {
 	boolean draw = true;
 
 	BaseShape belongsTo;
-
-	double[] cen;//is now centre of polygon not centre of object
 	
 	public Polygon3D(RefPoint3D[] shape, Color c, BaseShape bTo) {
 		this.shape = shape;
 		this.c = c;
 		belongsTo = bTo;
-
-		double avX = 0, avY = 0, avZ = 0;
-		for (RefPoint3D p : shape) {
-			avX += p.X();
-			avY += p.Y();
-			avZ += p.Z();
-		}
-
-		avX /= shape.length;
-		avY /= shape.length;
-		avZ /= shape.length;
-		cen = new double[]{avX, avY, avZ};
 	}
 
 	public Polygon2D updatePolygon(Camera c, Light l, ViewHandler vHandler) {
@@ -61,12 +47,28 @@ public class Polygon3D {
 		screenPoly.draw = draw;
 		if (draw) {
 			Plane lPlane = new Plane(this);
-			lPlane.setP(cen);
+			//centre being calculated at object init won't work as the shape would not have been translated yet
+			lPlane.setP(findCentre());
 			screenPoly.lighting = belongsTo.getLighting().doLighting(l, lPlane, c);
 			screenPoly.updatePolygon(newX, newY);
 		}
 		return screenPoly;
 	}
+
+	public double[] findCentre() {
+		double avX = 0, avY = 0, avZ = 0;
+		for (RefPoint3D p : shape) {
+			avX += p.X();
+			avY += p.Y();
+			avZ += p.Z();
+		}
+
+		avX /= shape.length;
+		avY /= shape.length;
+		avZ /= shape.length;
+		return new double[]{avX, avY, avZ};
+	}
+
 
 	public double getDist(double[] from) {
 		double total = 0;
