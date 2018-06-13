@@ -15,28 +15,24 @@ public class OrbitingCamera extends Camera implements ITickListener{
         super(x, y, z);
         radius = rad*rad;
         anchor = a;
-        moveSpeed = 0.5;
+        moveSpeed = 0.125;
     }
 
     @Override
     public void onTick(GXTickEvent.Type t) {
-        double[] viewVector = VectorCalc.norm(VectorCalc.sub(viewTo, viewFrom));
-        double[] sideVector = VectorCalc.norm(VectorCalc.cross(viewVector, new double[]{0, 0, 1}));
+        double[] viewVector = VectorCalc.norm(getDirection());
+        double[] sideVector = VectorCalc.norm(VectorCalc.cross(viewVector, new double[]{0, 1, 0}));
 
-        double xMove = 0, yMove = 0, zMove = 0;
+        double[] move = new double[3];
 
-        xMove += sideVector[0];
-        yMove += sideVector[1];
-        zMove += sideVector[2];
+        move = VectorCalc.add(move, sideVector);
 
         double d = DistanceCalc.getDistance(viewFrom, anchor.findCentre());
         double dif = d-radius;
-        xMove += viewVector[0]*dif;
-        yMove += viewVector[1]*dif;
-        zMove += viewVector[2]*dif;
+        move = VectorCalc.add(move, VectorCalc.mul_v_d(viewVector, dif));
 
-        MoveTo(viewFrom[0] + xMove * moveSpeed, viewFrom[1] + yMove
-                * moveSpeed, viewFrom[2] + zMove * moveSpeed);
+        move = VectorCalc.add(viewFrom, VectorCalc.mul_v_d(move, moveSpeed));
+        MoveTo(move[0], move[1], move[2]);
 
         lookAt(anchor);
     }

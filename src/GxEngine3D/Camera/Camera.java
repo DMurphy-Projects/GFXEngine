@@ -1,11 +1,8 @@
 package GxEngine3D.Camera;
 
 import GxEngine3D.CalculationHelper.DistanceCalc;
-import GxEngine3D.CalculationHelper.ProjectionCalc;
 import GxEngine3D.CalculationHelper.VectorCalc;
-import GxEngine3D.Model.Plane;
-import GxEngine3D.Model.Projection;
-import GxEngine3D.Model.Vector;
+import GxEngine3D.Model.Matrix.Matrix;
 import Shapes.BaseShape;
 
 import java.util.ArrayList;
@@ -16,16 +13,13 @@ public class Camera implements ICameraEvent{
 
 	private List<ICameraEventListener> mListeners = new ArrayList<ICameraEventListener>();
 
-	private Vector viewVector, rotationVector, directionVector;
-	public Plane P;
-	public Vector W1, W2;
-	private Projection focusPos;
-
-	protected double[] viewFrom, viewTo, prevFrom;
+	protected double[] viewFrom, prevFrom;
 	private double prevVLook = 0, prevHLook = 0;
 
-	protected double vLook = -0, hLook = 0, hSpeed = 900, vSpeed = 2200, moveSpeed = 1;
+	protected double pitch = -0, yaw = 0, yawSpeed = 900, pitchSpeed = 2200, moveSpeed = 0.25;
 	private double upper = (Math.PI/2)-0.001, lower = (-Math.PI/2)+0.001;
+
+	Matrix cameraMatrix;
 
 	public enum Direction
 	{
@@ -37,8 +31,6 @@ public class Camera implements ICameraEvent{
 
 	public Camera(double x, double y, double z) {
 		viewFrom = new double[] { x, y, z };
-		viewTo = new double[] { 0, 0, 0 };
-		updateView();
 		prevFrom = new double[] { 0, 0, 0 };
 	}
 
@@ -46,58 +38,55 @@ public class Camera implements ICameraEvent{
 		return viewFrom;
 	}
 
-	public double[] To() {
-		return viewTo;
+	public Matrix getMatrix() {
+		return cameraMatrix;
 	}
 
-	public Projection Focus() {
-		return focusPos;
-	}
-	
-	public double[] lookingAt()
-	{
-		return viewTo;
-	}
-	public double[] position()
+	public double[] getPosition()
 	{
 		return viewFrom;
 	}
-	public double[] direction()
+	public double[] getDirection()
 	{
-		return VectorCalc.sub(viewTo, viewFrom);
+		double cosPitch = Math.cos(pitch);
+		double[] direction = new double[]{
+				-cosPitch * Math.sin(yaw),
+				Math.sin(pitch),
+				-cosPitch * Math.cos(yaw)
+		};
+		return direction;
 	}
 
 	public void setup() {
-		viewVector = new Vector(VectorCalc.sub(viewTo, viewFrom));
-		directionVector = new Vector(1, 1, 1);
-		Vector planeVector1 = viewVector.crossProduct(directionVector);
-		Vector planeVector2 = viewVector.crossProduct(planeVector1);
-		P = new Plane(planeVector1, planeVector2, viewTo);
+		double cosPitch = Math.cos(pitch);
+		double sinPitch = Math.sin(pitch);
+		double cosYaw = Math.cos(yaw);
+		double sinYaw = Math.sin(yaw);
 
-		rotationVector = ProjectionCalc.getRotationVector(viewFrom, viewTo);
-		W1 = viewVector.crossProduct(rotationVector);
-		W2 = viewVector.crossProduct(W1);
+		double[] xaxis = { cosYaw, 0, -sinYaw};
+		double[] yaxis = { sinYaw * sinPitch, cosPitch, cosYaw * sinPitch};
+		double[] zaxis = { sinYaw * cosPitch, -sinPitch, cosPitch * cosYaw};
 
-		focusPos = ProjectionCalc.calculateFocus(viewFrom, viewTo[0],
-				viewTo[1], viewTo[2], W1, W2, P);
-	}
+		double[][] viewMatrix = new double[][]{
+				{       xaxis[0],            xaxis[1],            xaxis[2],      -VectorCalc.dot( xaxis, viewFrom ) },
+				{       yaxis[0],            yaxis[1],            yaxis[2],      -VectorCalc.dot( yaxis, viewFrom ) },
+				{       zaxis[0],            zaxis[1],            zaxis[2],      -VectorCalc.dot( zaxis, viewFrom ) },
+				{ 		0,	 				 0, 				  0, 			 1}
+		};
 
-	private double map(double iStart, double iEnd, double oStart, double oEnd,
-			double in) {
-		double slope = 1.0 * (oEnd - oStart) / (iEnd - iStart);
-		return oStart + slope * (in - iStart);
+		cameraMatrix = new Matrix(viewMatrix);
 	}
 
 	public void lookAt(BaseShape s) {
 		double[] look = s.findCentre();
 		//System.out.println(look[0]+" "+look[1]+" "+look[2]);
-		hLook = Math.atan2(look[0] - viewFrom[0], look[1] - viewFrom[1]);
+		yaw = Math.atan2(viewFrom[0] - look[0], viewFrom[2] - look[2]);
 
 		// get x,y distance
 		double xyDist = DistanceCalc.getDistance(new double[] { look[0],
-				look[1] }, new double[] { viewFrom[0], viewFrom[1] });
+				look[1] }, new double[] { viewFrom[0], viewFrom[2] });
 		//get z dist
-		double zDist = look[2] - viewFrom[2];
+		double zDist = look[1] - viewFrom[1];
 		//xy represents triangle adjacent, z represents triangle opposite
 		/*  /|
 		   / |
@@ -106,8 +95,7 @@ public class Camera implements ICameraEvent{
 		   xy
 		*/
 		double angle = Math.atan2(zDist , xyDist);
-		vLook = angle;
-		updateView();
+		pitch = angle;
 	}
 
 	public void MoveTo(double x, double y, double z) {
@@ -118,23 +106,22 @@ public class Camera implements ICameraEvent{
 		viewFrom[1] = y;
 		viewFrom[2] = z;
 		notifyMove();
-		updateView();
 	}
 
 	public void CameraMovement(Map<Direction, Boolean> directions)
 	{
-		double[] viewVector = VectorCalc.sub(viewFrom, viewTo);
+		double[] viewVector = getDirection();
 		double[] move = new double[3];
-		double[] verticalVector = new double[]{0, 0, 1};
+		double[] verticalVector = new double[]{0, 1, 0};
 		double[] sideViewVector = VectorCalc.cross(viewVector, verticalVector);
 
 		for (Map.Entry<Direction, Boolean> dir:directions.entrySet()) {
 			if (dir.getValue()) {
 				Direction d = dir.getKey();
 				if (d == Direction.UP) {
-					move = VectorCalc.sub(move, viewVector);
-				} else if (d == Direction.DOWN) {
 					move = VectorCalc.add(move, viewVector);
+				} else if (d == Direction.DOWN) {
+					move = VectorCalc.sub(move, viewVector);
 				} else if (d == Direction.LEFT) {
 					move = VectorCalc.sub(move, sideViewVector);
 				} else if (d == Direction.RIGHT) {
@@ -150,28 +137,19 @@ public class Camera implements ICameraEvent{
 		double difX = NewMouseX;
 		double difY = NewMouseY;
 
-		vLook += difY / vSpeed;
-		hLook += difX / hSpeed;
-		if (vLook >= upper)
-			vLook = upper;
-		if (vLook <= lower)
-			vLook = lower;
+		pitch += difY / pitchSpeed;
+		yaw += difX / yawSpeed;
+		if (pitch >= upper)
+			pitch = upper;
+		if (pitch <= lower)
+			pitch = lower;
 
-		if (prevHLook != hLook || prevVLook != vLook) {
-			prevHLook = hLook;
-			prevVLook = vLook;
-			updateView();
+		if (prevHLook != yaw || prevVLook != pitch) {
+			prevHLook = yaw;
+			prevVLook = pitch;
 			notifyLook();
 		}
 	}
-
-	void updateView() {	
-		double r = Math.cos(vLook);
-		viewTo[0] = viewFrom[0] + (r * Math.sin(hLook));
-		viewTo[1] = viewFrom[1] + (r * Math.cos(hLook));
-		viewTo[2] = viewFrom[2] + Math.sin(vLook);
-	}
-
 
 	@Override
 	public void notifyMove() {
@@ -188,7 +166,7 @@ public class Camera implements ICameraEvent{
 	@Override
 	public void notifyLook() {
 		for (ICameraEventListener e : mListeners) {
-			e.onLook(hLook, vLook);
+			e.onLook(yaw, pitch);
 		}
 	}
 

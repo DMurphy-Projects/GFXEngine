@@ -2,9 +2,9 @@ package GxEngine3D.Model;
 
 import java.awt.Color;
 import GxEngine3D.CalculationHelper.DistanceCalc;
-import GxEngine3D.CalculationHelper.ProjectionCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.Light;
+import GxEngine3D.Model.Matrix.Matrix;
 import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
@@ -30,18 +30,25 @@ public class Polygon3D {
 		double[] newX = new double[shp.length];
 		double[] newY = new double[shp.length];
 		draw = true;
+
+		Matrix projectionMatrix = vHandler.getProjectionMatrix();
+		Matrix cameraMatrix = c.getMatrix();
+
 		for (int i = 0; i < shp.length; i++) {
-			Projection focus = ProjectionCalc.calculateFocus(c.From(),
-					shp[i].X(), shp[i].Y(), shp[i].Z(),
-					c.W1, c.W2, c.P);
-			if (focus.TValue() < 0) {
+			double[] p = shp[i].toArray();
+			p = cameraMatrix.pointMultiply(p);
+			p = projectionMatrix.pointMultiply(p);
+
+			//TODO if at least one of these points is within the frustum we should clip the polygon and render
+			if (p[0] < -1 || p[0] > 1 || p[1] < -1 || p[1] > 1 || p[2] < -1 || p[2] > 1)
+			{
 				draw = false;
 				break;
 			}
-			int[] center = vHandler.getCentre();
-			int zoom = vHandler.getZoom();
-			newX[i] = center[0] + (focus.Point()[0]*zoom) - (c.Focus().Point()[0]*zoom);
-			newY[i] = center[1] + (focus.Point()[1]*zoom) - (c.Focus().Point()[1]*zoom);
+
+			//translates range(-1, 1) into (0, 1)
+			newX[i] = ((p[0] + 1) * 0.5 * vHandler.getView().getWidth());
+			newY[i] = (1 - (p[1] + 1) * 0.5) * vHandler.getView().getHeight();
 		}
 
 		screenPoly.draw = draw;

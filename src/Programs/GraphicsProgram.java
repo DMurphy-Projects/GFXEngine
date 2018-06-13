@@ -19,9 +19,7 @@ import GxEngine3D.View.PIP.PIPView;
 import MenuController.LookMenuController;
 import ObjectFactory.*;
 import Shapes.*;
-import Shapes.Shape2D.Circle;
 import Shapes.Shape2D.Line;
-import Shapes.Shape2D.Sqaure;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,7 +38,7 @@ public class GraphicsProgram {
 
 		double[] lightLocation = {0, 0, 3};
 
-		Camera camera1 = new Camera(5, 5, 20);
+		Camera camera1 = new Camera(5, 5, 5);
 		Camera camera2 = new Camera(5, 5, 20);
 		Camera camera3 = new Camera(5, 5, 20);
 
@@ -52,8 +50,12 @@ public class GraphicsProgram {
 //		scene.addObject(new FakeSphere(Color.YELLOW){{translate(lightLocation[0], lightLocation[1], lightLocation[2]);}});
 //		scene.addObject(ln);//shows where the light is, not where its actually shining
 
-		Cube cube = new Cube(Color.RED);
-		scene.addObject(cube);
+		BaseShape object = new Cube(Color.RED);
+		scene.addObject(object);
+
+		object = new Cube(Color.BLUE);
+		object.translate(0, 1, 0);
+		scene.addObject(object);
 
 		ViewController viewCon = new ViewController();
 		PIPScreen panel1 = new PIPScreen();
@@ -85,9 +87,9 @@ public class GraphicsProgram {
 		panel1.addView(pip);
 
 		Scene pipScene = new Scene(ls, new SidedOrdering());
-		BaseShape rotatingShape = new Sqaure(Color.RED);
+		BaseShape rotatingShape = new Cube(Color.RED);
 		pipScene.addObject(rotatingShape);
-		OrbitingCamera camera4 = new OrbitingCamera(5, 0, 5, 5, rotatingShape);
+		OrbitingCamera camera4 = new OrbitingCamera(5, 5, 0, 1.5, rotatingShape);
 		gCon.add(camera4);
 		vH = viewCon.add(pipPanel, camera4, pipScene);
 		vH.setHover(false);
@@ -108,11 +110,10 @@ public class GraphicsProgram {
 				String act = e.getActionCommand();
 				Camera camera = viewCon.getActive().getCamera();
 				if (act.startsWith("spawn")) {
-
 					ViewHandler vH = viewCon.getActive();
 					Camera c = vH.getCamera();
-					double[] l = VectorCalc.add(c.position(), VectorCalc
-							.mul_v_d(c.direction(), 0.01d * vH.getZoom()));
+					double[] l = VectorCalc.add(c.getPosition(), VectorCalc
+							.mul_v_d(c.getDirection(), 2 + vH.getZoom()));
 					scene.addObject(factory.createObject(
 							Integer.parseInt(act.split(":")[1]), l[0], l[1], l[2]));
 					lookCon.updateMenu(lookMenu, scene, this);

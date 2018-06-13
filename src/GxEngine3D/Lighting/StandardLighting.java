@@ -16,7 +16,7 @@ public class StandardLighting implements ILightingStrategy {
         //light vector is direction towards plane
         //so finding which side the camera is on tells us if the light is behind or infront of the plan we're
         //looking at
-        double[] nVector = lightingPlane.getNV(c.position()).toArray();
+        double[] nVector = lightingPlane.getNV(c.getPosition()).toArray();
         nVector = VectorCalc.norm(nVector);
 
         double[] lightVector = l.getLightVector(lightingPlane.getP());

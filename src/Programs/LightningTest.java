@@ -102,8 +102,8 @@ public class LightningTest {
                 String act = e.getActionCommand();
                 Camera camera = viewCon.getActive().getCamera();
                 if (act.startsWith("spawn")) {
-                    double[] l = VectorCalc.add(camera.position(), VectorCalc
-                            .mul_v_d(camera.direction(), 0.01d * viewCon.getActive().getZoom()));
+                    double[] l = VectorCalc.add(camera.getPosition(), VectorCalc
+                            .mul_v_d(camera.getDirection(), 0.01d * viewCon.getActive().getZoom()));
                     scene.addObject(factory.createObject(
                             Integer.parseInt(act.split(":")[1]), l[0], l[1], l[2]));
                     lookCon.updateMenu(lookMenu, scene, this);

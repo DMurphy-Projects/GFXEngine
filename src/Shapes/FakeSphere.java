@@ -12,6 +12,7 @@ import java.awt.*;
 /**
  * Created by Dean on 28/12/16.
  */
+//TODO fake sphere isn't as robust in the matrix version, needs a better version of fake sphere
 public class FakeSphere extends Circle {
     public FakeSphere(Color c) {
         super(c);

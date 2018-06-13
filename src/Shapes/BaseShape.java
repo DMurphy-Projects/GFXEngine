@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Polygon;
 import java.util.ArrayList;
 
+import GxEngine3D.CalculationHelper.MatrixHelper;
 import GxEngine3D.Lighting.AltLighting;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Model.Matrix.Matrix;
@@ -21,7 +22,7 @@ import Shapes.Split.SplitIntoTriangles;
 public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
 	double pitch = 0, yaw = 0, roll = 0;
-	Matrix scale, xRotation, yRotation, zRotation, translation;
+	Matrix scale, pitchRotation, yawRotation, rollRotation, translation;
 
 	protected Color c;
 
@@ -45,11 +46,7 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 	public BaseShape(Color c) {
 		this.c = c;
 
-		double[][] identity = new double[4][4];
-		identity[0][0] = 1;
-		identity[1][1] = 1;
-		identity[2][2] = 1;
-		identity[3][3] = 1;
+		double[][] identity = MatrixHelper.setupIdentityMatrix();
 
 		scale = new Matrix(4, 4);
 		scale.insertMatrix(identity);
@@ -159,35 +156,9 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
 	private void updateMatrix()
 	{
-		double[][] pitchRot = new double[4][4];
-		double cosPitch = Math.cos(pitch), sinPitch = Math.sin(pitch);
-		pitchRot[0][0] = 1;
-		pitchRot[1][1] = cosPitch;
-		pitchRot[2][2] = cosPitch;
-		pitchRot[3][3] = 1;
-		pitchRot[2][1] = -sinPitch;
-		pitchRot[1][2] = sinPitch;
-		this.xRotation = new Matrix(pitchRot);
-
-		double[][] yawRot = new double[4][4];
-		double cosYaw = Math.cos(yaw), sinYaw = Math.sin(yaw);
-		yawRot[0][0] = cosYaw;
-		yawRot[1][1] = 1;
-		yawRot[2][2] = cosYaw;
-		yawRot[3][3] = 1;
-		yawRot[0][2] = sinYaw;
-		yawRot[2][0] = -sinYaw;
-		this.yRotation = new Matrix(yawRot);
-
-		double[][] rollRot = new double[4][4];
-		double cosRoll = Math.cos(roll), sinRoll = Math.sin(roll);
-		rollRot[0][0] = cosRoll;
-		rollRot[1][1] = cosRoll;
-		rollRot[2][2] = 1;
-		rollRot[3][3] = 1;
-		rollRot[0][1] = -sinRoll;
-		rollRot[1][0] = sinRoll;
-		this.zRotation = new Matrix(rollRot);
+		this.pitchRotation = new Matrix(MatrixHelper.setupPitchRotation(pitch));
+		this.yawRotation = new Matrix(MatrixHelper.setupYawRotation(yaw));
+		this.rollRotation = new Matrix(MatrixHelper.setupRollRotation(roll));
 	}
 
 	private double[] transform(int i)
@@ -199,9 +170,9 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 	private double[] transform(double[] point)
 	{
 		point = scale.pointMultiply(point);
-		point = xRotation.pointMultiply(point);
-		point = yRotation.pointMultiply(point);
-		point = zRotation.pointMultiply(point);
+		point = pitchRotation.pointMultiply(point);
+		point = yawRotation.pointMultiply(point);
+		point = rollRotation.pointMultiply(point);
 		point = translation.pointMultiply(point);
 		return point;
 	}
