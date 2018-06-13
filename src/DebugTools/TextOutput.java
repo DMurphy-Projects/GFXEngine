@@ -83,11 +83,11 @@ public class TextOutput {
     public static void println(Object o)
     {
         //assume a default category
-        println(o, 0, 3);
+        println(o, 0, 4);
     }
     public static void println(Object o, int cat)
     {
-        println(o, cat, 3);
+        println(o, cat, 4);
     }
 
     private static void println(Object o, int cat, int pos)
