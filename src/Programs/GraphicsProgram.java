@@ -19,6 +19,8 @@ import GxEngine3D.View.PIP.PIPView;
 import MenuController.LookMenuController;
 import ObjectFactory.*;
 import Shapes.*;
+import Shapes.Plane.InfiniteGrid;
+import Shapes.Plane.InfinitePlane;
 import Shapes.Shape2D.Line;
 
 import javax.swing.*;
@@ -35,6 +37,7 @@ public class GraphicsProgram {
 								new GlobalCategoryBlacklist(1, 2),
 								AlgebraicMatrix.class.getName()),
 						true));
+//		TextOutput.setMode(TextOutput.Mode.REMOVED);
 
 		double[] lightLocation = {0, 0, 3};
 
@@ -45,7 +48,7 @@ public class GraphicsProgram {
 		Line ln = new Line();
 		Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, ln);
 
-		final Scene scene = new Scene(ls, new OrderPolygon());
+		final Scene scene = new Scene(ls, new SidedOrdering());
 		scene.setSplitting(false);
 //		scene.addObject(new FakeSphere(Color.YELLOW){{translate(lightLocation[0], lightLocation[1], lightLocation[2]);}});
 //		scene.addObject(ln);//shows where the light is, not where its actually shining
@@ -56,6 +59,10 @@ public class GraphicsProgram {
 		object = new Cube(Color.BLUE);
 		object.translate(0, 1, 0);
 		scene.addObject(object);
+
+		InfinitePlane plane = new InfiniteGrid(Color.WHITE);
+		camera1.add(plane);
+		scene.addObject(plane);
 
 		ViewController viewCon = new ViewController();
 		PIPScreen panel1 = new PIPScreen();

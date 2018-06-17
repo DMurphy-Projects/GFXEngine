@@ -24,7 +24,7 @@ public class Polygon3D {
 	public Polygon2D updatePolygon(Camera c, Light l, ViewHandler vHandler) {
 		Polygon2D screenPoly = new Polygon2D(new double[getShape().length],
 				new double[getShape().length], this.c, vHandler,
-				belongsTo);
+				belongsTo, this);
 
 		RefPoint3D[] shp = getShape();
 		double[] newX = new double[shp.length];

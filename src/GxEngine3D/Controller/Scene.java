@@ -66,13 +66,21 @@ public class Scene implements ITickListener {
 		return (ArrayList<IShape>) shapes.clone();
 	}
 
+	//NOTE: its extremely rare that the "same" order would be needed twice in a row so caching order should only give minimal improvements
 	public PolygonIterator getIterator(ViewHandler vH)
 	{
 		if (drawablePolygons.containsKey(vH)) {
 			//we only need to order the polygons when we're about to draw them instead of every time we update the polygons
-			ArrayList<Polygon3D> copy = (ArrayList<Polygon3D>) splitPolygons.clone();
-			List<Integer> o = orderStrategy.order(vH.getCamera().From(), copy);
 			List<Polygon2D> drawable = (List<Polygon2D>) drawablePolygons.get(vH).clone();
+			ArrayList<Polygon3D> copy = new ArrayList<>();
+
+			//reducing the amount of things to order to aid performance
+			//also we're ot using BSP yet so having order for things we can't see isn't advantageous
+			for (Polygon2D dp:drawable)
+			{
+				copy.add(dp.getBelongsToPolygon());
+			}
+			List<Integer> o = orderStrategy.order(vH.getCamera().From(), copy);
 			setPolyHover(drawable, o);
 			return new PolygonIterator(drawable, o);
 		}
@@ -104,6 +112,7 @@ public class Scene implements ITickListener {
 		//so we still need to update polygon in case its trying to move
 		if (redraw) {
 			for (IShape s : shapes) {
+				//TODO check whether the shape needs to be updated first
 				s.update();
 			}
 		}
@@ -114,8 +123,13 @@ public class Scene implements ITickListener {
 			lightSource.updateLighting();
 			cam.setup();
 			ArrayList<Polygon2D> draw = new ArrayList<>();
+
 			for (Polygon3D poly : splitPolygons) {
-				draw.add(poly.updatePolygon(cam, lightSource, v));
+				Polygon2D dPoly = poly.updatePolygon(cam, lightSource, v);
+				//reduce the number of polygons being ordered by removing those that are not in view
+				if (dPoly.canDraw()) {
+					draw.add(dPoly);
+				}
 			}
 			drawablePolygons.put(v, draw);
 		}

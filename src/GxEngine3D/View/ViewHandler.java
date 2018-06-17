@@ -69,7 +69,7 @@ public class ViewHandler implements ICameraEventListener, ITickListener {
 	{
 		double angleOfView = 90;
 		double near = 0.1f;
-		double far = 50;
+		double far = 30;
 		double imageAspectRatio = (double)(view.getWidth()) / view.getHeight();
 
 		double[] btlr = gluPerspective(angleOfView, imageAspectRatio, near, far);
