@@ -5,6 +5,7 @@ import Shapes.BaseShape;
 
 import java.awt.*;
 
+//TODO normalise relative shape to 0-1
 public class NSidedPolygon extends BaseShape {
     public NSidedPolygon(Color c) {
         super(c);

@@ -1,6 +1,5 @@
 package GxEngine3D.Ordering;
 
-import DebugTools.TextOutput;
 import GxEngine3D.CalculationHelper.PlaneCalc;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Polygon3D;
@@ -8,6 +7,7 @@ import GxEngine3D.Model.Polygon3D;
 import java.util.ArrayList;
 import java.util.List;
 
+//NOTE: according to JProfiler, order takes 73% of the total work being done
 public class SidedOrdering extends BaseOrdering {
     @Override
     public List<Integer> order(double[] from, List<Polygon3D> polygons) {

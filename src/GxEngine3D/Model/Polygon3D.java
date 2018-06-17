@@ -21,6 +21,7 @@ public class Polygon3D {
 		belongsTo = bTo;
 	}
 
+	//NOTE: around 10% total usage comes from here
 	public Polygon2D updatePolygon(Camera c, Light l, ViewHandler vHandler) {
 		Polygon2D screenPoly = new Polygon2D(new double[getShape().length],
 				new double[getShape().length], this.c, vHandler,

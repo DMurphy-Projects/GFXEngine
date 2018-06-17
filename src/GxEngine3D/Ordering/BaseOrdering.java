@@ -9,6 +9,7 @@ import java.util.List;
 public abstract class BaseOrdering implements IOrderStrategy {
     //technically doesn't need to be great as it does not work
     //only exists for historical reasons
+    //NOTE: uses around 42%
     protected List<Integer> sortIndex(double[] k) {
         int[] newOrder = new int[k.length];
 
