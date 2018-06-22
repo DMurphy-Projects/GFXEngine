@@ -1,6 +1,7 @@
 package GxEngine3D.Lighting;
 
 import GxEngine3D.CalculationHelper.VectorCalc;
+import Shapes.FakeSphere;
 import Shapes.Shape2D.Line;
 
 public class Light {
@@ -9,18 +10,17 @@ public class Light {
 
 	//brightness is how far the light can travel before it starts to decay
 	int brightness;
+	FakeSphere light;
 	
-	public Line line;
-	
-	public Light(double x, double y, double z, int b, Line l) {
+	public Light(double x, double y, double z, int b, FakeSphere l) {
 		lightPos = new double[] { x, y, z };
-		line = l;
+		light = l;
 		brightness = b;
 	}
 	
 	public void updateLighting()
 	{
-		line.setEnd(new double[]{lightPos[0], lightPos[1], lightPos[2]});
+		light.absoluteTranslate(lightPos[0], lightPos[1], lightPos[2]);
 	}
 	
 	public double[] getLightVector(double[] to)

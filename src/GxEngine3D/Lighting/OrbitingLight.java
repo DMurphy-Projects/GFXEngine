@@ -1,6 +1,7 @@
 package GxEngine3D.Lighting;
 
 import GxEngine3D.CalculationHelper.RotationCalc;
+import Shapes.FakeSphere;
 import Shapes.Shape2D.Line;
 
 /**
@@ -9,8 +10,8 @@ import Shapes.Shape2D.Line;
 public class OrbitingLight extends Light {
     double angle = 0.01;//how much it moves per update
     double[] origin;
-    public OrbitingLight(double x, double y, double z, int rad, double speed, int b, Line l) {
-        super(x, y, z, b, l);
+    public OrbitingLight(double x, double y, double z, int rad, double speed, int b, FakeSphere s) {
+        super(x, y, z, b, s);
         origin = new double[]{x, y, z};
         lightPos = new double[]{x+rad, y, z};
         angle = speed;

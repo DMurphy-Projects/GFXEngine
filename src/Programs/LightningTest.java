@@ -39,13 +39,13 @@ public class LightningTest {
 
         Camera camera1 = new Camera(5, 5, 20);
 
-        Line ln = new Line();
-        Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, ln);
+        FakeSphere light = new FakeSphere(Color.YELLOW);
+        light.init();
+        Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, light);
 
         final Scene scene = new Scene(ls, new SidedOrdering());
         scene.setSplitting(false);
-//		scene.addObject(ln);//shows where the light is, not where its actually shining
-        scene.addObject(new FakeSphere(Color.YELLOW){{translate(lightLocation[0], lightLocation[1], lightLocation[2]);}});
+        scene.addObject(light);
 
         ViewController viewCon = new ViewController();
         //pip panels don't actually get drawn its just used as a container for dimensions

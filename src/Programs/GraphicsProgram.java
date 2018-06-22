@@ -46,8 +46,8 @@ public class GraphicsProgram {
 		Camera camera2 = new Camera(5, 5, 20);
 		Camera camera3 = new Camera(5, 5, 20);
 
-		Line ln = new Line();
-		Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, ln);
+		FakeSphere light = new FakeSphere(Color.YELLOW);
+		Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, light);
 
 		final Scene scene = new Scene(ls, new SidedOrdering());
 		scene.setSplitting(false);
