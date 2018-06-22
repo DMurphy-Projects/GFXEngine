@@ -26,11 +26,13 @@ public class SceneLoader {
                 String[] args = line.split(" ");
                 if (args[0].startsWith("//"))
                 {
+                    //is a comment
                     continue;
                 }
                 else if (args[0].equals("new"))
                 {
                     previousShape = loadObject(args[1], Arrays.copyOfRange(args, 2, args.length));
+                    previousShape.init();
                     if (previousShape != null)
                     {
                         scene.addObject(previousShape);
@@ -128,13 +130,13 @@ public class SceneLoader {
         }
     }
 
-    //TODO support multiple constructor parameters
     private static BaseShape loadObject(String className, String[] s)
     {
         try {
             Class<?> clazz = Class.forName(className);
-            Constructor<?> constructor = clazz.getConstructor(Color.class);
-            Object instance = constructor.newInstance(Color.decode(s[0]));
+            Class[] _classes = getConstructorDefinition(s);
+            Constructor<?> constructor = clazz.getConstructor(_classes);
+            Object instance = constructor.newInstance(getConstructorInstances(s, _classes));
             return (BaseShape) instance;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -148,5 +150,108 @@ public class SceneLoader {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private static Class[] getConstructorDefinition(String[] _s)
+    {
+        Class[] _classes = new Class[_s.length];
+        for (int i = 0;i<_s.length;i++)
+        {
+            String s = _s[i];
+            //specific cast
+            if ((s.startsWith("(") && s.contains(")")) || (s.startsWith("<") && s.endsWith(">")))
+            {
+                int end = s.contains(")") ? s.indexOf(")") : s.indexOf(">");
+                String name = s.substring(1, end);
+                try {
+                    Class<?> clazz = Class.forName(name);
+                    _classes[i] = clazz;
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                //try to infer the type
+                if (s.startsWith("#"))
+                {
+                    _classes[i] = Color.class;
+                }
+                else if (isInteger(s))
+                {
+                    _classes[i] = Integer.class;
+                }
+                else if (isDouble(s))
+                {
+                    _classes[i] = Double.class;
+                }
+                else
+                {
+                    //fallback type
+                    _classes[i] = String.class;
+                }
+            }
+        }
+        return _classes;
+    }
+
+    private static Object[] getConstructorInstances(String[] _s, Class[] _classes) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Object[] _instances = new Object[_s.length];
+        for (int i = 0;i<_s.length;i++)
+        {
+            String s = _s[i];
+            if (s.startsWith("(") && s.contains(")"))
+            {
+                s = s.substring(s.indexOf(")")+1, s.length());
+            }
+            else if (s.startsWith("<") && s.endsWith(">"))
+            {
+                s = s.substring(1, s.length()-1);
+            }
+            String cName = _classes[i].getName();
+            if (cName.equals(Color.class.getName()))
+            {
+                _instances[i] = Color.decode(s);
+            }
+            else if (cName.equals(Double.class.getName()))
+            {
+                _instances[i] = parseDouble(s);
+            }
+            else if (cName.equals(Integer.class.getName()))
+            {
+                _instances[i] = Integer.parseInt(s);
+            }
+            else
+            {
+                Class<?> clazz = Class.forName(s);
+                Constructor<?> constructor = clazz.getConstructor();
+                _instances[i] = constructor.newInstance();
+            }
+        }
+        return _instances;
+    }
+
+    private static boolean isInteger(String s)
+    {
+        for (char c:s.toCharArray())
+        {
+            if (!Character.isDigit(c))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isDouble(String s)
+    {
+        for (char c:s.toCharArray())
+        {
+            if (!Character.isDigit(c) && c != '.')
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

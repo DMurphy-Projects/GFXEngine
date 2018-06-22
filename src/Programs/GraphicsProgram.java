@@ -83,6 +83,7 @@ public class GraphicsProgram {
 
 		Scene pipScene = new Scene(ls, new SidedOrdering());
 		BaseShape rotatingShape = new Cube(Color.RED);
+		rotatingShape.init();
 		pipScene.addObject(rotatingShape);
 		OrbitingCamera camera4 = new OrbitingCamera(5, 5, 0, 1.5, rotatingShape);
 		gCon.add(camera4);

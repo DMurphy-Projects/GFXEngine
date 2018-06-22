@@ -6,6 +6,7 @@ import java.awt.Polygon;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import DebugTools.TextOutput;
 import GxEngine3D.CalculationHelper.MatrixHelper;
 import GxEngine3D.Lighting.AltLighting;
 import GxEngine3D.Lighting.ILightingStrategy;
@@ -32,7 +33,7 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
 	static int id = 0;
 	int curId;
-	private boolean needsUpdate = true;
+	private boolean needsUpdate = true, init = false;
 
 	//stores the points relative to each other
 	protected ArrayList<double[]> relativePoints = new ArrayList<double[]>();
@@ -61,7 +62,6 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
 		curId = BaseShape.id++;
 		lighting = new AltLighting();
-		createShape();
 	}
 
 	public ArrayList<Polygon3D> getShape() {
@@ -94,6 +94,19 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 		//set global update flag
 		if (!needsUpdate) {
 			needsUpdate = true;
+		}
+	}
+
+	public void init()
+	{
+		if (!init)
+		{
+			init = true;
+			createShape();
+		}
+		else
+		{
+			TextOutput.println(this.toString() + " is already initialised");
 		}
 	}
 
