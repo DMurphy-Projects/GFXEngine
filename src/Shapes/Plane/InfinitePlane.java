@@ -33,8 +33,9 @@ public class InfinitePlane extends BaseShape implements ICameraEventListener{
 
     }
 
+    //NOTE: since translation is now affected by scale, we divide by scale
     @Override
     public void onMove(double x, double y, double z) {
-        absoluteTranslate((int)x, (int)this.y, (int)z);
+        absoluteTranslate((int)(x / this.sX), (int)(this.y / this.sY), (int)(z / this.sZ));
     }
 }

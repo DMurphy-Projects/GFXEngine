@@ -1,0 +1,3 @@
+new Shapes.Cube #FF0000
+new Shapes.Plane.InfiniteGrid #000000
+bind camera

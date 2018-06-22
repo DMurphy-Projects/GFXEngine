@@ -14,6 +14,7 @@ import GxEngine3D.Ordering.SidedOrdering;
 import GxEngine3D.View.*;
 import MenuController.LookMenuController;
 import ObjectFactory.*;
+import Scripting.SceneLoader;
 import Shapes.BaseShape;
 import Shapes.FakeSphere;
 import Shapes.Shape2D.Line;
@@ -34,7 +35,7 @@ public class LightningTest {
                                 AlgebraicMatrix.class.getName()),
                         true));
 
-        double[] lightLocation = {0, 0, 5};
+        double[] lightLocation = {0, 0, 0};
 
         Camera camera1 = new Camera(5, 5, 20);
 
@@ -42,38 +43,9 @@ public class LightningTest {
         Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, ln);
 
         final Scene scene = new Scene(ls, new SidedOrdering());
-        scene.setSplitting(true);
+        scene.setSplitting(false);
 //		scene.addObject(ln);//shows where the light is, not where its actually shining
         scene.addObject(new FakeSphere(Color.YELLOW){{translate(lightLocation[0], lightLocation[1], lightLocation[2]);}});
-
-        //testing for matrix plane intersections
-        Sqaure sq01 = new Sqaure(Color.BLUE);
-        sq01.translate(1, 0, 0);
-        scene.addObject(sq01);
-
-        sq01 = new Sqaure(Color.RED);
-        sq01.translate(0, 5, 5);
-        sq01.pitch(Math.toRadians(90));
-        scene.addObject(sq01);
-
-        sq01 = new Sqaure(Color.GREEN);
-        sq01.translate(0, -5, 5);
-        sq01.pitch(Math.toRadians(90));
-        scene.addObject(sq01);
-
-        sq01 = new Sqaure(Color.CYAN);
-        sq01.translate(5, 0, 5);
-        sq01.yaw(Math.toRadians(90));
-        scene.addObject(sq01);
-
-        sq01 = new Sqaure(Color.MAGENTA);
-        sq01.translate(-5, 0, 5);
-        sq01.yaw(Math.toRadians(90));
-        scene.addObject(sq01);
-
-        sq01 = new Sqaure(Color.WHITE);
-        sq01.translate(0, 0, 10);
-        scene.addObject(sq01);
 
         ViewController viewCon = new ViewController();
         //pip panels don't actually get drawn its just used as a container for dimensions
@@ -89,8 +61,11 @@ public class LightningTest {
         gCon.add(vH);
 
         pipPanel.setViewHandler(vH);
-        //-----Picture in picture setup end
         //-----View handler end
+        //-----Script Loading
+        SceneLoader loader = new SceneLoader();
+        loader.load(vH, "/Scripting/Scripts/lightingTest.scene");
+        //-----End Script Loading
 
         final ShapeFactory factory = new ShapeFactory();
         JMenu lookMenu = new JMenu("Look At");
@@ -154,7 +129,7 @@ public class LightningTest {
 
         for (ViewHandler _vH:viewCon.getHandlers())
         {
-            _vH.getCamera().lookAt((BaseShape) vH.getScene().getShapes().get(0));
+            _vH.getCamera().lookAt((BaseShape) _vH.getScene().getShapes().get(0));
             _vH.getCamera().setup();
         }
 

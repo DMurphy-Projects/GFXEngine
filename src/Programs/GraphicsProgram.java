@@ -18,6 +18,7 @@ import GxEngine3D.View.PIP.PIPScreen;
 import GxEngine3D.View.PIP.PIPView;
 import MenuController.LookMenuController;
 import ObjectFactory.*;
+import Scripting.SceneLoader;
 import Shapes.*;
 import Shapes.Plane.InfiniteGrid;
 import Shapes.Plane.InfinitePlane;
@@ -39,7 +40,7 @@ public class GraphicsProgram {
 						true));
 //		TextOutput.setMode(TextOutput.Mode.REMOVED);
 
-		double[] lightLocation = {0, 0, 3};
+		double[] lightLocation = {0, 1, 0};
 
 		Camera camera1 = new Camera(5, 5, 5);
 		Camera camera2 = new Camera(5, 5, 20);
@@ -50,19 +51,6 @@ public class GraphicsProgram {
 
 		final Scene scene = new Scene(ls, new SidedOrdering());
 		scene.setSplitting(false);
-//		scene.addObject(new FakeSphere(Color.YELLOW){{translate(lightLocation[0], lightLocation[1], lightLocation[2]);}});
-//		scene.addObject(ln);//shows where the light is, not where its actually shining
-
-		BaseShape object = new Cube(Color.RED);
-		scene.addObject(object);
-
-		object = new Cube(Color.BLUE);
-		object.translate(0, 1, 0);
-		scene.addObject(object);
-
-		InfinitePlane plane = new InfiniteGrid(Color.WHITE);
-		camera1.add(plane);
-		scene.addObject(plane);
 
 		ViewController viewCon = new ViewController();
 		PIPScreen panel1 = new PIPScreen();
@@ -84,13 +72,13 @@ public class GraphicsProgram {
 //		addListeners(panel3, gCon);
 
 		//-----View handler setup
-		ViewHandler vH;
+		ViewHandler vH01, vH02;
 
 		//-----Picture in picture setup
-		vH = viewCon.add(panel1, camera1, scene);
-		gCon.add(vH);
+		vH01 = viewCon.add(panel1, camera1, scene);
+		gCon.add(vH01);
 		PIPView pip = new Screen(new int[]{0, 0});
-		pip.setViewHandler(vH);
+		pip.setViewHandler(vH01);
 		panel1.addView(pip);
 
 		Scene pipScene = new Scene(ls, new SidedOrdering());
@@ -98,14 +86,18 @@ public class GraphicsProgram {
 		pipScene.addObject(rotatingShape);
 		OrbitingCamera camera4 = new OrbitingCamera(5, 5, 0, 1.5, rotatingShape);
 		gCon.add(camera4);
-		vH = viewCon.add(pipPanel, camera4, pipScene);
-		vH.setHover(false);
-		gCon.add(vH);
+		vH02 = viewCon.add(pipPanel, camera4, pipScene);
+		vH02.setHover(false);
+		gCon.add(vH02);
 		pip = new Screen(new int[]{0, 0});
-		pip.setViewHandler(vH);
+		pip.setViewHandler(vH02);
 		panel1.addView(pip);
 		//-----Picture in picture setup end
 		//-----View handler end
+		//-----Script Loading
+		SceneLoader loader = new SceneLoader();
+		loader.load(vH01, "/Scripting/Scripts/default.scene");
+		//-----End Script Loading
 
 		final ShapeFactory factory = new ShapeFactory();
 		JMenu lookMenu = new JMenu("Look At");
@@ -171,7 +163,7 @@ public class GraphicsProgram {
 
 		for (ViewHandler _vH:viewCon.getHandlers())
 		{
-			_vH.getCamera().lookAt((BaseShape) vH.getScene().getShapes().get(0));
+			_vH.getCamera().lookAt((BaseShape) _vH.getScene().getShapes().get(0));
 		}
 
 		lookCon.updateMenu(lookMenu, scene, actions);

@@ -54,6 +54,29 @@ public class Matrix {
         return out;
     }
 
+    public double[][] matrixMultiply(Matrix m)
+    {
+        return matrixMultiply(m.matrix);
+    }
+
+    public double[][] matrixMultiply(double[][] in)
+    {
+        if (this.m == in[0].length)
+        {
+            double[][] result = new double[this.m][in[0].length];
+            for(int i = 0; i < this.m; ++i) {
+                for (int j = 0; j < in[0].length; ++j) {
+                    for (int k = 0; k < this.n; ++k) {
+                        result[i][j] += matrix[i][k] * in[k][j];
+                    }
+                }
+            }
+            return result;
+        }
+        TextOutput.println("Cannot Multiply Matrices: Matrix01 length(" + this.n+") does not eqaul Matrix02 height("+in[0].length +")");
+        return null;
+    }
+
     public void addEqaution(double[] e)
     {
         if (e.length > n)
@@ -131,7 +154,7 @@ public class Matrix {
         return newMatrix;
     }
 
-    public double[][] multiplyMatrix(double[][] m)
+    public double[][] scaleMatrix(double[][] m)
     {
         double[][] newMatrix = new double[this.m][n];
         for (int i=0;i<this.m;i++)
