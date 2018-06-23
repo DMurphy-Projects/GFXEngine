@@ -5,9 +5,9 @@ import java.awt.*;
 /**
  * Created by Dean on 07/01/17.
  */
-public class Sqaure extends NSidedPolygon{
+public class Square extends NSidedPolygon{
 
-    public Sqaure(Color c) {
+    public Square(Color c) {
         super(c);
     }
 

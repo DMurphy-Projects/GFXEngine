@@ -3,7 +3,7 @@ package Programs;
 import GxEngine3D.Model.Matrix.AlgebraicMatrix;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.RefPoint3D;
-import Shapes.Shape2D.Sqaure;
+import Shapes.Shape2D.Square;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -11,10 +11,10 @@ import java.util.ArrayList;
 public class SplittingTest {
     public static void main(String[] args)
     {
-        Sqaure sq01 = new Sqaure(Color.white);
+        Square sq01 = new Square(Color.white);
         sq01.scale(5, 5, 5);
         sq01.translate(0, 0, 2);
-        Sqaure sq02 = new Sqaure(Color.white);
+        Square sq02 = new Square(Color.white);
         sq01.scale(5, 5, 5);
         sq02.translate(0, 0, 2);
         sq02.rotate(Math.toRadians(20), Math.toRadians(45), Math.toRadians(90));

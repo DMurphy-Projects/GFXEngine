@@ -4,7 +4,7 @@ import GxEngine3D.Model.Matrix.AlgebraicMatrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Vector;
-import Shapes.Shape2D.Sqaure;
+import Shapes.Shape2D.Square;
 
 import java.awt.*;
 
@@ -12,7 +12,7 @@ public class MatrixTest {
 
     public static void main(String[] args)
     {
-        Sqaure sq01 = new Sqaure(Color.white);
+        Square sq01 = new Square(Color.white);
         //plane based from a square
         Plane plane = new Plane(sq01.getShape().get(0));
         double[] nV = plane.getNV().toArray();

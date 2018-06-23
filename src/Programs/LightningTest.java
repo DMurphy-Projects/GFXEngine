@@ -17,8 +17,6 @@ import ObjectFactory.*;
 import Scripting.SceneLoader;
 import Shapes.BaseShape;
 import Shapes.FakeSphere;
-import Shapes.Shape2D.Line;
-import Shapes.Shape2D.Sqaure;
 
 import javax.swing.*;
 import java.awt.*;
