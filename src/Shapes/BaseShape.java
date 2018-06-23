@@ -112,7 +112,7 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
 	public void translate(double x, double y, double z)
 	{
-		if ((x+y+z) > 0)
+		if (x != 0 || y != 0 || z != 0)
 		{
 			this.x += x; this.y += y; this.z += z;
 			translation = new Matrix(translation.addMatrix(MatrixHelper.setupTranslateMatrix(x, y, z)));
