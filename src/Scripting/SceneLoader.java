@@ -1,95 +1,253 @@
 package Scripting;
 
-import GxEngine3D.Camera.Camera;
 import GxEngine3D.Camera.ICameraEventListener;
-import GxEngine3D.Controller.Scene;
 import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
+import Shapes.IManipulable;
 
 import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class SceneLoader {
+
+    ArrayList<String> tokens = new ArrayList<>();
+    ViewHandler vH;
+    int pos;
+
+    HashMap<String, Object> references = new HashMap<>();
+    Object previous = null;
+
     public void load(ViewHandler vH, String fileName)
     {
         File file = new File(getClass().getResource(fileName).getFile());
-
-        BaseShape previousShape = null;
-        Scene scene = vH.getScene();
-        Camera camera = vH.getCamera();
+        this.vH = vH;
+        pos = 0;
 
         try(BufferedReader br = new BufferedReader(new FileReader(file))) {
             for(String line; (line = br.readLine()) != null; ) {
                 String[] args = line.split(" ");
-                if (args[0].startsWith("//"))
-                {
-                    //is a comment
-                    continue;
-                }
-                else if (args[0].equals("new"))
-                {
-                    previousShape = loadObject(args[1], Arrays.copyOfRange(args, 2, args.length));
-                    previousShape.init();
-                    if (previousShape != null)
-                    {
-                        scene.addObject(previousShape);
-                    }
-                }
-                else if (args[0].equals("set"))
-                {
-                    double v1 = parseDouble(args[2]);
-                    double v2 = parseDouble(args[3]);
-                    double v3 = parseDouble(args[4]);
-                    if (args[1].equals("scale"))
-                    {
-                        previousShape.absoluteScale(v1, v2, v3);
-                    }
-                    else if (args[1].equals("rotate"))
-                    {
-                        previousShape.absoluteRotate(v1, v2, v3);
-                    }
-                    else if (args[1].equals("translate"))
-                    {
-                        previousShape.absoluteTranslate(v1, v2, v3);
-                    }
-                }
-                else if (args[0].equals("add"))
-                {
-                    double v1 = parseDouble(args[2]);
-                    double v2 = parseDouble(args[3]);
-                    double v3 = parseDouble(args[4]);
-                    if (args[1].equals("scale"))
-                    {
-                        previousShape.scale(v1, v2, v3);
-                    }
-                    else if (args[1].equals("rotate"))
-                    {
-                        previousShape.rotate(v1, v2, v3);
-                    }
-                    else if (args[1].equals("translate"))
-                    {
-                        previousShape.translate(v1, v2, v3);
-                    }
-                }
-                else if (args[0].equals("bind"))
-                {
-                    if (args[1].equals("camera"))
-                    {
-                        camera.add ((ICameraEventListener)previousShape);
-                    }
-                }
+                tokens.addAll(Arrays.asList(args));
+                tokens.add("\n");
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        tokens.add("/eof");
+
+        String t = nextToken();
+        while(t != null)
+        {
+            try {
+                newLine(t);
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            t = nextToken();
+        }
     }
 
-    private static double parseDouble(String s)
+    public String nextToken()
+    {
+        String s;
+        try {
+            s = tokens.get(pos);
+            pos++;
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            s = null;
+        }
+        return s;
+    }
+    public String peekToken()
+    {
+        return tokens.get(pos);
+    }
+
+    private void newLine(String t) throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        switch(t)
+        {
+            case "let":
+                let(nextToken());
+                break;
+            case "new":
+                previous = object(t);
+                break;
+            case "bind":
+                bind(nextToken());
+                break;
+            case "add":
+                add(nextToken());
+                break;
+            case "set":
+                set(nextToken());
+                break;
+        }
+    }
+
+    private void add(String s)
+    {
+        Object o = reference(s);
+        s = nextToken();
+        if (s.equals("scale") || s.equals("rotate") || s.equals("translate"))
+        {
+            IManipulable m = (IManipulable) o;
+            double v1 = parseDouble(nextToken()), v2 = parseDouble(nextToken()), v3 = parseDouble(nextToken());
+            if (s.equals("scale"))
+            {
+                m.scale(v1, v2, v3);
+            }
+            else if (s.equals("rotate"))
+            {
+                m.rotate(v1, v2, v3);
+            }
+            else
+            {
+                m.translate(v1, v2, v3);
+            }
+        }
+        else
+        {
+            vH.getScene().addObject((BaseShape) o);
+            ((BaseShape) o).init();
+        }
+    }
+
+    private void set(String s)
+    {
+        Object o = reference(s);
+        s = nextToken();
+        if (s.equals("scale") || s.equals("rotate") || s.equals("translate"))
+        {
+            //we know we're dealing with a manipulable object
+            IManipulable m = (IManipulable) o;
+            double v1 = parseDouble(nextToken()), v2 = parseDouble(nextToken()), v3 = parseDouble(nextToken());
+            if (s.equals("scale"))
+            {
+                m.absoluteScale(v1, v2, v3);
+            }
+            else if (s.equals("rotate"))
+            {
+                m.absoluteRotate(v1, v2, v3);
+            }
+            else
+            {
+                m.absoluteTranslate(v1, v2, v3);
+            }
+        }
+    }
+
+    private void bind(String s)
+    {
+        if (s.equals("camera"))
+        {
+            s = nextToken();
+            assert isReference(s);
+            vH.getCamera().add((ICameraEventListener) reference(s));
+        }
+    }
+
+    private void let(String s) throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        //the next token in let is a name, must be alpha-numeric
+        assert isAlphaNumeric(s);
+        String t = nextToken();
+        assert t.equals("=");
+        previous = object(nextToken());
+        references.put(s, previous);
+    }
+
+    private boolean isObject(String s)
+    {
+        return s.equals("new");
+    }
+
+    private Object object(String s) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException, ClassNotFoundException {
+        assert isObject(s);//new
+        String name = nextToken();
+        Class<?> clazz = Class.forName(name);
+
+        assert isClassName(name);
+        String[] constructor = constructor(peekToken());
+        Class[] _classes = getConstructorDefinition(constructor);
+
+        Constructor<?> _constructor = clazz.getConstructor(_classes);
+        Object instance = _constructor.newInstance(getConstructorInstances(constructor, _classes));
+        return instance;
+    }
+
+    //should pass in the peeked token
+    private String[] constructor(String t) throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        ArrayList<String> c = new ArrayList<>();
+        while(!t.equals("let") && !t.equals("bind") && !t.equals("/eof") && !t.startsWith("//") && !t.equals("\n"))
+        {
+            if (isReference(t))
+            {
+                t = nextToken();
+                c.add(t);
+            }
+            else {
+                String s = nextToken();
+                c.add(s);
+            }
+            t = peekToken();
+        }
+        String[] arr = new String[c.size()];
+        c.toArray(arr);
+        return arr;
+    }
+
+    private boolean isReference(String s)
+    {
+        if (s.startsWith("*"))
+        {
+            String _s = s.substring(1, s.length());//remove the *
+            return references.containsKey(_s);
+        }
+        else if(s.equals("/prev"))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private Object reference(String s)
+    {
+        if (s.equals("/prev"))
+        {
+            return previous;
+        }
+        else {
+            assert isReference(s);
+            return references.get(s.substring(1, s.length()));
+        }
+    }
+
+    private boolean isClassName(String s)
+    {
+        try {
+            Class.forName(s);
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private double parseDouble(String s)
     {
         if (s.startsWith("PI"))
         {
@@ -130,39 +288,24 @@ public class SceneLoader {
         }
     }
 
-    private static BaseShape loadObject(String className, String[] s)
-    {
-        try {
-            Class<?> clazz = Class.forName(className);
-            Class[] _classes = getConstructorDefinition(s);
-            Constructor<?> constructor = clazz.getConstructor(_classes);
-            Object instance = constructor.newInstance(getConstructorInstances(s, _classes));
-            return (BaseShape) instance;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static Class[] getConstructorDefinition(String[] _s)
+    private Class[] getConstructorDefinition(String[] _s)
     {
         Class[] _classes = new Class[_s.length];
         for (int i = 0;i<_s.length;i++)
         {
             String s = _s[i];
+            boolean specificCast;
             //specific cast
-            if ((s.startsWith("(") && s.contains(")")) || (s.startsWith("<") && s.endsWith(">")))
+            if ((specificCast = s.startsWith("(") && s.contains(")")) || isReference(s))
             {
-                int end = s.contains(")") ? s.indexOf(")") : s.indexOf(">");
-                String name = s.substring(1, end);
+                String name = s;
+                if (specificCast) {
+                    name = s.substring(1, s.indexOf(")"));
+                }
+                else
+                {
+                    name = reference(s).getClass().getName();
+                }
                 try {
                     Class<?> clazz = Class.forName(name);
                     _classes[i] = clazz;
@@ -195,7 +338,7 @@ public class SceneLoader {
         return _classes;
     }
 
-    private static Object[] getConstructorInstances(String[] _s, Class[] _classes) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private Object[] getConstructorInstances(String[] _s, Class[] _classes) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Object[] _instances = new Object[_s.length];
         for (int i = 0;i<_s.length;i++)
         {
@@ -204,10 +347,7 @@ public class SceneLoader {
             {
                 s = s.substring(s.indexOf(")")+1, s.length());
             }
-            else if (s.startsWith("<") && s.endsWith(">"))
-            {
-                s = s.substring(1, s.length()-1);
-            }
+
             String cName = _classes[i].getName();
             if (cName.equals(Color.class.getName()))
             {
@@ -221,6 +361,10 @@ public class SceneLoader {
             {
                 _instances[i] = Integer.parseInt(s);
             }
+            else if(isReference(s))
+            {
+                _instances[i] = reference(s);
+            }
             else
             {
                 Class<?> clazz = Class.forName(s);
@@ -231,15 +375,27 @@ public class SceneLoader {
         return _instances;
     }
 
-    private static boolean isInteger(String s)
+    private static boolean isAlphaNumeric(String s)
     {
         for (char c:s.toCharArray())
         {
-            if (!Character.isDigit(c))
+            if (!Character.isDigit(c) && !Character.isAlphabetic(c))
             {
                 return false;
             }
         }
+        return true;
+    }
+
+    private static boolean isInteger(String s)
+    {
+        for (char c:s.toCharArray())
+    {
+        if (!Character.isDigit(c))
+        {
+            return false;
+        }
+    }
         return true;
     }
 

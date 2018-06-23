@@ -1,23 +1,29 @@
-new Shapes.Shape2D.Sqaure #FF0000
-set translate 0 0 5
-set rotate 0 PI/2; PI/4;
+new Shapes.Shape2D.Square #FF0000
+add /prev
+set /prev translate 0 0 5
+set /prev rotate 0 PI/2; PI/4;
 
-new Shapes.Shape2D.Sqaure #F0F000
-set translate 0 0 -5
-set rotate 0 PI/2; PI/4;
+new Shapes.Shape2D.Square #F0F000
+add /prev
+set /prev translate 0 0 -5
+set /prev rotate 0 PI/2; PI/4;
 
-new Shapes.Shape2D.Sqaure #00FF00
-set translate 0 0 -5
-set rotate 0 0 PI/4;
+new Shapes.Shape2D.Square #00FF00
+add /prev
+set /prev translate 0 0 -5
+set /prev rotate 0 0 PI/4;
 
-new Shapes.Shape2D.Sqaure #00F0F0
-set translate 0 0 5
-set rotate 0 0 PI/4;
+new Shapes.Shape2D.Square #00F0F0
+add /prev
+set /prev translate 0 0 5
+set /prev rotate 0 0 PI/4;
 
-new Shapes.Shape2D.Sqaure #0000FF
-set translate 0 0 5
-set rotate PI/2; 0 PI/4;
+new Shapes.Shape2D.Square #0000FF
+add /prev
+set /prev translate 0 0 5
+set /prev rotate PI/2; 0 PI/4;
 
-new Shapes.Shape2D.Sqaure #F000F0
-set translate 0 0 -5
-set rotate PI/2; 0 PI/4;
+new Shapes.Shape2D.Square #F000F0
+add /prev
+set /prev translate 0 0 -5
+set /prev rotate PI/2; 0 PI/4;

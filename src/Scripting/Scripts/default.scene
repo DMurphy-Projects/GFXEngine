@@ -1,3 +1,5 @@
-new Shapes.Cube #FF0000
+let cube = new Shapes.Cube #FF0000
+add *cube
 new Shapes.Plane.InfiniteGrid #000000 40
-bind camera
+add /prev
+bind camera /prev
