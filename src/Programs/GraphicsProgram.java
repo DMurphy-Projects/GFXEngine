@@ -3,6 +3,9 @@ package Programs;
 import DebugTools.TextModule.GlobalCategoryBlacklist;
 import DebugTools.TextModule.TextBlacklist;
 import DebugTools.TextModule.TextToggle;
+import GxEngine3D.Animation.*;
+import GxEngine3D.Animation.Routines.AnchorRoutine;
+import GxEngine3D.Animation.Routines.RotationRoutine;
 import GxEngine3D.Model.Matrix.AlgebraicMatrix;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Camera.Camera;
@@ -20,9 +23,6 @@ import MenuController.LookMenuController;
 import ObjectFactory.*;
 import Scripting.SceneLoader;
 import Shapes.*;
-import Shapes.Plane.InfiniteGrid;
-import Shapes.Plane.InfinitePlane;
-import Shapes.Shape2D.Line;
 
 import javax.swing.*;
 import java.awt.*;
@@ -49,8 +49,27 @@ public class GraphicsProgram {
 		FakeSphere light = new FakeSphere(Color.YELLOW);
 		Light ls = new Light(lightLocation[0], lightLocation[1], lightLocation[2], 10, light);
 
-		final Scene scene = new Scene(ls, new SidedOrdering());
+		final Scene scene = new Scene(ls, new OrderPolygon());
 		scene.setSplitting(false);
+
+		Cube c = new Cube(Color.RED);
+		c.init();
+		c.translate(0, 0, 1);
+		scene.addObject(c);
+
+		Animator a = new Animator();
+		a.setDelay(30);
+		a.add(c);
+
+		//TODO add bindings for scripts
+		a.add(new RotationRoutine(new double[]{Math.PI/2, 0, 0}));
+		a.add(new AnchorRoutine(new double[]{0, 1, 0}, new double[]{0, 0, -1}));
+		a.add(new RotationRoutine(new double[]{Math.PI/2, 0, 0}));
+		a.add(new AnchorRoutine(new double[]{0, 1, 1}, new double[]{0, 0, -1}));
+		a.add(new RotationRoutine(new double[]{Math.PI/2, 0, 0}));
+		a.add(new AnchorRoutine(new double[]{0, 0, 1}, new double[]{0, 0, -1}));
+		a.add(new RotationRoutine(new double[]{Math.PI/2, 0, 0}));
+		a.add(new AnchorRoutine(new double[]{0, 0, 0}, new double[]{0, 0, -1}));
 
 		ViewController viewCon = new ViewController();
 		PIPScreen panel1 = new PIPScreen();
@@ -70,6 +89,7 @@ public class GraphicsProgram {
 		addListeners(panel1, gCon);
 //		addListeners(panel2, gCon);
 //		addListeners(panel3, gCon);
+		gCon.addPreListener(a);
 
 		//-----View handler setup
 		ViewHandler vH01, vH02;
