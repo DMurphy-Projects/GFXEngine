@@ -10,6 +10,7 @@ package Shapes;
     -translation
  absolute refers to setting to a specific value
  scale should be treated as multiplicative whereas rotate/translate should be additive
+ anchor defines where the origin is
  */
 
 public interface IManipulable {
@@ -22,5 +23,5 @@ public interface IManipulable {
     void translate(double x, double y, double z);
     void absoluteTranslate(double x, double y, double z);
 
-
+    void setAnchor(double[] a);
 }

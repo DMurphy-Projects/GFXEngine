@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import DebugTools.TextOutput;
 import GxEngine3D.CalculationHelper.MatrixHelper;
+import GxEngine3D.CalculationHelper.VectorCalc;
 import GxEngine3D.Lighting.AltLighting;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Model.Matrix.Matrix;
@@ -46,6 +47,8 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 	protected static String name = "Shape";
 	protected ILightingStrategy lighting;
 
+	double[] anchor;
+
 	protected ISplitStrategy triangles = new SplitIntoTriangles();
 
 	public BaseShape(Color c) {
@@ -57,6 +60,7 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 		scale.insertMatrix(identity);
 		translation = new Matrix(4, 4);
 		translation.insertMatrix(identity);
+		anchor = new double[3];;
 
 		rotation = new Matrix(MatrixHelper.setupPitchRotation(0));
 
@@ -115,7 +119,7 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 		if (x != 0 || y != 0 || z != 0)
 		{
 			this.x += x; this.y += y; this.z += z;
-			translation = new Matrix(translation.addMatrix(MatrixHelper.setupTranslateMatrix(x, y, z)));
+			translation = new Matrix(MatrixHelper.setupTranslateMatrix(this.x, this.y, this.z));
 			scheduleUpdate();
 		}
 	}
@@ -228,6 +232,12 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 		}
 	}
 
+	@Override
+	public void setAnchor(double[] d)
+	{
+		anchor = d;
+	}
+
 	protected abstract void createShape();
 
 	public double[] findCentre() {
@@ -245,7 +255,7 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 
 	private double[] transform(double[] point)
 	{
-		point = combined.pointMultiply(point);
+		point = combined.pointMultiply(VectorCalc.sub(point, anchor));
 		return point;
 	}
 
@@ -254,9 +264,12 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 		if (needsUpdate) {
 			needsUpdate = false;
 
-			combined = scale;
+			//uses reverse order since we don't want the following to happen:
+			//-scale affecting translation
+			//-rotation affecting translation
+			combined = translation;
 			combined = new Matrix(combined.matrixMultiply(rotation));
-			combined = new Matrix(combined.matrixMultiply(translation));
+			combined = new Matrix(combined.matrixMultiply(scale));
 
 			for (int i=0;i<relativePoints.size();i++)
 			{
