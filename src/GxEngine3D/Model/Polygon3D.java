@@ -5,6 +5,7 @@ import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.Matrix.Matrix;
+import GxEngine3D.PolygonClipper;
 import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 
@@ -24,16 +25,10 @@ public class Polygon3D {
 	//NOTE: around 10% total usage comes from here
 	public Polygon2D updatePolygon(Camera c, Light l, ViewHandler vHandler) {
 		RefPoint3D[] shp = getShape();
-		draw = false;
-
-		Polygon2D screenPoly = new Polygon2D(new double[shp.length],
-				new double[shp.length], this.c, vHandler,
-				belongsTo, this);
 
 		Matrix projectionMatrix = new Matrix(vHandler.getProjectionMatrix().matrixMultiply(c.getMatrix()));
 
-		double[] newX = new double[shp.length];
-		double[] newY = new double[shp.length];
+		double[][] points = new double[shp.length][];
 
 		for (int i = 0; i < shp.length; i++) {
 			double[] p = shp[i].toArray();
@@ -45,19 +40,28 @@ public class Polygon3D {
 					p[1] / absP,
 					p[2] / absP,
 			};
-
-			if (p[0] >= -1 && p[0] <= 1 && p[1] >= -1 && p[1] <= 1 && p[2] >= -1 && p[2] <= 1)
-			{
-				//if any point is within the frustum then draw the whole polygon and let graphics clip for us
-				draw = true;
-			}
-			//translates range(-1, 1) into (0, 1)
-			newX[i] = ((p[0] + 1) * 0.5 * vHandler.getView().getWidth());
-			newY[i] = (1 - (p[1] + 1) * 0.5) * vHandler.getView().getHeight();
+			points[i] = p;
 		}
 
-		screenPoly.draw = draw;
-		if (draw) {
+		PolygonClipper clipper = new PolygonClipper();
+		double[][] clipped = clipper.clip(points);
+
+		double[] newX = new double[clipped.length];
+		double[] newY = new double[clipped.length];
+
+		for (int i=0;i<clipped.length;i++)
+		{
+			//translates range(-1, 1) into (0, 1)
+			newX[i] = ((clipped[i][0] + 1) * 0.5 * vHandler.getView().getWidth());
+			newY[i] = (1 - (clipped[i][1] + 1) * 0.5) * vHandler.getView().getHeight();
+		}
+
+		Polygon2D screenPoly = new Polygon2D(new double[clipped.length],
+				new double[clipped.length], this.c, vHandler,
+				belongsTo, this);
+
+		screenPoly.draw = clipped.length != 0;
+		if (screenPoly.draw) {
 			Plane lPlane = new Plane(this);
 			//centre being calculated at object init won't work as the shape would not have been translated yet
 			lPlane.setP(findCentre());
