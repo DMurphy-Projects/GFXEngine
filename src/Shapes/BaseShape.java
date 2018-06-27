@@ -256,6 +256,11 @@ public abstract class BaseShape implements IShape, IDrawable, IManipulable {
 	private double[] transform(double[] point)
 	{
 		point = combined.pointMultiply(VectorCalc.sub(point, anchor));
+		point = new double[]{
+				point[0] / point[3],
+				point[1] / point[3],
+				point[2] / point[3],
+		};
 		return point;
 	}
 

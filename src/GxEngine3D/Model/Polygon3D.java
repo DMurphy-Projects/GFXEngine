@@ -23,30 +23,34 @@ public class Polygon3D {
 
 	//NOTE: around 10% total usage comes from here
 	public Polygon2D updatePolygon(Camera c, Light l, ViewHandler vHandler) {
-		Polygon2D screenPoly = new Polygon2D(new double[getShape().length],
-				new double[getShape().length], this.c, vHandler,
+		RefPoint3D[] shp = getShape();
+		draw = false;
+
+		Polygon2D screenPoly = new Polygon2D(new double[shp.length],
+				new double[shp.length], this.c, vHandler,
 				belongsTo, this);
 
-		RefPoint3D[] shp = getShape();
+		Matrix projectionMatrix = new Matrix(vHandler.getProjectionMatrix().matrixMultiply(c.getMatrix()));
+
 		double[] newX = new double[shp.length];
 		double[] newY = new double[shp.length];
-		draw = true;
-
-		Matrix projectionMatrix = vHandler.getProjectionMatrix();
-		Matrix cameraMatrix = c.getMatrix();
 
 		for (int i = 0; i < shp.length; i++) {
 			double[] p = shp[i].toArray();
-			p = cameraMatrix.pointMultiply(p);
 			p = projectionMatrix.pointMultiply(p);
+			//NOTE: current theory is that the projection plane sided value should be unsigned when converting to cartesian coordinates, otherwise they wrap around
+			double absP = Math.abs(p[3]);
+			p = new double[]{
+					p[0] / absP,
+					p[1] / absP,
+					p[2] / absP,
+			};
 
-			//TODO if at least one of these points is within the frustum we should clip the polygon and render
-			if (p[0] < -1 || p[0] > 1 || p[1] < -1 || p[1] > 1 || p[2] < -1 || p[2] > 1)
+			if (p[0] >= -1 && p[0] <= 1 && p[1] >= -1 && p[1] <= 1 && p[2] >= -1 && p[2] <= 1)
 			{
-				draw = false;
-				break;
+				//if any point is within the frustum then draw the whole polygon and let graphics clip for us
+				draw = true;
 			}
-
 			//translates range(-1, 1) into (0, 1)
 			newX[i] = ((p[0] + 1) * 0.5 * vHandler.getView().getWidth());
 			newY[i] = (1 - (p[1] + 1) * 0.5) * vHandler.getView().getHeight();

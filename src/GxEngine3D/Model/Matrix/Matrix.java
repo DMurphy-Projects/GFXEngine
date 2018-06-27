@@ -37,20 +37,14 @@ public class Matrix {
         insertMatrix(m.matrix);
     }
 
+    //multiplies v3 with a 4*4 matrix, assumes v3->v4 in[3]=1
     public double[] pointMultiply(double[] in)
     {
-        double[] out = new double[3];
-        out[0] = in[0] * matrix[0][0] + in[1] * matrix[0][1] + in[2] * matrix[0][2] + /* in.z = 1 */ matrix[0][3];
-        out[1] = in[0] * matrix[1][0] + in[1] * matrix[1][1] + in[2] * matrix[1][2] + /* in.z = 1 */ matrix[1][3];
-        out[2] = in[0] * matrix[2][0] + in[1] * matrix[2][1] + in[2] * matrix[2][2] + /* in.z = 1 */ matrix[2][3];
-        double w = in[0] * matrix[3][0] + in[1] * matrix[3][1] + in[2] * matrix[3][2] + /* in.z = 1 */ matrix[3][3];
-
-        // normalize if w is different than 1 (convert from homogeneous to Cartesian coordinates)
-        if (w != 1) {
-            out[0] /= w;
-            out[1] /= w;
-            out[2] /= w;
-        }
+        double[] out = new double[4];
+        out[0] = in[0] * matrix[0][0] + in[1] * matrix[0][1] + in[2] * matrix[0][2] +  matrix[0][3];
+        out[1] = in[0] * matrix[1][0] + in[1] * matrix[1][1] + in[2] * matrix[1][2] +  matrix[1][3];
+        out[2] = in[0] * matrix[2][0] + in[1] * matrix[2][1] + in[2] * matrix[2][2] +  matrix[2][3];
+        out[3] = in[0] * matrix[3][0] + in[1] * matrix[3][1] + in[2] * matrix[3][2] +  matrix[3][3];
         return out;
     }
 
