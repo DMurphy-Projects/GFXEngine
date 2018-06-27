@@ -1,0 +1,72 @@
+//NOTE: in general, spaces are counted as markup and are important
+Script:
+    *Line '\n'
+
+//NOTE: in let, the string will be its reference name
+        in add, there is default behaviour for when to add to the scene
+Line:
+    <Object>
+    "let" String "=" <Object>
+    "bind" <<CameraBind> | <ControllerBind>>
+    "add" <Reference> ((<ManipulationKeyword> | <AnimationKeyword>) <Reference>)?
+    "set" <Reference> <ManipulationKeyword>
+
+Object:
+    "new" <Class> <Constructor>?
+
+//NOTE: this must be the class name as a string
+Class:
+    String
+
+Constructor:
+    <Reference*> | <Array>* | <Value>*
+
+//NOTE: the string will be its reference name
+Reference:
+    "*" String | "/prev" |
+
+Array:
+    "{" <Value>* "}"
+
+Value:
+    <InferredValue> | <Cast><Class>
+
+InferredValue:
+    <Color> | Integer | <Double> | String
+
+//NOTE: string must consist of 6 integers that give the hex color code
+Color:
+    "#" String
+
+Double:
+    Double | <PiExpression>
+
+PiExpression:
+    ("-")?"PI" (("*" | "/") <Double>)*
+
+Cast:
+    "(" (<Class> | <Value>) ")"
+
+ManipulationKeyword:
+    ("scale" | "rotate" | "translate") <Number> <Number> <Number>
+
+Number:
+    Double | Integer
+
+AnimationKeyword:
+    "routine" | "animator"
+
+CameraBind:
+    "camera" <Reference>
+
+ControllerBind:
+    "controller" <Reference> <ControllerTickKeyword>
+
+//NOTE: has default behaviour to use "tick"
+ControllerTickKeyword:
+    "pre" | "tick" | "post"
+
+
+
+
+

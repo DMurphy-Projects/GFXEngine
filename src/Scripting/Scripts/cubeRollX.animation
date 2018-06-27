@@ -1,0 +1,31 @@
+//NOTE: the anchor routine does not account for scale
+let a01 = new GxEngine3D.Animation.Animator
+
+//first roll onto face
+let r01 = new GxEngine3D.Animation.Routines.AnchorRoutine { 0.0 0.0 1.0 } { 0.0 0.0 1.0 }
+add *r01 routine *a01
+let r01 = new GxEngine3D.Animation.Routines.RotationRoutine { -PI/2; 0.0 0.0 }
+add *r01 routine *a01
+
+//second roll onto face
+let r01 = new GxEngine3D.Animation.Routines.AnchorRoutine { 0.0 1.0 1.0 } { 0.0 0.0 1.0 }
+add *r01 routine *a01
+let r01 = new GxEngine3D.Animation.Routines.RotationRoutine { -PI/2; 0.0 0.0 }
+add *r01 routine *a01
+
+//third roll onto face
+let r01 = new GxEngine3D.Animation.Routines.AnchorRoutine { 0.0 1.0 0.0 } { 0.0 0.0 1.0 }
+add *r01 routine *a01
+let r01 = new GxEngine3D.Animation.Routines.RotationRoutine { -PI/2; 0.0 0.0 }
+add *r01 routine *a01
+
+//last roll onto face, this should reset the shape to its original orientation
+let r01 = new GxEngine3D.Animation.Routines.AnchorRoutine { 0.0 0.0 0.0 } { 0.0 0.0 1.0 }
+add *r01 routine *a01
+let r01 = new GxEngine3D.Animation.Routines.RotationRoutine { -PI/2; 0.0 0.0 }
+add *r01 routine *a01
+
+//objects affected
+add *cube animator *a01
+
+bind controller *a01 pre

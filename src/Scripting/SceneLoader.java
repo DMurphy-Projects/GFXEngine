@@ -1,12 +1,18 @@
 package Scripting;
 
+import DebugTools.TextOutput;
+import GxEngine3D.Animation.Animator;
+import GxEngine3D.Animation.Routines.IRoutine;
 import GxEngine3D.Camera.ICameraEventListener;
+import GxEngine3D.Controller.GXController;
+import GxEngine3D.Controller.ITickListener;
 import GxEngine3D.View.ViewHandler;
 import Shapes.BaseShape;
 import Shapes.IManipulable;
 
 import java.awt.*;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -15,18 +21,26 @@ import java.util.HashMap;
 
 public class SceneLoader {
 
-    ArrayList<String> tokens = new ArrayList<>();
+    ArrayList<String> tokens;
     ViewHandler vH;
     int pos;
 
     HashMap<String, Object> references = new HashMap<>();
     Object previous = null;
 
+    GXController controller;
+
+    public SceneLoader(GXController c)
+    {
+        controller = c;
+    }
+
     public void load(ViewHandler vH, String fileName)
     {
         File file = new File(getClass().getResource(fileName).getFile());
         this.vH = vH;
         pos = 0;
+        tokens = new ArrayList<>();
 
         try(BufferedReader br = new BufferedReader(new FileReader(file))) {
             for(String line; (line = br.readLine()) != null; ) {
@@ -121,6 +135,20 @@ public class SceneLoader {
                 m.translate(v1, v2, v3);
             }
         }
+        else if (s.equals("routine") || s.equals("animator"))
+        {
+
+            Animator a = (Animator) reference(nextToken());
+            if (s.equals("routine")) {
+                IRoutine r = (IRoutine) o;
+                a.add(r);
+            }
+            else
+            {
+                IManipulable m = (IManipulable) o;
+                a.add(m);
+            }
+        }
         else
         {
             vH.getScene().addObject((BaseShape) o);
@@ -154,11 +182,32 @@ public class SceneLoader {
 
     private void bind(String s)
     {
-        if (s.equals("camera"))
+        switch (s)
         {
-            s = nextToken();
-            assert isReference(s);
-            vH.getCamera().add((ICameraEventListener) reference(s));
+            case "camera":
+                s = nextToken();
+                assert isReference(s);
+                vH.getCamera().add((ICameraEventListener) reference(s));
+                break;
+            case "controller":
+                s = nextToken();
+                assert isReference(s);
+                switch (nextToken())
+                {
+                    case "pre":
+                        controller.addPreListener((ITickListener) reference(s));
+                        break;
+                    case "tick":
+                        controller.add((ITickListener) reference(s));
+                        break;
+                    case "post":
+                        controller.addPostListener((ITickListener) reference(s));
+                        break;
+                    default:
+                        controller.add((ITickListener) reference(s));
+                        break;
+                }
+                break;
         }
     }
 
@@ -202,12 +251,29 @@ public class SceneLoader {
             }
             else {
                 String s = nextToken();
-                c.add(s);
+                if (s.equals("{"))
+                {
+                    c.add(array(s));
+                }
+                else {
+                    c.add(s);
+                }
             }
             t = peekToken();
         }
         String[] arr = new String[c.size()];
         c.toArray(arr);
+        return arr;
+    }
+
+    private String array(String t)
+    {
+        String arr = t  + " ";
+        while(!(t = nextToken()).equals("}"))
+        {
+            arr += t + " ";
+        }
+        arr += t;
         return arr;
     }
 
@@ -249,17 +315,26 @@ public class SceneLoader {
 
     private double parseDouble(String s)
     {
-        if (s.startsWith("PI"))
+        if (s.contains("PI"))
         {
             double d = Math.PI;
             char[] sArr = s.toCharArray();
             String number = "";
             char lastSymbol = Character.MIN_VALUE;
-            for (int i=2;i<sArr.length;i++)
+            for (int i=0;i<sArr.length;i++)
             {
                 if (Character.isDigit(sArr[i]))
                 {
                     number += sArr[i];
+                }
+                else if(sArr[i] == 'P')
+                {
+                    //skip past the pi
+                    i++;
+                }
+                else if (sArr[i] == '-' && i == 0)
+                {
+                    d *= -1;
                 }
                 else
                 {
@@ -288,54 +363,73 @@ public class SceneLoader {
         }
     }
 
-    private Class[] getConstructorDefinition(String[] _s)
-    {
+    private Class[] getConstructorDefinition(String[] _s) throws ClassNotFoundException {
         Class[] _classes = new Class[_s.length];
         for (int i = 0;i<_s.length;i++)
         {
             String s = _s[i];
-            boolean specificCast;
-            //specific cast
-            if ((specificCast = s.startsWith("(") && s.contains(")")) || isReference(s))
-            {
-                String name = s;
-                if (specificCast) {
-                    name = s.substring(1, s.indexOf(")"));
-                }
-                else
-                {
-                    name = reference(s).getClass().getName();
-                }
-                try {
-                    Class<?> clazz = Class.forName(name);
-                    _classes[i] = clazz;
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+            _classes[i] = getType(s);
+        }
+        return _classes;
+    }
+
+    private Class getType(String s) throws ClassNotFoundException {
+        boolean specificCast;
+        //specific cast
+        if ((specificCast = s.startsWith("(") && s.contains(")")) || isReference(s))
+        {
+            String name = s;
+            if (specificCast) {
+                name = s.substring(1, s.indexOf(")"));
             }
             else
             {
-                //try to infer the type
-                if (s.startsWith("#"))
+                name = reference(s).getClass().getName();
+            }
+            Class<?> clazz = Class.forName(name);
+            return clazz;
+        }
+        else
+        {
+            //try to infer the type
+            if (s.startsWith("#"))
+            {
+                return Color.class;
+            }
+            else if (isInteger(s))
+            {
+                return Integer.class;
+            }
+            else if (isDouble(s))
+            {
+                return Double.class;
+            }
+            else if (s.startsWith("{"))
+            {
+                //is array
+                String[] arr = s.replace("{ ", "").replace(" }", "").split(" ");
+                Class type = null;
+                for (String arrS:arr)
                 {
-                    _classes[i] = Color.class;
+                    Class cur = getType(arrS);
+                    if (type != null && type != cur)
+                    {
+                        throw new IllegalArgumentException(type + " " + cur);
+                    }
+                    else
+                    {
+                        type = cur;
+                    }
                 }
-                else if (isInteger(s))
-                {
-                    _classes[i] = Integer.class;
-                }
-                else if (isDouble(s))
-                {
-                    _classes[i] = Double.class;
-                }
-                else
-                {
-                    //fallback type
-                    _classes[i] = String.class;
-                }
+                type = Class.forName("[L" +type.getName() + ";");
+                return type;
+            }
+            else
+            {
+                //fallback type
+                return String.class;
             }
         }
-        return _classes;
     }
 
     private Object[] getConstructorInstances(String[] _s, Class[] _classes) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -343,36 +437,51 @@ public class SceneLoader {
         for (int i = 0;i<_s.length;i++)
         {
             String s = _s[i];
-            if (s.startsWith("(") && s.contains(")"))
-            {
-                s = s.substring(s.indexOf(")")+1, s.length());
-            }
-
-            String cName = _classes[i].getName();
-            if (cName.equals(Color.class.getName()))
-            {
-                _instances[i] = Color.decode(s);
-            }
-            else if (cName.equals(Double.class.getName()))
-            {
-                _instances[i] = parseDouble(s);
-            }
-            else if (cName.equals(Integer.class.getName()))
-            {
-                _instances[i] = Integer.parseInt(s);
-            }
-            else if(isReference(s))
-            {
-                _instances[i] = reference(s);
-            }
-            else
-            {
-                Class<?> clazz = Class.forName(s);
-                Constructor<?> constructor = clazz.getConstructor();
-                _instances[i] = constructor.newInstance();
-            }
+            _instances[i] = getInstance(s, _classes[i]);
         }
         return _instances;
+    }
+
+    private Object getInstance(String s, Class c) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        if (s.startsWith("(") && s.contains(")"))
+        {
+            s = s.substring(s.indexOf(")")+1, s.length());
+        }
+
+        String cName = c.getName();
+        if (cName.equals(Color.class.getName()))
+        {
+            return Color.decode(s);
+        }
+        else if (cName.equals(Double.class.getName()))
+        {
+            return parseDouble(s);
+        }
+        else if (cName.equals(Integer.class.getName()))
+        {
+            return Integer.parseInt(s);
+        }
+        else if(isReference(s))
+        {
+           return reference(s);
+        }
+        else if (s.startsWith("{"))
+        {
+            String[] arr = s.replace("{ ", "").replace(" }", "").split(" ");
+            Class type = Class.forName(cName.replace("[L", "").replace("/", ".").replace(";", ""));
+            Object o = Array.newInstance(type, arr.length);
+            for (int ii=0;ii<arr.length;ii++)
+            {
+                Array.set(o, ii, getInstance(arr[ii], type));
+            }
+            return o;
+        }
+        else
+        {
+            Class<?> clazz = Class.forName(s);
+            Constructor<?> constructor = clazz.getConstructor();
+            return constructor.newInstance();
+        }
     }
 
     private static boolean isAlphaNumeric(String s)
@@ -403,7 +512,7 @@ public class SceneLoader {
     {
         for (char c:s.toCharArray())
         {
-            if (!Character.isDigit(c) && c != '.')
+            if (!Character.isDigit(c) && c != '.' && !s.startsWith("PI") && !s.startsWith("-"))
             {
                 return false;
             }

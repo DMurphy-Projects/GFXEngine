@@ -61,7 +61,7 @@ public class LightningTest {
         pipPanel.setViewHandler(vH);
         //-----View handler end
         //-----Script Loading
-        SceneLoader loader = new SceneLoader();
+        SceneLoader loader = new SceneLoader(gCon);
         loader.load(vH, "/Scripting/Scripts/lightingTest.scene");
         //-----End Script Loading
 

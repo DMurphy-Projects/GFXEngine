@@ -1,17 +1,18 @@
 package GxEngine3D.Animation.Routines;
 
 import GxEngine3D.Animation.Routines.BaseRoutine;
+import GxEngine3D.CalculationHelper.CastingHelper;
 import Shapes.IManipulable;
 
 public class AnchorRoutine extends BaseRoutine {
 
     double[] anchor, offset;
 
-    public AnchorRoutine(double[] a, double[] o)
+    public AnchorRoutine(Double[] a, Double[] o)
     {
         this.step = 1;
-        anchor = a;
-        offset = o;
+        anchor = CastingHelper.convert(a);
+        offset = CastingHelper.convert(o);
     }
 
     @Override

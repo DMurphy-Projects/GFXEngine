@@ -52,25 +52,6 @@ public class GraphicsProgram {
 		final Scene scene = new Scene(ls, new OrderPolygon());
 		scene.setSplitting(false);
 
-		Cube c = new Cube(Color.RED);
-		c.init();
-		c.translate(0, 0, 1);
-		scene.addObject(c);
-
-		Animator a = new Animator();
-		a.setDelay(30);
-		a.add(c);
-
-		//TODO add bindings for scripts
-		a.add(new RotationRoutine(new double[]{Math.PI/2, 0, 0}));
-		a.add(new AnchorRoutine(new double[]{0, 1, 0}, new double[]{0, 0, -1}));
-		a.add(new RotationRoutine(new double[]{Math.PI/2, 0, 0}));
-		a.add(new AnchorRoutine(new double[]{0, 1, 1}, new double[]{0, 0, -1}));
-		a.add(new RotationRoutine(new double[]{Math.PI/2, 0, 0}));
-		a.add(new AnchorRoutine(new double[]{0, 0, 1}, new double[]{0, 0, -1}));
-		a.add(new RotationRoutine(new double[]{Math.PI/2, 0, 0}));
-		a.add(new AnchorRoutine(new double[]{0, 0, 0}, new double[]{0, 0, -1}));
-
 		ViewController viewCon = new ViewController();
 		PIPScreen panel1 = new PIPScreen();
 		panel1.setPreferredSize(new Dimension(500, 500));
@@ -89,7 +70,6 @@ public class GraphicsProgram {
 		addListeners(panel1, gCon);
 //		addListeners(panel2, gCon);
 //		addListeners(panel3, gCon);
-		gCon.addPreListener(a);
 
 		//-----View handler setup
 		ViewHandler vH01, vH02;
@@ -116,8 +96,9 @@ public class GraphicsProgram {
 		//-----Picture in picture setup end
 		//-----View handler end
 		//-----Script Loading
-		SceneLoader loader = new SceneLoader();
+		SceneLoader loader = new SceneLoader(gCon);
 		loader.load(vH01, "/Scripting/Scripts/default.scene");
+		loader.load(vH01, "/Scripting/Scripts/cubeRollX.animation");
 		//-----End Script Loading
 
 		final ShapeFactory factory = new ShapeFactory();

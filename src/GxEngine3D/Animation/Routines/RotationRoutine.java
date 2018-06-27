@@ -1,17 +1,19 @@
 package GxEngine3D.Animation.Routines;
 
 import GxEngine3D.Animation.Routines.BaseRoutine;
+import GxEngine3D.CalculationHelper.CastingHelper;
 import GxEngine3D.CalculationHelper.VectorCalc;
 import Shapes.IManipulable;
 
 public class RotationRoutine extends BaseRoutine {
-    double[] rotate = new double[]{Math.PI/2, 0, 0};
+    double[] rotate;
     double[] prevR = new double[3];
 
-    public RotationRoutine(double[] r)
+    public RotationRoutine(Double[] r)
     {
         this.step = 0.1;
-        rotate = r;
+        rotate = CastingHelper.convert(r);
+
     }
 
     @Override
