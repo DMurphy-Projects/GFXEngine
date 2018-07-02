@@ -1,7 +1,7 @@
 package Programs;
 
-import GxEngine3D.CalculationHelper.DistanceCalc;
-import GxEngine3D.CalculationHelper.VectorCalc;
+import GxEngine3D.Helper.DistanceCalc;
+import GxEngine3D.Helper.VectorCalc;
 
 public class PointInsideLineTest {
     static double epsilon = 1e-10;

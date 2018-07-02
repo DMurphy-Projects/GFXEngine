@@ -1,8 +1,7 @@
 package GxEngine3D.Lighting;
 
-import GxEngine3D.CalculationHelper.VectorCalc;
+import GxEngine3D.Helper.VectorCalc;
 import Shapes.FakeSphere;
-import Shapes.Shape2D.Line;
 
 public class Light {
 

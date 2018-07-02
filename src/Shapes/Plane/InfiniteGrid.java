@@ -1,6 +1,5 @@
 package Shapes.Plane;
 
-import GxEngine3D.CalculationHelper.DistanceCalc;
 import GxEngine3D.Model.RefPoint3D;
 
 import java.awt.*;

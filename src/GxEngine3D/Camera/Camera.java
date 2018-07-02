@@ -1,7 +1,7 @@
 package GxEngine3D.Camera;
 
-import GxEngine3D.CalculationHelper.DistanceCalc;
-import GxEngine3D.CalculationHelper.VectorCalc;
+import GxEngine3D.Helper.DistanceCalc;
+import GxEngine3D.Helper.VectorCalc;
 import GxEngine3D.Model.Matrix.Matrix;
 import Shapes.BaseShape;
 

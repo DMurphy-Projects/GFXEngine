@@ -1,4 +1,4 @@
-package GxEngine3D.CalculationHelper;
+package GxEngine3D.Helper;
 
 public class RotationCalc {
 

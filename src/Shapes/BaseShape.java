@@ -4,16 +4,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import DebugTools.TextOutput;
-import GxEngine3D.CalculationHelper.MatrixHelper;
-import GxEngine3D.CalculationHelper.VectorCalc;
+import GxEngine3D.Helper.MatrixHelper;
+import GxEngine3D.Helper.VectorCalc;
 import GxEngine3D.Lighting.AltLighting;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Model.Matrix.Matrix;
 import GxEngine3D.Model.Polygon3D;
-import GxEngine3D.Model.RefBoolean;
 import GxEngine3D.Model.RefPoint3D;
 import Shapes.Split.ISplitStrategy;
 import Shapes.Split.SplitIntoTriangles;

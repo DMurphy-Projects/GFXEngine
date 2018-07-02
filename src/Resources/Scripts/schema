@@ -42,7 +42,7 @@ Double:
     Double | <PiExpression>
 
 PiExpression:
-    ("-")?"PI" (("*" | "/") <Double>)*
+    ("-")?"PI"(("*" | "/")<Double>)*
 
 Cast:
     "(" (<Class> | <Value>) ")"

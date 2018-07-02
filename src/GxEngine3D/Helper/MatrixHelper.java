@@ -1,7 +1,31 @@
-package GxEngine3D.CalculationHelper;
+package GxEngine3D.Helper;
+
+import GxEngine3D.Model.Matrix.Matrix;
 
 //this is make using 4*4 matrices easier by providing initialising code for various functions
 public class MatrixHelper {
+
+    public static double[][] setupFullRotation(double pitch, double yaw, double roll)
+    {
+        double[][] d;
+        Matrix rotation = new Matrix(MatrixHelper.setupPitchRotation(0));
+
+        if (pitch != 0) {
+            d = MatrixHelper.setupPitchRotation(pitch);
+            rotation = new Matrix(rotation.matrixMultiply(d));
+        }
+
+        if (yaw != 0) {
+            d = MatrixHelper.setupYawRotation(yaw);
+            rotation = new Matrix(rotation.matrixMultiply(d));
+        }
+
+        if (roll != 0) {
+            d = MatrixHelper.setupRollRotation(roll);
+            rotation = new Matrix(rotation.matrixMultiply(d));
+        }
+        return rotation.getMatrix();
+    }
 
     public static double[][] setupPitchRotation(double pitch)
     {

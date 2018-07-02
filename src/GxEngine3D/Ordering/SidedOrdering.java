@@ -1,6 +1,6 @@
 package GxEngine3D.Ordering;
 
-import GxEngine3D.CalculationHelper.PlaneCalc;
+import GxEngine3D.Helper.PlaneCalc;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Polygon3D;
 

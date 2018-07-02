@@ -1,4 +1,4 @@
-package GxEngine3D.CalculationHelper;
+package GxEngine3D.Helper;
 
 public class CastingHelper {
     public static double[] convert(Double[] d)

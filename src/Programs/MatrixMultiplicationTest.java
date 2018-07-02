@@ -2,7 +2,7 @@ package Programs;
 
 import DebugTools.TextModule.TextWhitelist;
 import DebugTools.TextOutput;
-import GxEngine3D.CalculationHelper.MatrixHelper;
+import GxEngine3D.Helper.MatrixHelper;
 import GxEngine3D.Model.Matrix.Matrix;
 
 import java.util.Arrays;

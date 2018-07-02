@@ -1,8 +1,7 @@
 package GxEngine3D.Lighting;
 
-import GxEngine3D.CalculationHelper.RotationCalc;
+import GxEngine3D.Helper.RotationCalc;
 import Shapes.FakeSphere;
-import Shapes.Shape2D.Line;
 
 /**
  * Created by Dean on 07/01/17.

@@ -1,4 +1,4 @@
-package GxEngine3D.CalculationHelper;
+package GxEngine3D.Helper;
 
 public class VectorCalc {
 
@@ -62,6 +62,15 @@ public class VectorCalc {
 		for (int i=0;i<v0.length;i++)
 		{
 			dArr[i] = v0[i] * v1[i];
+		}
+		return dArr;
+	}
+
+	public static double[] div(double[] v0, double[] v1) {
+		double[] dArr = new double[v0.length];
+		for (int i=0;i<v0.length;i++)
+		{
+			dArr[i] = v0[i] / v1[i];
 		}
 		return dArr;
 	}

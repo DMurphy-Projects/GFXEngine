@@ -1,7 +1,6 @@
 package GxEngine3D.Animation.Routines;
 
-import GxEngine3D.Animation.Routines.BaseRoutine;
-import GxEngine3D.CalculationHelper.CastingHelper;
+import GxEngine3D.Helper.CastingHelper;
 import Shapes.IManipulable;
 
 public class AnchorRoutine extends BaseRoutine {

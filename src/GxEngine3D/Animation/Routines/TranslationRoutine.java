@@ -1,6 +1,6 @@
 package GxEngine3D.Animation.Routines;
 
-import GxEngine3D.CalculationHelper.VectorCalc;
+import GxEngine3D.Helper.VectorCalc;
 import Shapes.IManipulable;
 
 public class TranslationRoutine extends BaseRoutine {

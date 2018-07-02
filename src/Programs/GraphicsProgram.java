@@ -3,11 +3,8 @@ package Programs;
 import DebugTools.TextModule.GlobalCategoryBlacklist;
 import DebugTools.TextModule.TextBlacklist;
 import DebugTools.TextModule.TextToggle;
-import GxEngine3D.Animation.*;
-import GxEngine3D.Animation.Routines.AnchorRoutine;
-import GxEngine3D.Animation.Routines.RotationRoutine;
 import GxEngine3D.Model.Matrix.AlgebraicMatrix;
-import GxEngine3D.CalculationHelper.VectorCalc;
+import GxEngine3D.Helper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Camera.OrbitingCamera;
 import GxEngine3D.Controller.GXController;
@@ -97,8 +94,8 @@ public class GraphicsProgram {
 		//-----View handler end
 		//-----Script Loading
 		SceneLoader loader = new SceneLoader(gCon);
-		loader.load(vH01, "/Scripting/Scripts/default.scene");
-		loader.load(vH01, "/Scripting/Scripts/cubeRollX.animation");
+		loader.load(vH01, "/Resources/Scripts/default.scene");
+		loader.load(vH01, "/Resources/Scripts/cubeRollX.animation");
 		//-----End Script Loading
 
 		final ShapeFactory factory = new ShapeFactory();

@@ -1,11 +1,11 @@
 new Shapes.Shape2D.Square #FF0000
 add /prev
-set /prev translate 0 0 5
+set /prev translate 5 0 0
 set /prev rotate 0 PI/2; PI/4;
 
 new Shapes.Shape2D.Square #F0F000
 add /prev
-set /prev translate 0 0 -5
+set /prev translate -5 0 0
 set /prev rotate 0 PI/2; PI/4;
 
 new Shapes.Shape2D.Square #00FF00
@@ -20,10 +20,10 @@ set /prev rotate 0 0 PI/4;
 
 new Shapes.Shape2D.Square #0000FF
 add /prev
-set /prev translate 0 0 5
+set /prev translate 0 5 0
 set /prev rotate PI/2; 0 PI/4;
 
 new Shapes.Shape2D.Square #F000F0
 add /prev
-set /prev translate 0 0 -5
+set /prev translate 0 -5 0
 set /prev rotate PI/2; 0 PI/4;

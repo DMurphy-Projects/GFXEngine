@@ -1,7 +1,7 @@
 package Programs;
 
 import GxEngine3D.Model.Matrix.AlgebraicMatrix;
-import GxEngine3D.CalculationHelper.VectorCalc;
+import GxEngine3D.Helper.VectorCalc;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Vector;
 import Shapes.Shape2D.Square;

@@ -5,7 +5,7 @@ import DebugTools.TextModule.TextBlacklist;
 import DebugTools.TextModule.TextToggle;
 import DebugTools.TextOutput;
 import GxEngine3D.Model.Matrix.AlgebraicMatrix;
-import GxEngine3D.CalculationHelper.VectorCalc;
+import GxEngine3D.Helper.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Controller.GXController;
 import GxEngine3D.Controller.Scene;
@@ -62,7 +62,7 @@ public class LightningTest {
         //-----View handler end
         //-----Script Loading
         SceneLoader loader = new SceneLoader(gCon);
-        loader.load(vH, "/Scripting/Scripts/lightingTest.scene");
+        loader.load(vH, "/Resources/Scripts/lightingTest.scene");
         //-----End Script Loading
 
         final ShapeFactory factory = new ShapeFactory();
