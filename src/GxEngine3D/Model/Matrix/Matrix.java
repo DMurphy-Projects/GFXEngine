@@ -48,6 +48,20 @@ public class Matrix {
         return out;
     }
 
+    public double[] pointMultiply3(double[] in)
+    {
+        double[] out = new double[2];
+        out[0] = in[0] * matrix[0][0] + in[1] * matrix[0][1] + matrix[0][2];
+        out[1] = in[0] * matrix[1][0] + in[1] * matrix[1][1] + matrix[1][2];
+        double w = in[0] * matrix[2][0] + in[1] * matrix[2][1] + matrix[2][2];
+        if (w != 1)
+        {
+            out[0] /= w;
+            out[1] /= w;
+        }
+        return out;
+    }
+
     public double[][] matrixMultiply(Matrix m)
     {
         return matrixMultiply(m.matrix);
@@ -172,6 +186,11 @@ public class Matrix {
         return s;
     }
 
+
+    public double[][] getMatrix()
+    {
+        return matrix;
+    }
     public int getRows()
     {
         return m;

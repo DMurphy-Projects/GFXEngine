@@ -65,7 +65,7 @@ public class ViewHandler implements ICameraEventListener, ITickListener {
 		return new Matrix(m);
 	}
 
-	private void updateMatrix()
+	public void updateMatrix()
 	{
 		double angleOfView = 90;
 		double near = 0.1f;

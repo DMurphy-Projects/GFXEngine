@@ -79,6 +79,11 @@ public class Camera implements ICameraEvent{
 
 	public void lookAt(BaseShape s) {
 		double[] look = s.findCentre();
+		lookAt(look);
+	}
+
+	public void lookAt(double[] look)
+	{
 		//System.out.println(look[0]+" "+look[1]+" "+look[2]);
 		yaw = Math.atan2(viewFrom[0] - look[0], viewFrom[2] - look[2]);
 
