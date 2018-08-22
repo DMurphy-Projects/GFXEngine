@@ -62,7 +62,7 @@ public class LightningTest {
         //-----View handler end
         //-----Script Loading
         SceneLoader loader = new SceneLoader(gCon);
-        loader.load(vH, "/Resources/Scripts/lightingTest.scene");
+        loader.load(vH, "/Scripts/lightingTest.scene");
         //-----End Script Loading
 
         final ShapeFactory factory = new ShapeFactory();

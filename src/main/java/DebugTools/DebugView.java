@@ -30,8 +30,11 @@ public class DebugView extends JPanel {
     }
     public int getIndex(int w, int h)
     {
-        if (w > this.width || h > this.height || w < 0 || h < 0) return 0;
         return (h * this.width) + w;
+    }
+    public boolean isOutOfBounds(int w, int h)
+    {
+       return (w >= this.width || h >= this.height || w < 0 || h < 0);
     }
 
     @Override

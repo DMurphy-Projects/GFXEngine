@@ -94,8 +94,8 @@ public class GraphicsProgram {
 		//-----View handler end
 		//-----Script Loading
 		SceneLoader loader = new SceneLoader(gCon);
-		loader.load(vH01, "/Resources/Scripts/default.scene");
-		loader.load(vH01, "/Resources/Scripts/cubeRollX.animation");
+		loader.load(vH01, "/Scripts/default.scene");
+		loader.load(vH01, "/Scripts/cubeRollX.animation");
 		//-----End Script Loading
 
 		final ShapeFactory factory = new ShapeFactory();
