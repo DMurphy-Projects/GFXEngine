@@ -104,6 +104,11 @@ public class JoclTest04
         } catch (IOException e) {
         }
 
+        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(screenSizeMem));
+        clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(textureMem));
+        clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(textureSizeMem));
+//      clSetKernelArg(kernel, 10, Sizeof.cl_mem, Pointer.to(debugBufferMem));
+
         // Create the main frame
         JFrame frame = new JFrame("JOCL Simple Mandelbrot");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -317,18 +322,46 @@ public class JoclTest04
         }
     }
 
-    private void drawTriangle(double[][] triangle, double[][] textureAnchor)
+    //NOTE: since pixel distribution happens on the triangle as a whole, when the triangle goes off screen, the distribution looks sparse as more of the triangle
+    //is off screen than on
+    //t: triangle first index is point, second is axis
+    private long drawTriangle(double[][] t, double[][] textureAnchor)
     {
+        //see barycentric test for explanation
+        double len = (-t[1][0]*t[2][1]) - (t[0][0]*t[1][1]) + (t[0][0]*t[2][1]) + (t[1][0]*t[0][1]) + (t[2][0]*t[1][1]) - (t[2][0]*t[0][1]);
+        len = Math.abs(screenHeight * screenWidth * len * .5);
+        //added a maximum value so that we don't run out of memory
+        len = Math.sqrt(len);
+
+        double localLen = Math.ceil(Math.sqrt(len));
+
+        //ensures that local length is the root of length
+        len = localLen*localLen;
+
+        localLen = Math.min(localLen, 32);
+        len = Math.min(len, 1024);
+
         long globalWorkSize[];
-
         // Set work size and execute the kernel
-        globalWorkSize = new long[]{(long)1};
+        globalWorkSize = new long[]{
+                (long)len, (long)len
+        };
 
-        setupTriangleArgs(triangle[0], triangle[1], triangle[2], textureAnchor[0], textureAnchor[1], textureAnchor[2]);
-        clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
-                globalWorkSize, null, 0, null, null);
+        long localWorkSize[];
+        localWorkSize = new long[]{
+                (long)localLen, (long)localLen
+        };
+
+        setupTriangleArgs(t[0], t[1], t[2], textureAnchor[0], textureAnchor[1], textureAnchor[2]);
+
+        long start = System.nanoTime();
+        clEnqueueNDRangeKernel(commandQueue, kernel, 2, null,
+                globalWorkSize, localWorkSize, 0, null, null);
+        long end = System.nanoTime();
+        return end - start;
     }
 
+    //this takes up to 8 times longer than the kernel, this is the bottleneck
     private void setupTriangleArgs(
             double[] t01, double[] t02, double[] t03,
             double[] tA01, double[] tA02, double[] tA03
@@ -355,10 +388,10 @@ public class JoclTest04
         return Pointer.to(triangleArgs[index]);
     }
 
-    private void drawAllTriangles()
+    private long drawAllTriangles()
     {
         //green
-        drawTriangle(new double[][] {
+        long timeTaken = drawTriangle(new double[][] {
                 clipPoints[4],
                 clipPoints[0],
                 clipPoints[1],
@@ -368,7 +401,7 @@ public class JoclTest04
                 textureRelativePoints[1]});
 
         //blues
-        drawTriangle(new double[][] {
+        timeTaken += drawTriangle(new double[][] {
                 clipPoints[4],
                 clipPoints[1],
                 clipPoints[2],
@@ -377,7 +410,7 @@ public class JoclTest04
                 textureRelativePoints[1],
                 textureRelativePoints[2]});
         //red
-        drawTriangle(new double[][] {
+        timeTaken += drawTriangle(new double[][] {
                 clipPoints[4],
                 clipPoints[2],
                 clipPoints[3],
@@ -386,7 +419,7 @@ public class JoclTest04
                 textureRelativePoints[2],
                 textureRelativePoints[3]});
         //yellow
-        drawTriangle(new double[][] {
+        timeTaken += drawTriangle(new double[][] {
                 clipPoints[4],
                 clipPoints[3],
                 clipPoints[0],
@@ -394,6 +427,8 @@ public class JoclTest04
                 textureRelativePoints[4],
                 textureRelativePoints[3],
                 textureRelativePoints[0]});
+
+        return timeTaken;
     }
 
     int count = 0;
@@ -401,17 +436,12 @@ public class JoclTest04
 
     private void updateImage() {
         clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(pixelMem));
-        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(screenSizeMem));
-        clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(textureMem));
-        clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(textureSizeMem));
-        clSetKernelArg(kernel, 10, Sizeof.cl_mem, Pointer.to(debugBufferMem));
 
-        long start = System.nanoTime();
-        drawAllTriangles();
-        long end = System.nanoTime();
+        long timeTaken = drawAllTriangles();
+
         if (count < 10)
         {
-            total += end - start;
+            total += timeTaken;
             count++;
         }
         else
@@ -431,7 +461,7 @@ public class JoclTest04
 
 //        clEnqueueReadBuffer(commandQueue, debugBufferMem, CL_TRUE,0,
 //                Sizeof.cl_double * debugBuffer.length, Pointer.to(debugBuffer), 0, null, null);
-//
+
 //        System.out.println("Debug Start");
 //        for(double d: debugBuffer)
 //        {
