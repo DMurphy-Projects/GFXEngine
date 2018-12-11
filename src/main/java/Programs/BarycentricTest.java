@@ -280,21 +280,29 @@ public class BarycentricTest {
 
     //TODO better relationship between points to sample and how many point we are actually sampling
     //NOTE compared to other methods to this point, this method is more than an order of magnitude faster
-    private int[] drawTriangle(double[][] triangle, int[] buffer, double[][] textureAnchor, DebugView view, BaseRenderer renderer) {
+    private int[] drawTriangle(double[][] t, int[] buffer, double[][] textureAnchor, DebugView view, BaseRenderer renderer) {
 
-        int[] p1 = rasterProject(triangle[0], screenWidth, screenHeight);
-        int[] p2 = rasterProject(triangle[1], screenWidth, screenHeight);
-        int[] p3 = rasterProject(triangle[2], screenWidth, screenHeight);
+        int[] p1 = rasterProject(t[0], screenWidth, screenHeight);
+        int[] p2 = rasterProject(t[1], screenWidth, screenHeight);
+        int[] p3 = rasterProject(t[2], screenWidth, screenHeight);
 
 
         //calc area
         double inc = (-p2[0]*p3[1]) - (p1[0]*p2[1]) + (p1[0]*p3[1]) + (p2[0]*p1[1]) + (p3[0]*p2[1]) - (p3[0]*p1[1]);
         inc = Math.abs(inc/2);
         inc = Math.ceil(Math.sqrt(inc));
+
+
         //sampling based on area seems sparse
         inc *= 2;
         //create step
         inc = 1d / inc;
+
+        //testing relative calculations
+        //NOTE: calculation can happen in relative space and is approx eqiv. to twice that of the pixel space variant
+//        double inc2 = (-t[1][0]*t[2][1]) - (t[0][0]*t[1][1]) + (t[0][0]*t[2][1]) + (t[1][0]*t[0][1]) + (t[2][0]*t[1][1]) - (t[2][0]*t[0][1]);
+//        inc2 = Math.abs(screenHeight * screenWidth * inc2 * .5);
+//        inc2 = Math.ceil(Math.sqrt(inc2));
 
         for (double u = 0;u<1;u+=inc)
         {
@@ -303,17 +311,17 @@ public class BarycentricTest {
                 double w = 1 - u - v;
                 //convert barycentric coords to cartesian relative coords for the relative triangle
                 double[] p = new double[2];
-                p[0] = (u * triangle[0][0]) + (v * triangle[1][0]) + (w * triangle[2][0]);
-                p[1] = (u * triangle[0][1]) + (v * triangle[1][1]) + (w * triangle[2][1]);
+                p[0] = (u * t[0][0]) + (v * t[1][0]) + (w * t[2][0]);
+                p[1] = (u * t[0][1]) + (v * t[1][1]) + (w * t[2][1]);
 
                 int[] raster = rasterProject(p, screenWidth, screenHeight);
 
                 //convert barycentric coords to cartesian for relative texture triangle
-                int[] t = new int[2];
-                t[0] = (int)(tWidth * ((u * textureAnchor[0][0]) + (v * textureAnchor[1][0]) + (w * textureAnchor[2][0])));
-                t[1] = (int)(tHeight * ((u * textureAnchor[0][1]) + (v * textureAnchor[1][1]) + (w * textureAnchor[2][1])));
+                int[] texture = new int[2];
+                texture[0] = (int)(tWidth * ((u * textureAnchor[0][0]) + (v * textureAnchor[1][0]) + (w * textureAnchor[2][0])));
+                texture[1] = (int)(tHeight * ((u * textureAnchor[0][1]) + (v * textureAnchor[1][1]) + (w * textureAnchor[2][1])));
 
-                int color = getTextureAt(t[0], t[1], tWidth, tHeight, texture);
+                int color = getTextureAt(texture[0], texture[1], tWidth, tHeight, this.texture);
 
                 int pos = view.getIndex(raster);
 //                buffer[pos] = (buffer[pos]+1) << 2;
