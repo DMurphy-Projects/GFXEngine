@@ -94,4 +94,26 @@ public class MatrixHelper {
         translate[3][3] = 1;
         return translate;
     }
+
+    public static double[] applyImplicitMatrix(Matrix m, double[] d)
+    {
+        d = m.pointMultiply(d);
+        return new double[]{
+                d[0] /= d[3],
+                d[1] /= d[3],
+                d[2] /= d[3]
+        };
+    }
+
+    //explicit should be used for the projection matrix
+    public static double[] applyExplicitMatrix(Matrix m, double[] d)
+    {
+        d = m.pointMultiply(d);
+        double absP = Math.abs(d[3]);
+        return new double[]{
+                d[0] / absP,
+                d[1] / absP,
+                d[2] / absP,
+        };
+    }
 }
