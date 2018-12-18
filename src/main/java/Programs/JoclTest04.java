@@ -45,7 +45,7 @@ public class JoclTest04
     private cl_kernel kernel;
 
     private cl_mem pixelMem, screenSizeMem, textureMem, textureSizeMem, debugBufferMem;
-    private cl_mem[] triangleArgs = new cl_mem[6];
+    private cl_mem[] triangleArgs = new cl_mem[7];
 
     int tWidth, tHeight;
 
@@ -56,8 +56,8 @@ public class JoclTest04
     ViewHandler vH;
 
     double roll = 0, rollStep = 0;
-    double yaw = 0, yawStep = 0.1;
-    double pitch = 0, pitchStep = 0;
+    double yaw = 0, yawStep = 0;
+    double pitch = 0, pitchStep = 0.1;
 
     public JoclTest04(int width, int height)
     {
@@ -107,7 +107,6 @@ public class JoclTest04
         clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(screenSizeMem));
         clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(textureMem));
         clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(textureSizeMem));
-//      clSetKernelArg(kernel, 10, Sizeof.cl_mem, Pointer.to(debugBufferMem));
 
         // Create the main frame
         JFrame frame = new JFrame("JOCL Simple Mandelbrot");
@@ -125,6 +124,24 @@ public class JoclTest04
         updateImage();
 
         frame.setVisible(true);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    double dir = 1;
+                    double[][] tran = MatrixHelper.setupTranslateMatrix(0, 0, 0);
+                    double[][] rotate = MatrixHelper.setupFullRotation(pitch += pitchStep * dir, yaw += yawStep * dir, roll += rollStep * dir);
+                    double[][] scale = new double[4][4];
+                    scale[0][0] = 1;
+                    scale[1][1] = 1;
+                    scale[2][2] = 1;
+                    scale[3][3] = 1;
+                    updateShape(tran, rotate, scale);
+                    updateImage();
+                }
+            }
+        });
     }
 
     private void initCL()
@@ -165,9 +182,11 @@ public class JoclTest04
                 contextProperties, 1, new cl_device_id[]{device},
                 null, null, null);
 
+        long properties = CL_QUEUE_PROFILING_ENABLE;
+
         // Create a command-queue for the selected device
         commandQueue =
-                clCreateCommandQueue(context, device, 0, null);
+                clCreateCommandQueue(context, device, properties, null);
 
         // Program Setup
         String source = readFile("resources/Kernels/BarycentricTriangle.cl");
@@ -182,23 +201,34 @@ public class JoclTest04
         // Create the kernel
         kernel = clCreateKernel(cpProgram, "drawTriangle", null);
 
-        recreatePixelMem();
-        recreateDebugMem();
+        pixelMem = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                screenWidth * screenHeight * Sizeof.cl_uint, null, null);
+
+        debugBufferMem = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+                debugBuffer.length * Sizeof.cl_double, null, null);
 
         screenSizeMem = clCreateBuffer(context, CL_MEM_READ_ONLY,
                 2 * Sizeof.cl_int, null, null);
         clEnqueueWriteBuffer(commandQueue, screenSizeMem, true, 0,
                 2 * Sizeof.cl_int, Pointer.to(new int[]{screenWidth, screenHeight}), 0, null, null);
+
+        for (int i=0;i<triangleArgs.length;i++)
+        {
+            triangleArgs[i] = clCreateBuffer(context, CL_MEM_READ_ONLY,
+                    3 * Sizeof.cl_double, null, null);
+        }
     }
 
     private void recreateDebugMem()
     {
+        clReleaseMemObject(debugBufferMem);
         debugBufferMem = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
                 debugBuffer.length * Sizeof.cl_double, null, null);
     }
 
     private void recreatePixelMem()
     {
+        clReleaseMemObject(pixelMem);
         pixelMem = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
                 screenWidth * screenHeight * Sizeof.cl_uint, null, null);
     }
@@ -278,7 +308,7 @@ public class JoclTest04
                 new double[]{1, 1, 0},
                 new double[]{1, 0, 0},
                 new double[]{0, 0, 0},
-                new double[]{0.5, 0.5, 0},
+                new double[]{.5, .5, 0},
         };
 
         camera = new Camera(0, 0, 2);
@@ -314,7 +344,11 @@ public class JoclTest04
             clipPoints[i] = applyExplicitMatrix(combined, relativePoints[i]);
         }
 
+
         Matrix projectionMatrix = new Matrix(vH.getProjectionMatrix().matrixMultiply(camera.getMatrix()));
+        System.out.println("Frusstum\n"+vH.getProjectionMatrix());
+        System.out.println("Camera\n"+camera.getMatrix());
+        System.out.println("Projection\n"+projectionMatrix);
 
         for (int i=0;i<clipPoints.length;i++)
         {
@@ -352,13 +386,28 @@ public class JoclTest04
                 (long)localLen, (long)localLen
         };
 
-        setupTriangleArgs(t[0], t[1], t[2], textureAnchor[0], textureAnchor[1], textureAnchor[2]);
+        int sizeOfDebug = (int) ((len*len)/2);
+        System.out.println("P "+sizeOfDebug);
 
-        long start = System.nanoTime();
+        debugBuffer = new double[sizeOfDebug];
+        recreateDebugMem();
+        clSetKernelArg(kernel, 10, Sizeof.cl_mem, Pointer.to(debugBufferMem));
+
+        setupTriangleArgs(t[0], t[1], t[2], textureAnchor[0], textureAnchor[1], textureAnchor[2]);
+        cl_event event = new cl_event();
+
         clEnqueueNDRangeKernel(commandQueue, kernel, 2, null,
-                globalWorkSize, localWorkSize, 0, null, null);
-        long end = System.nanoTime();
-        return end - start;
+                globalWorkSize, localWorkSize, 0, null, event);
+        clWaitForEvents(1, new cl_event[]{event});
+
+        long startTime[] = new long[1];
+        long endTime[] = new long[1];
+        clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END,
+                Sizeof.cl_ulong, Pointer.to(endTime), null);
+        clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_START,
+                Sizeof.cl_ulong, Pointer.to(startTime), null);
+
+        return endTime[0]-startTime[0];
     }
 
     //this takes up to 8 times longer than the kernel, this is the bottleneck
@@ -380,11 +429,14 @@ public class JoclTest04
 
     private Pointer setMemoryArg(int index, double[] arr)
     {
+        clReleaseMemObject(triangleArgs[index]);
+        triangleArgs[index] = null;
+
         triangleArgs[index] = clCreateBuffer(context, CL_MEM_READ_ONLY,
                 arr.length * Sizeof.cl_double, null, null);
-
         clEnqueueWriteBuffer(commandQueue, triangleArgs[index], true, 0,
                 arr.length * Sizeof.cl_double, Pointer.to(arr), 0, null, null);
+
         return Pointer.to(triangleArgs[index]);
     }
 
@@ -431,25 +483,11 @@ public class JoclTest04
         return timeTaken;
     }
 
-    int count = 0;
-    long total = 0;
-
     private void updateImage() {
         clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(pixelMem));
 
         long timeTaken = drawAllTriangles();
-
-        if (count < 10)
-        {
-            total += timeTaken;
-            count++;
-        }
-        else
-        {
-            System.out.println("Took " + (total / count) +" ns");
-            count = 0;
-            total = 0;
-        }
+//        System.out.println("Took " + (timeTaken) +" ns");
 
 
         // Read the pixel data into the BufferedImage
@@ -459,18 +497,21 @@ public class JoclTest04
         clEnqueueReadBuffer(commandQueue, pixelMem, CL_TRUE, 0,
                 Sizeof.cl_int * screenWidth*screenHeight, Pointer.to(data), 0, null, null);
 
-//        clEnqueueReadBuffer(commandQueue, debugBufferMem, CL_TRUE,0,
-//                Sizeof.cl_double * debugBuffer.length, Pointer.to(debugBuffer), 0, null, null);
+        clEnqueueReadBuffer(commandQueue, debugBufferMem, CL_TRUE,0,
+                Sizeof.cl_double * debugBuffer.length, Pointer.to(debugBuffer), 0, null, null);
 
-//        System.out.println("Debug Start");
-//        for(double d: debugBuffer)
-//        {
-//            System.out.println(d);
-//        }
-//        System.out.println("Debug End");
+        System.out.println("Debug Start");
+        int count = 0;
+        for(double d: debugBuffer)
+        {
+            if (d == 1) {
+                count++;
+            }
+        }
+        System.out.println(count);
+        System.out.println("Debug End");
 
         recreatePixelMem();
-        recreateDebugMem();
         imageComponent.repaint();
     }
 

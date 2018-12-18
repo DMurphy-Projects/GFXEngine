@@ -14,7 +14,8 @@ __kernel void drawTriangle(
     __global uint *texture,
     __global int *textureSize,
     __global double *t01, __global double *t02, __global double *t03,
-    __global double *tA01, __global double *tA02, __global double *tA03
+    __global double *tA01, __global double *tA02, __global double *tA03,
+    __global double *testArray
     )
 {
     double iu = get_local_size(0) * get_group_id(0) + get_local_id(0);
@@ -23,6 +24,8 @@ __kernel void drawTriangle(
 
     if (iv + iu < size)
     {
+        testArray[(int)(iu * size + iv)] = 1;
+
         double u = iu / size;
         double v = iv / size;
 
