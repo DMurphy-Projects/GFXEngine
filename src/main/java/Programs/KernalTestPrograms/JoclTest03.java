@@ -1,4 +1,4 @@
-package Programs;
+package Programs.KernalTestPrograms;
 
 /*
  * JOCL - Java bindings for OpenCL

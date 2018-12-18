@@ -1,4 +1,21 @@
-package Programs;
+package Programs.KernalTestPrograms;
+
+/*
+ * JOCL - Java bindings for OpenCL
+ *
+ * Copyright 2009 Marco Hutter - http://www.jocl.org/
+ */
+
+
+import static org.jocl.CL.*;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.io.*;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.MatrixHelper;
@@ -8,18 +25,7 @@ import GxEngine3D.Model.Matrix.Matrix;
 import GxEngine3D.View.ViewHandler;
 import org.jocl.*;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.io.*;
-
-import static org.jocl.CL.*;
-
-public class JoclTest04
+public class JoclTest02
 {
     public static void main(String args[])
     {
@@ -27,7 +33,7 @@ public class JoclTest04
         {
             public void run()
             {
-                new JoclTest04(500,500);
+                new JoclTest02(500,500);
             }
         });
     }
@@ -45,7 +51,7 @@ public class JoclTest04
     private cl_kernel kernel;
 
     private cl_mem pixelMem, screenSizeMem, textureMem, textureSizeMem, debugBufferMem;
-    private cl_mem[] triangleArgs = new cl_mem[7];
+    private cl_mem[] triangleArgs = new cl_mem[6];
 
     int tWidth, tHeight;
 
@@ -56,10 +62,10 @@ public class JoclTest04
     ViewHandler vH;
 
     double roll = 0, rollStep = 0;
-    double yaw = 0, yawStep = 0;
-    double pitch = 0, pitchStep = 0.1;
+    double yaw = 0, yawStep = 0.1;
+    double pitch = 0, pitchStep = 0;
 
-    public JoclTest04(int width, int height)
+    public JoclTest02(int width, int height)
     {
         screenWidth = width;
         screenHeight = height;
@@ -104,10 +110,6 @@ public class JoclTest04
         } catch (IOException e) {
         }
 
-        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(screenSizeMem));
-        clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(textureMem));
-        clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(textureSizeMem));
-
         // Create the main frame
         JFrame frame = new JFrame("JOCL Simple Mandelbrot");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -124,24 +126,6 @@ public class JoclTest04
         updateImage();
 
         frame.setVisible(true);
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while(true) {
-                    double dir = 1;
-                    double[][] tran = MatrixHelper.setupTranslateMatrix(0, 0, 0);
-                    double[][] rotate = MatrixHelper.setupFullRotation(pitch += pitchStep * dir, yaw += yawStep * dir, roll += rollStep * dir);
-                    double[][] scale = new double[4][4];
-                    scale[0][0] = 1;
-                    scale[1][1] = 1;
-                    scale[2][2] = 1;
-                    scale[3][3] = 1;
-                    updateShape(tran, rotate, scale);
-                    updateImage();
-                }
-            }
-        });
     }
 
     private void initCL()
@@ -182,14 +166,12 @@ public class JoclTest04
                 contextProperties, 1, new cl_device_id[]{device},
                 null, null, null);
 
-        long properties = CL_QUEUE_PROFILING_ENABLE;
-
         // Create a command-queue for the selected device
         commandQueue =
-                clCreateCommandQueue(context, device, properties, null);
+                clCreateCommandQueue(context, device, 0, null);
 
         // Program Setup
-        String source = readFile("resources/Kernels/BarycentricTriangle.cl");
+        String source = readFile("resources/Kernels/TextureTriangle.cl");
 
         // Create the program
         cl_program cpProgram = clCreateProgramWithSource(context, 1,
@@ -201,34 +183,23 @@ public class JoclTest04
         // Create the kernel
         kernel = clCreateKernel(cpProgram, "drawTriangle", null);
 
-        pixelMem = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                screenWidth * screenHeight * Sizeof.cl_uint, null, null);
-
-        debugBufferMem = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
-                debugBuffer.length * Sizeof.cl_double, null, null);
+        recreatePixelMem();
+        recreateDebugMem();
 
         screenSizeMem = clCreateBuffer(context, CL_MEM_READ_ONLY,
                 2 * Sizeof.cl_int, null, null);
         clEnqueueWriteBuffer(commandQueue, screenSizeMem, true, 0,
                 2 * Sizeof.cl_int, Pointer.to(new int[]{screenWidth, screenHeight}), 0, null, null);
-
-        for (int i=0;i<triangleArgs.length;i++)
-        {
-            triangleArgs[i] = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                    3 * Sizeof.cl_double, null, null);
-        }
     }
 
     private void recreateDebugMem()
     {
-        clReleaseMemObject(debugBufferMem);
         debugBufferMem = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
                 debugBuffer.length * Sizeof.cl_double, null, null);
     }
 
     private void recreatePixelMem()
     {
-        clReleaseMemObject(pixelMem);
         pixelMem = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
                 screenWidth * screenHeight * Sizeof.cl_uint, null, null);
     }
@@ -308,7 +279,7 @@ public class JoclTest04
                 new double[]{1, 1, 0},
                 new double[]{1, 0, 0},
                 new double[]{0, 0, 0},
-                new double[]{.5, .5, 0},
+                new double[]{0.5, 0.5, 0},
         };
 
         camera = new Camera(0, 0, 2);
@@ -344,11 +315,7 @@ public class JoclTest04
             clipPoints[i] = applyExplicitMatrix(combined, relativePoints[i]);
         }
 
-
         Matrix projectionMatrix = new Matrix(vH.getProjectionMatrix().matrixMultiply(camera.getMatrix()));
-        System.out.println("Frusstum\n"+vH.getProjectionMatrix());
-        System.out.println("Camera\n"+camera.getMatrix());
-        System.out.println("Projection\n"+projectionMatrix);
 
         for (int i=0;i<clipPoints.length;i++)
         {
@@ -356,94 +323,125 @@ public class JoclTest04
         }
     }
 
-    //NOTE: since pixel distribution happens on the triangle as a whole, when the triangle goes off screen, the distribution looks sparse as more of the triangle
-    //is off screen than on
-    //t: triangle first index is point, second is axis
-    private long drawTriangle(double[][] t, double[][] textureAnchor)
+    private void drawTriangle(double[][] triangle, double[][] textureAnchor)
     {
-        //see barycentric test for explanation
-        double len = (-t[1][0]*t[2][1]) - (t[0][0]*t[1][1]) + (t[0][0]*t[2][1]) + (t[1][0]*t[0][1]) + (t[2][0]*t[1][1]) - (t[2][0]*t[0][1]);
-        len = Math.abs(screenHeight * screenWidth * len * .5);
-        //added a maximum value so that we don't run out of memory
-        len = Math.sqrt(len);
+        long globalWorkSize[] = new long[]{1};
 
-        double localLen = Math.ceil(Math.sqrt(len));
+        double[] v01 = VectorCalc.sub(triangle[0], triangle[1]);
+        double heightV01 = Math.abs(v01[1] * screenHeight);
 
-        //ensures that local length is the root of length
-        len = localLen*localLen;
+        double[] v02 = VectorCalc.sub(triangle[0], triangle[2]);
+        double heightV02 = Math.abs(v02[1] * screenHeight);
 
-        localLen = Math.min(localLen, 32);
-        len = Math.min(len, 1024);
+        double[] v03 = VectorCalc.sub(triangle[2], triangle[1]);
 
-        long globalWorkSize[];
-        // Set work size and execute the kernel
-        globalWorkSize = new long[]{
-                (long)len, (long)len
-        };
+        if (Math.signum(v01[1]) != Math.signum(v02[1])) {
+            //this fragment handles when the other two points are both above and below the origin
+            //instead of coming from the centre going out, we start at the ends moving in
+            double[] t01 = VectorCalc.sub(textureAnchor[1], textureAnchor[0]);//reversed
+            double[] t02 = VectorCalc.sub(textureAnchor[2], textureAnchor[0]);//reversed
+            double[] t03 = VectorCalc.sub(textureAnchor[2], textureAnchor[1]);
 
-        long localWorkSize[];
-        localWorkSize = new long[]{
-                (long)localLen, (long)localLen
-        };
+            double[] v04 = VectorCalc.sub(triangle[2], triangle[0]);
 
-        int sizeOfDebug = (int) ((len*len)/2);
-        System.out.println("P "+sizeOfDebug);
+            double side = Vector2DCalc.side(triangle[2], triangle[1], triangle[0]) * -v04[1];
 
-        debugBuffer = new double[sizeOfDebug];
-        recreateDebugMem();
-        clSetKernelArg(kernel, 10, Sizeof.cl_mem, Pointer.to(debugBufferMem));
+            setupTriangleArgs(textureAnchor[2], t02, t03, triangle[2], v04, triangle[1], side);
+            clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+                    globalWorkSize, null, 0, null, null);
 
-        setupTriangleArgs(t[0], t[1], t[2], textureAnchor[0], textureAnchor[1], textureAnchor[2]);
-        cl_event event = new cl_event();
+            v04 = VectorCalc.sub(triangle[1], triangle[0]);
+            side = Vector2DCalc.side(triangle[1], triangle[2], triangle[0]) * -v04[1];
 
-        clEnqueueNDRangeKernel(commandQueue, kernel, 2, null,
-                globalWorkSize, localWorkSize, 0, null, event);
-        clWaitForEvents(1, new cl_event[]{event});
+            setupTriangleArgs(textureAnchor[1], t01, VectorCalc.mul_v_d(t03, -1), triangle[1], v04, triangle[2], side);
+            clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+                    globalWorkSize, null, 0, null, null);
 
-        long startTime[] = new long[1];
-        long endTime[] = new long[1];
-        clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END,
-                Sizeof.cl_ulong, Pointer.to(endTime), null);
-        clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_START,
-                Sizeof.cl_ulong, Pointer.to(startTime), null);
+        }
+        else if (heightV01 > heightV02) {
+            //this fragment handles whens both points are entirely above/below the origin, but the first traveling vector is longer
+            //we should travel along the shortest edge first then pivot and do the rest of the longer edge
+            double[] t01 = VectorCalc.sub(textureAnchor[0], textureAnchor[1]);
+            double[] t02 = VectorCalc.sub(textureAnchor[0], textureAnchor[2]);
 
-        return endTime[0]-startTime[0];
+            double side = Vector2DCalc.side(triangle[1], triangle[2], triangle[0]) * -v02[1];
+
+            setupTriangleArgs(textureAnchor[0], t02, t01, triangle[0], v02, triangle[1], side);
+            clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+                    globalWorkSize, null, 0, null, null);
+
+            //if the heights are the same then we've already went over this portion
+            if (heightV01 != heightV02) {
+                v03 = VectorCalc.mul_v_d(v03, -1);
+
+                double[] t03 = VectorCalc.sub(textureAnchor[1], textureAnchor[2]);
+                double[] t04 = VectorCalc.sub(textureAnchor[1], textureAnchor[0]);
+
+                side = Vector2DCalc.side(triangle[2], triangle[1], triangle[0]) * -v03[1];
+
+                setupTriangleArgs(textureAnchor[1], t03, t04, triangle[1], v03, triangle[0], side);
+                clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+                        globalWorkSize, null, 0, null, null);
+            }
+        }
+        else {
+            //this fragment handles when both points are entirely above/below the origin
+            double[] t01 = VectorCalc.sub(textureAnchor[0], textureAnchor[1]);
+            double[] t02 = VectorCalc.sub(textureAnchor[0], textureAnchor[2]);
+            double[] t03 = VectorCalc.sub(textureAnchor[2], textureAnchor[1]);
+
+            double side = Vector2DCalc.side(triangle[2], triangle[1], triangle[0]) * -v01[1];
+
+            setupTriangleArgs(textureAnchor[0], t01, t02, triangle[0], v01, triangle[2], side);
+            clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+                    globalWorkSize, null, 0, null, null);
+            //if the heights are the same then we've already went over this portion
+            if (heightV01 != heightV02) {
+                side = Vector2DCalc.side(triangle[1], triangle[2], triangle[0]) * -v03[1];
+
+                setupTriangleArgs(textureAnchor[2], t03, VectorCalc.mul_v_d(t02, -1), triangle[2], v03, triangle[0], side);
+                clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+                        globalWorkSize, null, 0, null, null);
+            }
+        }
     }
 
-    //this takes up to 8 times longer than the kernel, this is the bottleneck
     private void setupTriangleArgs(
-            double[] t01, double[] t02, double[] t03,
-            double[] tA01, double[] tA02, double[] tA03
+            double[] textureOrigin, double[] textureTravelVector01, double[] textureTravelVector02,
+            double[] triangleOrigin, double[] triangleTravelVector, double[] otherTrianglePoint,
+            double side
     )
     {
-        //set the triangle's points
-        clSetKernelArg(kernel, 4, Sizeof.cl_mem, setMemoryArg(0, t01));
-        clSetKernelArg(kernel, 5, Sizeof.cl_mem, setMemoryArg(1, t02));
-        clSetKernelArg(kernel, 6, Sizeof.cl_mem, setMemoryArg(2, t03));
-
-//        set the texture map's points
-        clSetKernelArg(kernel, 7, Sizeof.cl_mem, setMemoryArg(3, tA01));
-        clSetKernelArg(kernel, 8, Sizeof.cl_mem, setMemoryArg(4, tA02));
-        clSetKernelArg(kernel, 9, Sizeof.cl_mem, setMemoryArg(5, tA03));
+        //set texture origin
+        clSetKernelArg(kernel, 4, Sizeof.cl_mem, setMemoryArg(0, textureOrigin));
+        //set texture travel vector 01
+        clSetKernelArg(kernel, 5, Sizeof.cl_mem, setMemoryArg(1, textureTravelVector01));
+        //set texture travel vector 02
+        clSetKernelArg(kernel, 6, Sizeof.cl_mem, setMemoryArg(2, textureTravelVector02));
+        //set triangle origin
+        clSetKernelArg(kernel, 7, Sizeof.cl_mem, setMemoryArg(3, triangleOrigin));
+        //set triangle travel vector
+        clSetKernelArg(kernel, 8, Sizeof.cl_mem, setMemoryArg(4, triangleTravelVector));
+        //set point that is not a part of the travel vector
+        clSetKernelArg(kernel, 9, Sizeof.cl_mem, setMemoryArg(5, otherTrianglePoint));
+        //set direction value
+        clSetKernelArg(kernel, 10, Sizeof.cl_double, Pointer.to(new double[]{side}));
     }
 
     private Pointer setMemoryArg(int index, double[] arr)
     {
-        clReleaseMemObject(triangleArgs[index]);
-        triangleArgs[index] = null;
-
         triangleArgs[index] = clCreateBuffer(context, CL_MEM_READ_ONLY,
                 arr.length * Sizeof.cl_double, null, null);
+
         clEnqueueWriteBuffer(commandQueue, triangleArgs[index], true, 0,
                 arr.length * Sizeof.cl_double, Pointer.to(arr), 0, null, null);
-
         return Pointer.to(triangleArgs[index]);
     }
 
-    private long drawAllTriangles()
+    private void drawAllTriangles()
     {
         //green
-        long timeTaken = drawTriangle(new double[][] {
+        drawTriangle(new double[][] {
                 clipPoints[4],
                 clipPoints[0],
                 clipPoints[1],
@@ -453,7 +451,7 @@ public class JoclTest04
                 textureRelativePoints[1]});
 
         //blues
-        timeTaken += drawTriangle(new double[][] {
+        drawTriangle(new double[][] {
                 clipPoints[4],
                 clipPoints[1],
                 clipPoints[2],
@@ -462,7 +460,7 @@ public class JoclTest04
                 textureRelativePoints[1],
                 textureRelativePoints[2]});
         //red
-        timeTaken += drawTriangle(new double[][] {
+        drawTriangle(new double[][] {
                 clipPoints[4],
                 clipPoints[2],
                 clipPoints[3],
@@ -471,7 +469,7 @@ public class JoclTest04
                 textureRelativePoints[2],
                 textureRelativePoints[3]});
         //yellow
-        timeTaken += drawTriangle(new double[][] {
+        drawTriangle(new double[][] {
                 clipPoints[4],
                 clipPoints[3],
                 clipPoints[0],
@@ -479,16 +477,19 @@ public class JoclTest04
                 textureRelativePoints[4],
                 textureRelativePoints[3],
                 textureRelativePoints[0]});
-
-        return timeTaken;
     }
 
     private void updateImage() {
         clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(pixelMem));
+        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(screenSizeMem));
+        clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(textureMem));
+        clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(textureSizeMem));
+        clSetKernelArg(kernel, 11, Sizeof.cl_mem, Pointer.to(debugBufferMem));
 
-        long timeTaken = drawAllTriangles();
-//        System.out.println("Took " + (timeTaken) +" ns");
-
+        long start = System.nanoTime();
+        drawAllTriangles();
+        long end = System.nanoTime();
+        System.out.println("Took " + (end-start) +" ns");
 
         // Read the pixel data into the BufferedImage
         DataBufferInt dataBuffer = (DataBufferInt) image.getRaster().getDataBuffer();
@@ -497,21 +498,18 @@ public class JoclTest04
         clEnqueueReadBuffer(commandQueue, pixelMem, CL_TRUE, 0,
                 Sizeof.cl_int * screenWidth*screenHeight, Pointer.to(data), 0, null, null);
 
-        clEnqueueReadBuffer(commandQueue, debugBufferMem, CL_TRUE,0,
-                Sizeof.cl_double * debugBuffer.length, Pointer.to(debugBuffer), 0, null, null);
-
-        System.out.println("Debug Start");
-        int count = 0;
-        for(double d: debugBuffer)
-        {
-            if (d == 1) {
-                count++;
-            }
-        }
-        System.out.println(count);
-        System.out.println("Debug End");
+//        clEnqueueReadBuffer(commandQueue, debugBufferMem, CL_TRUE,0,
+//                Sizeof.cl_double * debugBuffer.length, Pointer.to(debugBuffer), 0, null, null);
+//
+//        System.out.println("Debug Start");
+//        for(double d: debugBuffer)
+//        {
+//            System.out.println(d);
+//        }
+//        System.out.println("Debug End");
 
         recreatePixelMem();
+        recreateDebugMem();
         imageComponent.repaint();
     }
 

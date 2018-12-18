@@ -1,4 +1,4 @@
-package Programs;
+package Programs.KernalTestPrograms;
 
     import static org.jocl.CL.*;
 

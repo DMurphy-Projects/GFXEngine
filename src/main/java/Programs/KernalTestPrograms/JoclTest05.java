@@ -1,4 +1,4 @@
-package Programs;
+package Programs.KernalTestPrograms;
 
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.MatrixHelper;
