@@ -1,45 +1,62 @@
 package TextureGraphics;
 
 import GxEngine3D.Helper.PolygonSplitter;
-import org.jocl.*;
+import org.jocl.Pointer;
+import org.jocl.Sizeof;
+import org.jocl.cl_event;
+import org.jocl.cl_mem;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.jocl.CL.*;
 
-public class BarycentricGpuRender extends JoclRenderer {
+//this will execute a kernel with built in z-ordering instead of doing the ordering on cpu
+//NOTE: this method is twice as fast as the original, suggests that cpu ordering is slow
+//with this method, 100 textured squares can be rendered although performance is choppy
+//also each polygon gets split up via the central point, thus creating more triangles to render, some performance gain at low vertex counts, see below
+//  midpoint splitting: f(t) = v;
+//  optimal splitting ; f(t) = v-2;
+//      where t is number of triangles and v is vertices
+
+//Things to test:
+//  non-blocking on writes
+//  combining the triangles/texture anchors into one variable, so one write
+//  objects who's points don't change can be cached, not to realistic on this implementation but for future works
+//  event_wait_list can specify events that must happen before that enqueue can happen, this means that everything can be async, daisy chaining events
+//      and only waiting for the result to finish when creating the bitmap at the end
+//      the issue being that pointers cannot be reused until the writes take place. how will releasing work?
+public class BarycentricGpuRender_v2 extends JoclRenderer {
 
     int screenWidth, screenHeight;
 
     BufferedImage image;
 
-    ArrayList<int[]> pixel;
-    ArrayList<double[]> zMap, debug01, debug02;
+    ArrayList<double[]> debug01, debug02;
+
     double[] zMapStart;
 
     private cl_mem screenSizeMem;
 
     private final boolean debug = false;
 
-    public BarycentricGpuRender(int screenWidth, int screenHight)
+    cl_event[] events = null;
+    int eventIndex;
+
+    public BarycentricGpuRender_v2(int screenWidth, int screenHight)
     {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHight;
 
-        create("resources/Kernels/BarycentricTriangleWithZIndex.cl", "drawTriangle");
-
-        initMemoryVariables();
-        setupScreenSizeArgs();
+        create("resources/Kernels/BarycentricTriangleWithZOrdering.cl", "drawTriangle");
 
         zMapStart = new double[screenWidth*screenHight];
         Arrays.fill(zMapStart, 1);
+
+        initMemoryVariables();
+        setupScreenSizeArgs();
     }
 
     private void initMemoryVariables()
@@ -68,14 +85,13 @@ public class BarycentricGpuRender extends JoclRenderer {
             outArrays[i] = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
                     1 * Sizeof.cl_double, null, null);
         }
+
+        setupOutputMemory();
     }
 
     public void setup()
     {
         image = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
-
-        pixel = new ArrayList<>();
-        zMap = new ArrayList<>();
 
         if (debug) {
             debug01 = new ArrayList<>();
@@ -85,6 +101,10 @@ public class BarycentricGpuRender extends JoclRenderer {
 
     public void render(double[][] polygon, double[][] textureAnchor, JoclTexture texture)
     {
+        if (events != null) {
+            clWaitForEvents(events.length, events);
+        }
+
         setupTextureArgs(texture);
 
         //if not a triangle, the texture anchor should have the same number of points as the polygon
@@ -94,13 +114,13 @@ public class BarycentricGpuRender extends JoclRenderer {
             textureAnchor = PolygonSplitter.splitPolygonMidPoint(textureAnchor);
         }
 
-        recreateOutputMemory(screenWidth*screenHeight);
-        setupOutArgs();
-
         if (debug) {
             recreateDebugOutputMemory(screenWidth * screenHeight);
             setupDebugOutArgs();
         }
+
+        events = new cl_event[polygon.length-1];
+        eventIndex = 0;
 
         int prev = polygon.length-2;
         for (int i=0;i<polygon.length-1;i++)
@@ -111,7 +131,6 @@ public class BarycentricGpuRender extends JoclRenderer {
                     textureAnchor[polygon.length-1], textureAnchor[prev], textureAnchor[i]);
             prev = i;
         }
-        readData();
     }
 
     private void renderTriangle(double[] p1, double[] p2, double[] p3, double[] t1, double[] t2, double[] t3)
@@ -139,11 +158,12 @@ public class BarycentricGpuRender extends JoclRenderer {
                 (long)localLen, (long)localLen
         };
 
+        setupTriangleArgs(p1, p2, p3, t1, t2, t3);//FIX, this is believed to be the slowest part / bottleneck
 
-        setupTriangleArgs(p1, p2, p3, t1, t2, t3);
-
+        events[eventIndex] = new cl_event();
         clEnqueueNDRangeKernel(commandQueue, kernel, 2, null,
-                globalWorkSize, localWorkSize, 0, null, null);
+                globalWorkSize, localWorkSize, 0, null, events[eventIndex]);
+        eventIndex++;
     }
 
     public BufferedImage createImage()
@@ -151,24 +171,9 @@ public class BarycentricGpuRender extends JoclRenderer {
         DataBufferInt dataBuffer = (DataBufferInt) image.getRaster().getDataBuffer();
         int data[] = dataBuffer.getData();
 
-        double[] zMap = new double[screenWidth * screenHeight];
-        Arrays.fill(zMap, 1);
+        readData(data);
 
-        for (int i=0;i<this.zMap.size();i++)
-        {
-            int[] pixel = this.pixel.get(i);
-            double[] zValues = this.zMap.get(i);
-
-            for (int ii=0;ii<zValues.length;ii++)
-            {
-                double zValue = zValues[ii];
-                if (zValue < zMap[ii])
-                {
-                    data[ii] = pixel[ii];
-                    zMap[ii] = zValue;
-                }
-            }
-        }
+        setupOutputMemory();
 
         return image;
     }
@@ -198,26 +203,17 @@ public class BarycentricGpuRender extends JoclRenderer {
                 }
             }
         }
-
     }
 
     //JOCL handling functions
-    private void readData()
+    private void readData(int[] out)
     {
-        //read x values
-        int[] out = new int[screenWidth * screenHeight];
+        //read image
         clEnqueueReadBuffer(commandQueue, outArrays[0], CL_TRUE, 0,
                 Sizeof.cl_uint * screenWidth*screenHeight, Pointer.to(out), 0, null, null);
-        pixel.add(out);
-
-        //read z values
-        double[] zOut = new double[screenWidth * screenHeight];
-        clEnqueueReadBuffer(commandQueue, outArrays[1], CL_TRUE, 0,
-                Sizeof.cl_double * screenWidth*screenHeight, Pointer.to(zOut), 0, null, null);
-        zMap.add(zOut);
 
         if (debug) {
-            zOut = new double[screenWidth * screenHeight];
+            double[] zOut = new double[screenWidth * screenHeight];
             clEnqueueReadBuffer(commandQueue, outArrays[2], CL_TRUE, 0,
                     Sizeof.cl_double * screenWidth * screenHeight, Pointer.to(zOut), 0, null, null);
             debug01.add(zOut);
@@ -229,10 +225,16 @@ public class BarycentricGpuRender extends JoclRenderer {
         }
     }
 
+    private void setupOutputMemory()
+    {
+        recreateOutputMemory(screenWidth*screenHeight);
+        setupOutArgs();
+    }
+
     private void recreateOutputMemory(int size)
     {
-        setMemoryArgOut(0, size, Sizeof.cl_uint);
-        setMemoryArgOut(1, size, Sizeof.cl_double);
+        setMemoryArgOut(0, size, Sizeof.cl_uint, CL_MEM_WRITE_ONLY);
+        setMemoryArgOut(1, size, Sizeof.cl_double, CL_MEM_READ_WRITE);
 
         clEnqueueWriteBuffer(commandQueue, outArrays[1], true, 0,
                 size * Sizeof.cl_double, Pointer.to(zMapStart), 0, null, null);
@@ -240,8 +242,8 @@ public class BarycentricGpuRender extends JoclRenderer {
 
     private void recreateDebugOutputMemory(int size)
     {
-        setMemoryArgOut(2, size, Sizeof.cl_double);
-        setMemoryArgOut(3, size, Sizeof.cl_double);
+        setMemoryArgOut(2, size, Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        setMemoryArgOut(3, size, Sizeof.cl_double, CL_MEM_WRITE_ONLY);
     }
 
     private void setupScreenSizeArgs()
@@ -253,6 +255,8 @@ public class BarycentricGpuRender extends JoclRenderer {
         clSetKernelArg(kernel, 1, Sizeof.cl_mem, texture.getTexture());
         clSetKernelArg(kernel, 2, Sizeof.cl_mem, texture.getSize());
     }
+
+    //QUESTION: is it that we use this method a lot or are 6 calls slower than 1 call
     private void setupTriangleArgs(double[] t01, double[] t02, double[] t03,
             double[] tA01, double[] tA02, double[] tA03)
     {
@@ -292,12 +296,12 @@ public class BarycentricGpuRender extends JoclRenderer {
         return Pointer.to(inArrays[index]);
     }
 
-    private void setMemoryArgOut(int index, int size, int type)
+    private void setMemoryArgOut(int index, int size, int type, long readWrite)
     {
         clReleaseMemObject(outArrays[index]);
         outArrays[index] = null;
 
-        outArrays[index] = clCreateBuffer(context, CL_MEM_WRITE_ONLY,
+        outArrays[index] = clCreateBuffer(context, readWrite,
                 size * type, null, null);
     }
 }

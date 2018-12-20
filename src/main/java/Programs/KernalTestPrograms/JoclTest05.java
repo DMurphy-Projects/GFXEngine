@@ -5,6 +5,8 @@ import GxEngine3D.Helper.MatrixHelper;
 import GxEngine3D.Helper.FrustumMatrixHelper;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.BarycentricGpuRender;
+import TextureGraphics.BarycentricGpuRender_v2;
+import TextureGraphics.JoclRenderer;
 import TextureGraphics.JoclTexture;
 
 import javax.swing.*;
@@ -46,7 +48,7 @@ public class JoclTest05
     double[][] translate, rotate, scale;
     Matrix projection, combined;
 
-    BarycentricGpuRender renderer;
+    JoclRenderer renderer;
     JoclTexture texture;
 
     Map<Camera.Direction, Boolean> keys = new HashMap<>();
@@ -68,7 +70,7 @@ public class JoclTest05
             }
         };
 
-        renderer = new BarycentricGpuRender(screenWidth, screenHeight);
+        renderer = new BarycentricGpuRender_v2(screenWidth, screenHeight);
         texture = renderer.createTexture("resources/Textures/default.png");
 
         initScene();
@@ -110,8 +112,6 @@ public class JoclTest05
                                 System.out.println(Arrays.toString(point));
                             }
                         }
-                        System.out.println("Renderer Debug");
-                        renderer.printDebug();
                         break;
                 }
             }
@@ -186,13 +186,41 @@ public class JoclTest05
                 new double[]{1, 1, 0},
                 new double[]{0, 1, 0},
         };
+        double u = .99, l = .01;
         double[][] textureRelativePoints = new double[][] {
-                new double[]{0, 1, 0},
-                new double[]{1, 1, 0},
-                new double[]{1, 0, 0},
-                new double[]{0, 0, 0},
+                new double[]{l, u, 0},
+                new double[]{u, u, 0},
+                new double[]{u, l, 0},
+                new double[]{l, l, 0},
         };
-        addPolygon(relativePoints, textureRelativePoints);
+
+        int width = 3;
+        int height = 3;
+
+        double[][] translate = MatrixHelper.setupTranslateMatrix(1, 0, 0);
+
+        Matrix horizontal = new Matrix(translate);
+
+        translate = MatrixHelper.setupTranslateMatrix(-width, 1, 0);
+        Matrix vertical = new Matrix(translate);
+
+        for (int i=0;i<width;i++) {
+            for (int ii=0;ii<height;ii++) {
+                relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
+                applyMatrix(relativePoints, horizontal);
+
+                addPolygon(relativePoints, textureRelativePoints);
+            }
+            relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
+            applyMatrix(relativePoints, vertical);
+        }
+    }
+
+    private void applyMatrix(double[][] relativePoints, Matrix combined)
+    {
+        for (int i=0;i<relativePoints.length;i++) {
+            relativePoints[i] = MatrixHelper.applyImplicitMatrix(combined, relativePoints[i]);
+        }
     }
 
     private void addPolygon(double[][] polygon, double[][] textureAnchor)
@@ -238,6 +266,7 @@ public class JoclTest05
     {
         updateScene();
 
+        long start = System.nanoTime();
         renderer.setup();
 
         for (int i=0;i<clipPolys.size();i++)
@@ -246,6 +275,9 @@ public class JoclTest05
         }
 
         image = renderer.createImage();
+
+        System.out.println(String.format("Took %sms", (System.nanoTime() - start)/1e6));
+
         imageComponent.repaint();
     }
 
