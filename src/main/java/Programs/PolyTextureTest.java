@@ -8,9 +8,8 @@ import GxEngine3D.Helper.Vector2DCalc;
 import GxEngine3D.Helper.VectorCalc;
 import GxEngine3D.Model.Matrix.Matrix;
 import GxEngine3D.View.ViewHandler;
-import TextureGraphics.BaseRenderer;
-import TextureGraphics.HorizontalRenderer;
-import TextureGraphics.PseudoKernelRenderer;
+import TextureGraphics.CPUImplementation.BaseRenderer;
+import TextureGraphics.CPUImplementation.PseudoKernelRenderer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

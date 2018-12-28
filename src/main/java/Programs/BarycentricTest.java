@@ -5,8 +5,8 @@ import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.*;
 import GxEngine3D.Model.Matrix.Matrix;
 import GxEngine3D.View.ViewHandler;
-import TextureGraphics.BaseRenderer;
-import TextureGraphics.PseudoKernelRenderer;
+import TextureGraphics.CPUImplementation.BaseRenderer;
+import TextureGraphics.CPUImplementation.PseudoKernelRenderer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

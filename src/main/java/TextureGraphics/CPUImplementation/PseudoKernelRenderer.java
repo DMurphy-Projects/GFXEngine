@@ -1,4 +1,4 @@
-package TextureGraphics;
+package TextureGraphics.CPUImplementation;
 
 import DebugTools.DebugView;
 import GxEngine3D.Helper.VectorCalc;
