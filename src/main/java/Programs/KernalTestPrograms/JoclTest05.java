@@ -5,9 +5,8 @@ import GxEngine3D.Helper.MatrixHelper;
 import GxEngine3D.Helper.FrustumMatrixHelper;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.BarycentricGpuRender;
-import TextureGraphics.BarycentricGpuRender_v2;
 import TextureGraphics.JoclRenderer;
-import TextureGraphics.JoclTexture;
+import TextureGraphics.Memory.JoclTexture;
 
 import javax.swing.*;
 import java.awt.*;
@@ -70,7 +69,7 @@ public class JoclTest05
             }
         };
 
-        renderer = new BarycentricGpuRender_v2(screenWidth, screenHeight);
+        renderer = new BarycentricGpuRender(screenWidth, screenHeight);
         texture = renderer.createTexture("resources/Textures/default.png");
 
         initScene();
@@ -194,8 +193,8 @@ public class JoclTest05
                 new double[]{l, l, 0},
         };
 
-        int width = 3;
-        int height = 3;
+        int width = 5;
+        int height = 5;
 
         double[][] translate = MatrixHelper.setupTranslateMatrix(1, 0, 0);
 
@@ -264,19 +263,27 @@ public class JoclTest05
 
     private void updateScreen()
     {
+        long start = System.nanoTime();
         updateScene();
 
-        long start = System.nanoTime();
+        long time1 = System.nanoTime();
         renderer.setup();
+        long time2 = System.nanoTime();
 
         for (int i=0;i<clipPolys.size();i++)
         {
             renderer.render(clipPolys.get(i), tAnchors.get(i), texture);
         }
+        long time3 = System.nanoTime();
 
         image = renderer.createImage();
+        long end = System.nanoTime();
 
-        System.out.println(String.format("Took %sms", (System.nanoTime() - start)/1e6));
+        System.out.println(String.format("Scene Update Took %sns", (time1 - start)));
+        System.out.println(String.format("Renderer Setup Took %sns", (time2 - time1)));
+        System.out.println(String.format("Enqueue Took %sns", (time3 - time2)));
+        System.out.println(String.format("Image Creation %sns", (end - time3)));
+        System.out.println();
 
         imageComponent.repaint();
     }

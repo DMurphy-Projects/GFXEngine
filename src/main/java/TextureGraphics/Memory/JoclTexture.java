@@ -1,4 +1,4 @@
-package TextureGraphics;
+package TextureGraphics.Memory;
 
 import org.jocl.*;
 
