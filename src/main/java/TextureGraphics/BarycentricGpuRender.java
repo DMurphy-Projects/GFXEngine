@@ -67,7 +67,6 @@ public class BarycentricGpuRender extends JoclRenderer {
     {
         super.setup();
         image = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
-
         setupOutputMemory();
     }
 
@@ -203,29 +202,28 @@ public class BarycentricGpuRender extends JoclRenderer {
         int index = 0;
 
         //set the triangle's points
-        m = setMemoryArg(task, t01);
+        m = setMemoryArg(task, t01, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 3, Sizeof.cl_mem, m.getObject());
 
-        m = setMemoryArg(task, t02);
+        m = setMemoryArg(task, t02, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 4, Sizeof.cl_mem, m.getObject());
 
-        m = setMemoryArg(task, t03);
+        m = setMemoryArg(task, t03, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 5, Sizeof.cl_mem, m.getObject());
 
-        //TODO texture anchors dont change too much, so can be cached to reduce writing
         //set the texture map's points
-        m = setMemoryArg(task, tA01);
+        m = setCachedMemoryArg(task, tA01, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 6, Sizeof.cl_mem, m.getObject());
 
-        m = setMemoryArg(task, tA02);
+        m = setCachedMemoryArg(task, tA02, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 7, Sizeof.cl_mem, m.getObject());
 
-        m = setMemoryArg(task, tA03);
+        m = setCachedMemoryArg(task, tA03, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 8, Sizeof.cl_mem, m.getObject());
 

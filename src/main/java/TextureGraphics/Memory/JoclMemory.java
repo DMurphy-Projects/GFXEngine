@@ -4,10 +4,10 @@ import org.jocl.*;
 
 public abstract class JoclMemory {
 
-    public static JoclMemory createAsync(cl_context context, cl_command_queue commandQueue, cl_event tF, double[] arr)
+    public static JoclMemory createAsync(cl_context context, cl_command_queue commandQueue, cl_event tF, double[] arr, long type)
     {
         AsyncJoclMemory m = new AsyncJoclMemory();
-        m.create(context, commandQueue, tF, arr);
+        m.create(context, commandQueue, tF, arr, type);
         return m;
     }
 

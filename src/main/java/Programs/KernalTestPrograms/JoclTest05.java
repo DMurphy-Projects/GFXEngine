@@ -3,6 +3,7 @@ package Programs.KernalTestPrograms;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.MatrixHelper;
 import GxEngine3D.Helper.FrustumMatrixHelper;
+import GxEngine3D.Helper.ValueBasedIdGen;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.BarycentricGpuRender;
 import TextureGraphics.JoclRenderer;
@@ -30,6 +31,8 @@ public class JoclTest05
         });
     }
 
+    String VERBOSE = "v", SUCCINCT = "s";
+    String debug;
 
     private int screenWidth = 0;
     private int screenHeight = 0;
@@ -54,11 +57,15 @@ public class JoclTest05
 
     public JoclTest05(int width, int height)
     {
+        debug = VERBOSE;
+
+        String id = ValueBasedIdGen.generate(new double[]{0, 1, 2});
+        System.out.println(id);
+
         screenWidth = width;
         screenHeight = height;
 
         // Create the image and the component that will paint the image
-
         imageComponent = new JPanel()
         {
             private static final long serialVersionUID = 1L;
@@ -279,11 +286,16 @@ public class JoclTest05
         image = renderer.createImage();
         long end = System.nanoTime();
 
-        System.out.println(String.format("Scene Update Took %sns", (time1 - start)));
-        System.out.println(String.format("Renderer Setup Took %sns", (time2 - time1)));
-        System.out.println(String.format("Enqueue Took %sns", (time3 - time2)));
-        System.out.println(String.format("Image Creation %sns", (end - time3)));
-        System.out.println();
+        if (debug == VERBOSE) {
+            System.out.println(String.format("Scene Update Took %sns", (time1 - start)));
+            System.out.println(String.format("Renderer Setup Took %sns", (time2 - time1)));
+            System.out.println(String.format("Enqueue Took %sns", (time3 - time2)));
+            System.out.println(String.format("Image Creation %sns", (end - time3)));
+            System.out.println();
+        }
+        else if (debug == SUCCINCT) {
+            System.out.println(String.format("Total Took %sns", (end - start) * 1e3));
+        }
 
         imageComponent.repaint();
     }

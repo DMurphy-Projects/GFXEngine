@@ -1,5 +1,6 @@
 package TextureGraphics;
 
+import GxEngine3D.Helper.ValueBasedIdGen;
 import TextureGraphics.Memory.JoclMemory;
 import org.jocl.*;
 
@@ -22,10 +23,12 @@ public abstract class JoclProgram {
     HashMap<String, Integer> dynamicNames = new HashMap<>();
     HashMap<String, Integer> staticNames = new HashMap<>();
 
+    HashMap<String, JoclMemory> cachedMemory = new HashMap<>();
+
     //dynamic memory gets refreshed from round to round
     //cached memory stays for the lifetime of the program object, but can be added at anytime
     //static memory does not change after init
-    ArrayList<JoclMemory> cachedMemory, dynamicMemory = new ArrayList<>();
+    ArrayList<JoclMemory> dynamicMemory = new ArrayList<>();
     protected cl_mem[] staticMemory;
 
     protected abstract void initStaticMemory();
@@ -43,10 +46,17 @@ public abstract class JoclProgram {
 
     protected void initDynamicMemory()
     {
-        for (JoclMemory m:dynamicMemory)
-        {
-            m.release();
-        }
+        final ArrayList<JoclMemory> copy = (ArrayList<JoclMemory>) dynamicMemory.clone();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (JoclMemory m:copy)
+                {
+                    m.release();
+                }
+            }
+        }).start();
+
         dynamicMemory = new ArrayList<>();
         dynamicNames = new HashMap<>();
     }
@@ -59,6 +69,20 @@ public abstract class JoclProgram {
     protected cl_mem getStatic(String name)
     {
         return staticMemory[staticNames.get(name)];
+    }
+
+    protected JoclMemory setCachedMemoryArg(cl_event task, double[] arr, long type)
+    {
+        String id = ValueBasedIdGen.generate(arr);
+        if (cachedMemory.containsKey(id))
+        {
+            return cachedMemory.get(id);
+        }
+        else {
+            JoclMemory m = JoclMemory.createAsync(context, commandQueue, task, arr, type);
+            cachedMemory.put(id, m);
+            return m;
+        }
     }
 
     protected void setStaticMemoryArg(int index, int size, long type, String name)
@@ -137,16 +161,16 @@ public abstract class JoclProgram {
         return m;
     }
 
-    protected JoclMemory setMemoryArg(cl_event task, double[] arr, String name)
+    protected JoclMemory setMemoryArg(cl_event task, double[] arr, long type, String name)
     {
         checkDynamicNameExists(name);
         dynamicNames.put(name, dynamicMemory.size());
-        return setMemoryArg(task, arr);
+        return setMemoryArg(task, arr, type);
     }
 
-    protected JoclMemory setMemoryArg(cl_event task, double[] arr)
+    protected JoclMemory setMemoryArg(cl_event task, double[] arr, long type)
     {
-        JoclMemory m = JoclMemory.createAsync(context, commandQueue, task, arr);
+        JoclMemory m = JoclMemory.createAsync(context, commandQueue, task, arr, type);
         dynamicMemory.add(m);
         return m;
     }

@@ -68,7 +68,7 @@ public class AsyncWriteTest extends JoclProgram{
     private void setupMemory()
     {
         double[] data = createTestData(dataSize);
-        JoclMemory m = setMemoryArg(new cl_event(), data, "Input");
+        JoclMemory m = setMemoryArg(new cl_event(), data, CL_MEM_READ_ONLY, "Input");
         setMemoryArg(dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, "Output");
 
         cl_event writing = ((AsyncJoclMemory)m).getFinishedWritingEvent();
