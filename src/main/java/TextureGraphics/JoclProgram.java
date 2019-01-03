@@ -213,11 +213,10 @@ public abstract class JoclProgram {
                 contextProperties, 1, new cl_device_id[]{device},
                 null, null, null);
 
-        long properties = 0;//CL_QUEUE_PROFILING_ENABLE;
+        cl_queue_properties p = new cl_queue_properties();
+//        p.addProperty(CL_QUEUE_PROPERTIES, CL_QUEUE_PROFILING_ENABLE);
 
-        // Create a command-queue for the selected device
-        commandQueue =
-                clCreateCommandQueue(context, device, properties, null);
+        commandQueue = clCreateCommandQueueWithProperties(context, device, p, null);
 
         // Program Setup
         String source = readFile(sourceFile);
