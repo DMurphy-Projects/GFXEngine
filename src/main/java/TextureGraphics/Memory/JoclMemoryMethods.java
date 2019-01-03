@@ -1,5 +1,6 @@
 package TextureGraphics.Memory;
 
+import GxEngine3D.Helper.PerformanceTimer;
 import oracle.jrockit.jfr.events.Bits;
 import org.jocl.*;
 
@@ -11,6 +12,7 @@ import static org.jocl.CL.clEnqueueWriteBuffer;
 public class JoclMemoryMethods {
     public static cl_mem asyncWrite(cl_context context, cl_command_queue commandQueue, double[] arr, cl_event finishedWriting, long bufferType)
     {
+        //this is approx. 10% of this method
         cl_mem  memoryObject = clCreateBuffer(context, bufferType,
                 arr.length * Sizeof.cl_double, null, null);
 
@@ -22,8 +24,10 @@ public class JoclMemoryMethods {
         }
         byteBuffer.rewind();
 
+        //this is approx. 85% of this method
         clEnqueueWriteBuffer(commandQueue, memoryObject, false, 0,
                 arr.length * Sizeof.cl_double, Pointer.to(byteBuffer), 0, null, finishedWriting);
+
         return memoryObject;
     }
 

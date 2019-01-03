@@ -1,13 +1,11 @@
 package TextureGraphics;
 
+import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Helper.PolygonSplitter;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.JoclMemory;
 import TextureGraphics.Memory.JoclTexture;
-import org.jocl.Pointer;
-import org.jocl.Sizeof;
-import org.jocl.cl_event;
-import org.jocl.cl_mem;
+import org.jocl.*;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -39,6 +37,7 @@ public class BarycentricGpuRender extends JoclRenderer {
     //technically can read before all events can finish, but since the bottleneck is memory io, it is unlikely to happen in this implementation
     cl_event[] prevEvents = null;
 
+    //names to retrieve arguments by
     String pixelOut = "Out1", zMapOut = "Out2", screenSize = "ScreenSize";
 
     public BarycentricGpuRender(int screenWidth, int screenHeight)
@@ -202,6 +201,7 @@ public class BarycentricGpuRender extends JoclRenderer {
         int index = 0;
 
         //set the triangle's points
+        //this is approx 90% of this method
         m = setMemoryArg(task, t01, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 3, Sizeof.cl_mem, m.getObject());
@@ -215,6 +215,7 @@ public class BarycentricGpuRender extends JoclRenderer {
         clSetKernelArg(kernel, 5, Sizeof.cl_mem, m.getObject());
 
         //set the texture map's points
+        //this is approx 10% of this method
         m = setCachedMemoryArg(task, tA01, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 6, Sizeof.cl_mem, m.getObject());

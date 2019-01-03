@@ -3,6 +3,7 @@ package Programs.KernalTestPrograms;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.MatrixHelper;
 import GxEngine3D.Helper.FrustumMatrixHelper;
+import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Helper.ValueBasedIdGen;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.BarycentricGpuRender;
@@ -55,12 +56,17 @@ public class JoclTest05
 
     Map<Camera.Direction, Boolean> keys = new HashMap<>();
 
+    PerformanceTimer t;
+
     public JoclTest05(int width, int height)
     {
         debug = VERBOSE;
 
-        String id = ValueBasedIdGen.generate(new double[]{0, 1, 2});
-        System.out.println(id);
+        PerformanceTimer.Mode mode = debug == VERBOSE?
+                PerformanceTimer.Mode.Nano:
+                PerformanceTimer.Mode.Total;
+
+        t = new PerformanceTimer(mode);
 
         screenWidth = width;
         screenHeight = height;
@@ -270,33 +276,34 @@ public class JoclTest05
 
     private void updateScreen()
     {
-        long start = System.nanoTime();
+        t.time();
         updateScene();
 
-        long time1 = System.nanoTime();
+        t.time();
         renderer.setup();
-        long time2 = System.nanoTime();
 
+        t.time();
         for (int i=0;i<clipPolys.size();i++)
         {
             renderer.render(clipPolys.get(i), tAnchors.get(i), texture);
         }
-        long time3 = System.nanoTime();
+        t.time();
 
         image = renderer.createImage();
-        long end = System.nanoTime();
+        t.time();
 
         if (debug == VERBOSE) {
-            System.out.println(String.format("Scene Update Took %sns", (time1 - start)));
-            System.out.println(String.format("Renderer Setup Took %sns", (time2 - time1)));
-            System.out.println(String.format("Enqueue Took %sns", (time3 - time2)));
-            System.out.println(String.format("Image Creation %sns", (end - time3)));
+            t.printNextTime("Scene Update Took");
+            t.printNextTime("Renderer Setup Took");
+            t.printNextTime("Enqueue Took");
+            t.printNextTime("Image Creation Took");
             System.out.println();
         }
         else if (debug == SUCCINCT) {
-            System.out.println(String.format("Total Took %sns", (end - start) * 1e3));
+            t.printNextTime("Total Took");
         }
 
+        t.reset();
         imageComponent.repaint();
     }
 
