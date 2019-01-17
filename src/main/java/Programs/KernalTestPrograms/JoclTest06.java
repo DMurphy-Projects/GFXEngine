@@ -1,12 +1,11 @@
 package Programs.KernalTestPrograms;
 
 import GxEngine3D.Camera.Camera;
-import GxEngine3D.Helper.MatrixHelper;
 import GxEngine3D.Helper.FrustumMatrixHelper;
+import GxEngine3D.Helper.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
-import TextureGraphics.BarycentricGpuRender;
-import TextureGraphics.JoclRenderer;
+import TextureGraphics.BarycentricGpuRender_v2;
 import TextureGraphics.Memory.JoclTexture;
 
 import javax.swing.*;
@@ -18,7 +17,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JoclTest05
+//This is the example of using the kernel matrix method
+public class JoclTest06
 {
     public static void main(String args[])
     {
@@ -26,7 +26,7 @@ public class JoclTest05
         {
             public void run()
             {
-                new JoclTest05(500,500);
+                new JoclTest06(500,500);
             }
         });
     }
@@ -50,14 +50,14 @@ public class JoclTest05
     double[][] translate, rotate, scale;
     Matrix projection, combined;
 
-    JoclRenderer renderer;
+    BarycentricGpuRender_v2 renderer;//is a specific test
     JoclTexture texture;
 
     Map<Camera.Direction, Boolean> keys = new HashMap<>();
 
     PerformanceTimer t;
 
-    public JoclTest05(int width, int height)
+    public JoclTest06(int width, int height)
     {
         debug = SUCCINCT;
 
@@ -81,7 +81,7 @@ public class JoclTest05
             }
         };
 
-        renderer = new BarycentricGpuRender(screenWidth, screenHeight);
+        renderer = new BarycentricGpuRender_v2(screenWidth, screenHeight);
         texture = renderer.createTexture("resources/Textures/default.png");
 
         initScene();
@@ -280,11 +280,13 @@ public class JoclTest05
 
         t.time();
         renderer.setup();
+        //note that in this example the implicit matrix is the same for all shapes, this will not be the case in the final version
+        renderer.setMatrix(combined, projection);
 
         t.time();
-        for (int i=0;i<clipPolys.size();i++)
+        for (int i=0;i<polys.size();i++)
         {
-            renderer.render(clipPolys.get(i), tAnchors.get(i), texture);
+            renderer.render(polys.get(i), tAnchors.get(i), texture);
         }
         t.time();
 
