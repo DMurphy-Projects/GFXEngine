@@ -205,6 +205,27 @@ public class JoclTest06
                 new double[]{l, l, 0},
         };
 
+        wallPanelScene(relativePoints, textureRelativePoints);
+    }
+
+    private void intersectionScene(double[][] relativePoints, double[][] textureRelativePoints)
+    {
+        addPolygon(relativePoints, textureRelativePoints);
+
+        relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
+
+        double[][] rotate = MatrixHelper.setupFullRotation(0, Math.PI/2, 0);
+        applyMatrix(relativePoints, new Matrix(rotate));
+
+        double[][] translate = MatrixHelper.setupTranslateMatrix(.5, 0, .5);
+        applyMatrix(relativePoints, new Matrix(translate));
+
+        addPolygon(relativePoints, textureRelativePoints);
+    }
+
+    //20*20 seems to be the usable limit, however can go 30*30 with drastically reduced performance
+    private void wallPanelScene(double[][] relativePoints, double[][] textureRelativePoints)
+    {
         int width = 5;
         int height = 5;
 
@@ -215,8 +236,8 @@ public class JoclTest06
         translate = MatrixHelper.setupTranslateMatrix(-width, 1, 0);
         Matrix vertical = new Matrix(translate);
 
-        for (int i=0;i<width;i++) {
-            for (int ii=0;ii<height;ii++) {
+        for (int i=0;i<height;i++) {
+            for (int ii=0;ii<width;ii++) {
                 relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
                 applyMatrix(relativePoints, horizontal);
 
@@ -286,6 +307,7 @@ public class JoclTest06
         t.time();
         for (int i=0;i<polys.size();i++)
         {
+            renderer.setClipPolygon(clipPolys.get(i));
             renderer.render(polys.get(i), tAnchors.get(i), texture);
         }
         t.time();

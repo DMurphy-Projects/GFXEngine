@@ -12,7 +12,10 @@ import org.jocl.cl_mem;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.jocl.CL.*;
 
@@ -42,7 +45,8 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
     double[] zMapStart;
 
     //technically can read before all events can finish, but since the bottleneck is memory io, it is unlikely to happen in this implementation
-    cl_event[] prevEvents = null;
+    cl_event[] matrixEvents = null;
+    ArrayList<cl_event> taskEvents;
 
     //names to retrieve arguments by
     String pixelOut = "Out1", zMapOut = "Out2", screenSize = "ScreenSize";
@@ -72,6 +76,7 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
     public void setup()
     {
         super.setup();
+        taskEvents = new ArrayList<>();
         image = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
         setupOutputMemory();
     }
@@ -83,12 +88,20 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
 
         setupMatrixArgs(m1, m2);
 
-        cl_event[] events = new cl_event[]{
+        matrixEvents = new cl_event[]{
                 ((AsyncJoclMemory)m1).getFinishedWritingEvent(),
                 ((AsyncJoclMemory)m2).getFinishedWritingEvent()
         };
+    }
 
-        clWaitForEvents(events.length, events);
+    private double[][] clipPolygon;
+    public void setClipPolygon(double[][] clipPolygon)
+    {
+        if (clipPolygon.length > 3) {
+            //should be triangles now
+            clipPolygon = PolygonSplitter.splitPolygonMidPoint(clipPolygon);
+        }
+        this.clipPolygon = clipPolygon;
     }
 
     public void render(double[][] polygon, double[][] textureAnchor, JoclTexture texture)
@@ -102,30 +115,35 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
             textureAnchor = PolygonSplitter.splitPolygonMidPoint(textureAnchor);
         }
 
-        cl_event[] events = new cl_event[polygon.length-1];
-
+        //calculating the denisity based on clip space can lead to 0's, pre calculate the densities to find out which triangles we need to draw
+        HashMap<int[], Double> preCalc = new HashMap<>();
         int prev = polygon.length-2;
         for (int i=0;i<polygon.length-1;i++)
         {
-            events[i] = renderTriangle(polygon[polygon.length-1],
-                    polygon[prev],
-                    polygon[i],
-                    textureAnchor[polygon.length-1], textureAnchor[prev], textureAnchor[i]);
+            double density = calcLength(clipPolygon[polygon.length-1], clipPolygon[prev], clipPolygon[i]);
+            if (density > 0)
+            {
+                preCalc.put(new int[]{clipPolygon.length-1, prev, i}, density);
+            }
             prev = i;
         }
+        
+        for (Map.Entry<int[], Double> entry : preCalc.entrySet()) {
 
-        this.prevEvents = events;
+            int[] indices = entry.getKey();
+
+            cl_event event = renderTriangle(polygon[indices[0]],
+                    polygon[indices[1]],
+                    polygon[indices[2]],
+                    textureAnchor[indices[0]], textureAnchor[indices[1]], textureAnchor[indices[2]],
+                    entry.getValue()
+            );
+            taskEvents.add(event);
+        }
     }
 
-    private cl_event renderTriangle(double[] p1, double[] p2, double[] p3, double[] t1, double[] t2, double[] t3)
+    private cl_event renderTriangle(double[] p1, double[] p2, double[] p3, double[] t1, double[] t2, double[] t3, double len)
     {
-        //this calculates the density of samples required
-        //in this implementation, the points are in relative space
-        //this means that density will not change based on size on screen
-        //TODO this should work like previous iterations in that polygon screen size is what density is based on
-        double len = calcLength(p1, p2, p3);
-        if (len == 0) return null;
-
         double localLen = Math.ceil(Math.sqrt(len));
 
         //ensures that local length is the root of length
@@ -149,12 +167,13 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
         cl_event taskEvent = new cl_event();
 
         cl_event[] writingEvents = setupTriangleArgs(p1, p2, p3, t1, t2, t3, taskEvent);
-//        cl_event[] waitingEvents = new cl_event[writingEvents.length + prevEvents.length];
-//        System.arraycopy(writingEvents, 0, waitingEvents, 0, writingEvents.length);
-//        System.arraycopy(prevEvents, 0, waitingEvents, writingEvents.length, prevEvents.length);
+        int waitingSize = writingEvents.length + matrixEvents.length;
+        cl_event[] waitingEvents = new cl_event[waitingSize];
+        System.arraycopy(writingEvents, 0, waitingEvents, 0, writingEvents.length);//moves writingEvents into waitingEvents
+        System.arraycopy(matrixEvents, 0, waitingEvents, writingEvents.length, matrixEvents.length);//moves matrix events onto the end of writingEvents
 
         clEnqueueNDRangeKernel(commandQueue, kernel, 2, null,
-                globalWorkSize, localWorkSize, writingEvents.length, writingEvents, taskEvent);
+                globalWorkSize, localWorkSize, waitingEvents.length, waitingEvents, taskEvent);
 
         return taskEvent;
     }
@@ -165,7 +184,10 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
         DataBufferInt dataBuffer = (DataBufferInt) image.getRaster().getDataBuffer();
         int data[] = dataBuffer.getData();
 
-        clWaitForEvents(prevEvents.length, prevEvents);
+        cl_event[] events = new cl_event[taskEvents.size()];
+        taskEvents.toArray(events);
+
+        clWaitForEvents(events.length, events);
         readData(data);
 
         return image;
