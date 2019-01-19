@@ -222,7 +222,7 @@ public class JoclTest06
         addPolygon(relativePoints, textureRelativePoints);
     }
 
-    //20*20 seems to be the usable limit, however can go 30*30 with drastically reduced performance
+    //30*30 seems to be the usable limit, however can go 40*40 with drastically reduced performance
     private void wallPanelScene(double[][] relativePoints, double[][] textureRelativePoints)
     {
         int width = 5;

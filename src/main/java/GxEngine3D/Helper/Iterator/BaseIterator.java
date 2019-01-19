@@ -10,7 +10,7 @@ public abstract class BaseIterator implements ITriangleIterator{
     }
 
     public abstract boolean hasNext();
-    public abstract double[][] next();
+    public abstract int[] next();
 
     public double[] get(int index)
     {

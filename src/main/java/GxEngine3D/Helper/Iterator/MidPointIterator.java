@@ -29,7 +29,7 @@ public class MidPointIterator extends BaseIterator{
         };
 
         pos = 0;
-        prev = polygon.length - 1;
+        prev = newPoly.length - 2;
 
         super.iterate(newPoly);
     }
@@ -40,19 +40,15 @@ public class MidPointIterator extends BaseIterator{
     }
 
     @Override
-    public double[][] next() {
-        int[] index = nextIndices();
-        prev = pos;
-        pos++;
-        return new double[][] {
-                polygon[index[0]],
-                polygon[index[1]],
-                polygon[index[2]]
-        };
+    public int[] next() {
+        int[] index = new int[]{prev, pos, polygon.length-1};
+        increment();
+        return index;
     }
 
-    @Override
-    public int[] nextIndices() {
-        return new int[]{prev, pos, polygon.length-1};
+    private void increment()
+    {
+        prev = pos;
+        pos++;
     }
 }

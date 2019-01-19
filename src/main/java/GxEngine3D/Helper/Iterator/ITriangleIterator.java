@@ -6,8 +6,7 @@ public interface ITriangleIterator {
 
     boolean hasNext();
 
-    double[][] next();
-    int[] nextIndices();
+    int[] next();
 
     double[] get(int index);
 }

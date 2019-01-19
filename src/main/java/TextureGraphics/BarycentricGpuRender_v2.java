@@ -1,8 +1,7 @@
 package TextureGraphics;
 
+import GxEngine3D.Helper.Iterator.RegularTriangleIterator;
 import GxEngine3D.Helper.Iterator.ITriangleIterator;
-import GxEngine3D.Helper.Iterator.MidPointIterator;
-import GxEngine3D.Helper.PolygonSplitter;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.JoclMemory;
@@ -50,7 +49,9 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
     cl_event[] matrixEvents = null;
     ArrayList<cl_event> taskEvents;
 
-    ITriangleIterator polygonIt = new MidPointIterator(), textureAnchorIt = new MidPointIterator();
+    //these should be the same as we are using the fact that the indices can be shared across all iterators
+    //if they are different they must use the same order
+    ITriangleIterator clipIt = new RegularTriangleIterator(), textureAnchorIt = new RegularTriangleIterator(), polyIt = new RegularTriangleIterator();
 
     //names to retrieve arguments by
     String pixelOut = "Out1", zMapOut = "Out2", screenSize = "ScreenSize";
@@ -98,44 +99,37 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
         };
     }
 
-    private double[][] clipPolygon;
     public void setClipPolygon(double[][] clipPolygon)
     {
-        if (clipPolygon.length > 3) {
-            //should be triangles now
-            clipPolygon = PolygonSplitter.splitPolygonMidPoint(clipPolygon);
-        }
-        this.clipPolygon = clipPolygon;
+        clipIt.iterate(clipPolygon);
     }
 
     public void render(double[][] polygon, double[][] textureAnchor, JoclTexture texture)
     {
         setupTextureArgs(texture);
 
-        //calculating the denisity based on clip space can lead to 0's, pre calculate the densities to find out which triangles we need to draw
+        //calculating the density based on clip space can lead to 0's, pre calculate the densities to find out which triangles we need to draw
         HashMap<int[], Double> preCalc = new HashMap<>();
 
-        polygonIt.iterate(polygon);
-        while(polygonIt.hasNext())
+        while(clipIt.hasNext())
         {
-            int[] indices = polygonIt.nextIndices();
-            double[][] triangle = polygonIt.next();
-            double density = calcLength(triangle[0], triangle[1], triangle[2]);
+            int[] index = clipIt.next();
+            double density = calcLength(clipIt.get(index[0]), clipIt.get(index[1]), clipIt.get(index[2]));
             if (density > 0)
             {
-                preCalc.put(indices, density);
+                preCalc.put(index, density);
             }
         }
 
+        polyIt.iterate(polygon);
         textureAnchorIt.iterate(textureAnchor);
         for (Map.Entry<int[], Double> entry : preCalc.entrySet()) {
-
             int[] indices = entry.getKey();
 
             cl_event event = renderTriangle(
-                    polygonIt.get(indices[0]),
-                    polygonIt.get(indices[1]),
-                    polygonIt.get(indices[2]),
+                    polyIt.get(indices[0]),
+                    polyIt.get(indices[1]),
+                    polyIt.get(indices[2]),
                     textureAnchorIt.get(indices[0]),
                     textureAnchorIt.get(indices[1]),
                     textureAnchorIt.get(indices[2]),
