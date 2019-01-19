@@ -1,5 +1,7 @@
 package TextureGraphics;
 
+import GxEngine3D.Helper.Iterator.ITriangleIterator;
+import GxEngine3D.Helper.Iterator.MidPointIterator;
 import GxEngine3D.Helper.PolygonSplitter;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.Memory.AsyncJoclMemory;
@@ -47,6 +49,8 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
     //technically can read before all events can finish, but since the bottleneck is memory io, it is unlikely to happen in this implementation
     cl_event[] matrixEvents = null;
     ArrayList<cl_event> taskEvents;
+
+    ITriangleIterator polygonIt = new MidPointIterator(), textureAnchorIt = new MidPointIterator();
 
     //names to retrieve arguments by
     String pixelOut = "Out1", zMapOut = "Out2", screenSize = "ScreenSize";
@@ -108,34 +112,33 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
     {
         setupTextureArgs(texture);
 
-        //if not a triangle, the texture anchor should have the same number of points as the polygon
-        if (polygon.length > 3) {
-            //should be triangles now
-            polygon = PolygonSplitter.splitPolygonMidPoint(polygon);
-            textureAnchor = PolygonSplitter.splitPolygonMidPoint(textureAnchor);
-        }
-
         //calculating the denisity based on clip space can lead to 0's, pre calculate the densities to find out which triangles we need to draw
         HashMap<int[], Double> preCalc = new HashMap<>();
-        int prev = polygon.length-2;
-        for (int i=0;i<polygon.length-1;i++)
+
+        polygonIt.iterate(polygon);
+        while(polygonIt.hasNext())
         {
-            double density = calcLength(clipPolygon[polygon.length-1], clipPolygon[prev], clipPolygon[i]);
+            int[] indices = polygonIt.nextIndices();
+            double[][] triangle = polygonIt.next();
+            double density = calcLength(triangle[0], triangle[1], triangle[2]);
             if (density > 0)
             {
-                preCalc.put(new int[]{clipPolygon.length-1, prev, i}, density);
+                preCalc.put(indices, density);
             }
-            prev = i;
         }
-        
+
+        textureAnchorIt.iterate(textureAnchor);
         for (Map.Entry<int[], Double> entry : preCalc.entrySet()) {
 
             int[] indices = entry.getKey();
 
-            cl_event event = renderTriangle(polygon[indices[0]],
-                    polygon[indices[1]],
-                    polygon[indices[2]],
-                    textureAnchor[indices[0]], textureAnchor[indices[1]], textureAnchor[indices[2]],
+            cl_event event = renderTriangle(
+                    polygonIt.get(indices[0]),
+                    polygonIt.get(indices[1]),
+                    polygonIt.get(indices[2]),
+                    textureAnchorIt.get(indices[0]),
+                    textureAnchorIt.get(indices[1]),
+                    textureAnchorIt.get(indices[2]),
                     entry.getValue()
             );
             taskEvents.add(event);
@@ -193,6 +196,8 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
         return image;
     }
 
+    //density goes extremely large when off screen, due to frustum warping?
+    //need to cull offscreen polygons
     private double calcLength(double[] p1, double[] p2, double[] p3)
     {
         //see barycentric test for explanation

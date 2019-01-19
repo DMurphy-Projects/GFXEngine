@@ -102,7 +102,6 @@ public class JoclTest06
         frame.setVisible(true);
     }
 
-
     private void initInteraction()
     {
         frame.addKeyListener(new KeyListener() {
