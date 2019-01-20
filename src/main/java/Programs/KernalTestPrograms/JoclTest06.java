@@ -222,7 +222,7 @@ public class JoclTest06
         addPolygon(relativePoints, textureRelativePoints);
     }
 
-    //30*30 seems to be the usable limit, however can go 40*40 with drastically reduced performance
+    //with added culling, the renderer can achieve 100*100, whilst at close range comfortably, while inside the frustum culling range it is usable
     private void wallPanelScene(double[][] relativePoints, double[][] textureRelativePoints)
     {
         int width = 5;

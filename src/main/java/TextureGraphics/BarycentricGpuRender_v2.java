@@ -2,6 +2,7 @@ package TextureGraphics;
 
 import GxEngine3D.Helper.Iterator.RegularTriangleIterator;
 import GxEngine3D.Helper.Iterator.ITriangleIterator;
+import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.JoclMemory;
@@ -56,6 +57,8 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
     //names to retrieve arguments by
     String pixelOut = "Out1", zMapOut = "Out2", screenSize = "ScreenSize";
 
+    boolean cullPolygon = false;
+
     public BarycentricGpuRender_v2(int screenWidth, int screenHeight)
     {
         this.screenWidth = screenWidth;
@@ -101,11 +104,14 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
 
     public void setClipPolygon(double[][] clipPolygon)
     {
+        cullPolygon = PolygonClipBoundsChecker.shouldCull(clipPolygon);
         clipIt.iterate(clipPolygon);
     }
 
+
     public void render(double[][] polygon, double[][] textureAnchor, JoclTexture texture)
     {
+        if (cullPolygon) return;
         setupTextureArgs(texture);
 
         //calculating the density based on clip space can lead to 0's, pre calculate the densities to find out which triangles we need to draw
@@ -175,23 +181,23 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
         return taskEvent;
     }
 
-    //this is the reason for majority slowdown. hunch is that most of the "work" here is waiting for kernels to finish
     public BufferedImage createImage()
     {
-        DataBufferInt dataBuffer = (DataBufferInt) image.getRaster().getDataBuffer();
-        int data[] = dataBuffer.getData();
+        //a taskEvents size of 0 means that we culled all triangles from the render, so we don't need to read the data
+        if (taskEvents.size() > 0) {
 
-        cl_event[] events = new cl_event[taskEvents.size()];
-        taskEvents.toArray(events);
+            DataBufferInt dataBuffer = (DataBufferInt) image.getRaster().getDataBuffer();
+            int data[] = dataBuffer.getData();
+            cl_event[] events = new cl_event[taskEvents.size()];
+            taskEvents.toArray(events);
 
-        clWaitForEvents(events.length, events);
-        readData(data);
+            clWaitForEvents(events.length, events);
+            readData(data);
+        }
 
         return image;
     }
 
-    //density goes extremely large when off screen, due to frustum warping?
-    //need to cull offscreen polygons
     private double calcLength(double[] p1, double[] p2, double[] p3)
     {
         //see barycentric test for explanation
@@ -254,7 +260,6 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
         int index = 0;
 
         //set the triangle's points
-        //this is approx 90% of this method
         m = setCachedMemoryArg(task, t01, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 3, Sizeof.cl_mem, m.getObject());
@@ -268,7 +273,6 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
         clSetKernelArg(kernel, 5, Sizeof.cl_mem, m.getObject());
 
         //set the texture map's points
-        //this is approx 10% of this method
         m = setCachedMemoryArg(task, tA01, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 6, Sizeof.cl_mem, m.getObject());
