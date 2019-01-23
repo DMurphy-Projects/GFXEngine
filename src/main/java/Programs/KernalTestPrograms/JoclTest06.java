@@ -6,7 +6,7 @@ import GxEngine3D.Helper.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.BarycentricGpuRender_v2;
-import TextureGraphics.Memory.JoclTexture;
+import TextureGraphics.Memory.Texture.JoclTexture;
 
 import javax.swing.*;
 import java.awt.*;

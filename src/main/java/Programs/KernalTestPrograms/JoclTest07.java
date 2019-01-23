@@ -1,13 +1,13 @@
 package Programs.KernalTestPrograms;
 
+import Games.Ant.AntGame;
 import GxEngine3D.Camera.Camera;
-import GxEngine3D.Helper.MatrixHelper;
 import GxEngine3D.Helper.FrustumMatrixHelper;
+import GxEngine3D.Helper.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
-import TextureGraphics.BarycentricGpuRender;
-import TextureGraphics.JoclRenderer;
-import TextureGraphics.Memory.Texture.JoclTexture;
+import TextureGraphics.BarycentricGpuRender_v2;
+import TextureGraphics.Memory.Texture.JoclDynamicTexture;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +18,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JoclTest05
+//This is a demo of dynamic textures, using langtons ant as a means of changing the texture
+public class JoclTest07
 {
     public static void main(String args[])
     {
@@ -26,7 +27,7 @@ public class JoclTest05
         {
             public void run()
             {
-                new JoclTest05(500,500);
+                new JoclTest07(500,500);
             }
         });
     }
@@ -50,14 +51,16 @@ public class JoclTest05
     double[][] translate, rotate, scale;
     Matrix projection, combined;
 
-    JoclRenderer renderer;
-    JoclTexture texture;
+    BarycentricGpuRender_v2 renderer;//is a specific test
+    JoclDynamicTexture texture;
 
     Map<Camera.Direction, Boolean> keys = new HashMap<>();
 
     PerformanceTimer t;
 
-    public JoclTest05(int width, int height)
+    boolean update = true;
+
+    public JoclTest07(int width, int height)
     {
         debug = SUCCINCT;
 
@@ -81,8 +84,14 @@ public class JoclTest05
             }
         };
 
-        renderer = new BarycentricGpuRender(screenWidth, screenHeight);
-        texture = renderer.createTexture("resources/Textures/default.png");
+        renderer = new BarycentricGpuRender_v2(screenWidth, screenHeight);
+        texture = new JoclDynamicTexture(renderer.createTexture("resources/Textures/blank.png"));
+
+        AntGame game = new AntGame(texture);
+
+        game.addAction(Color.WHITE, true);
+        game.addAction(Color.BLACK, false);
+        game.addAction(Color.RED, false);
 
         initScene();
         addPolygons();
@@ -100,8 +109,49 @@ public class JoclTest05
         initInteraction();
 
         frame.setVisible(true);
+
+        //render loop
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true)
+                {
+                    if (update)
+                    {
+                        update = false;
+                        updateScreen();
+                    }
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                while (true)
+                {
+                    game.tick();
+                    invalidate();
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 
+    private void invalidate()
+    {
+        update = true;
+    }
 
     private void initInteraction()
     {
@@ -141,7 +191,7 @@ public class JoclTest05
                         keys.put(Camera.Direction.RIGHT, true); break;
                 }
                 camera.CameraMovement(keys);
-                updateScreen();
+                invalidate();
             }
 
             @Override
@@ -158,7 +208,7 @@ public class JoclTest05
                         keys.put(Camera.Direction.RIGHT, false); break;
                 }
                 camera.CameraMovement(keys);
-                updateScreen();
+                invalidate();
             }
         });
 
@@ -184,7 +234,7 @@ public class JoclTest05
                 camera.MouseMovement(center[0] - e.getX() - p.x, center[1] - e.getY() - p.y);
                 centreMouse();
 
-                updateScreen();
+                invalidate();
             }
         });
     }
@@ -205,8 +255,29 @@ public class JoclTest05
                 new double[]{l, l, 0},
         };
 
-        int width = 5;
-        int height = 5;
+        wallPanelScene(relativePoints, textureRelativePoints);
+    }
+
+    private void intersectionScene(double[][] relativePoints, double[][] textureRelativePoints)
+    {
+        addPolygon(relativePoints, textureRelativePoints);
+
+        relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
+
+        double[][] rotate = MatrixHelper.setupFullRotation(0, Math.PI/2, 0);
+        applyMatrix(relativePoints, new Matrix(rotate));
+
+        double[][] translate = MatrixHelper.setupTranslateMatrix(.5, 0, .5);
+        applyMatrix(relativePoints, new Matrix(translate));
+
+        addPolygon(relativePoints, textureRelativePoints);
+    }
+
+    //with added culling, the renderer can achieve 100*100, whilst at close range comfortably, while inside the frustum culling range it is usable
+    private void wallPanelScene(double[][] relativePoints, double[][] textureRelativePoints)
+    {
+        int width = 1;
+        int height = 1;
 
         double[][] translate = MatrixHelper.setupTranslateMatrix(1, 0, 0);
 
@@ -215,8 +286,8 @@ public class JoclTest05
         translate = MatrixHelper.setupTranslateMatrix(-width, 1, 0);
         Matrix vertical = new Matrix(translate);
 
-        for (int i=0;i<width;i++) {
-            for (int ii=0;ii<height;ii++) {
+        for (int i=0;i<height;i++) {
+            for (int ii=0;ii<width;ii++) {
                 relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
                 applyMatrix(relativePoints, horizontal);
 
@@ -280,11 +351,14 @@ public class JoclTest05
 
         t.time();
         renderer.setup();
+        //note that in this example the implicit matrix is the same for all shapes, this will not be the case in the final version
+        renderer.setMatrix(combined, projection);
 
         t.time();
-        for (int i=0;i<clipPolys.size();i++)
+        for (int i=0;i<polys.size();i++)
         {
-            renderer.render(clipPolys.get(i), tAnchors.get(i), texture);
+            renderer.setClipPolygon(clipPolys.get(i));
+            renderer.render(polys.get(i), tAnchors.get(i), texture);
         }
         t.time();
 
@@ -299,7 +373,7 @@ public class JoclTest05
             System.out.println();
         }
         else if (debug == SUCCINCT) {
-            t.printNextTime("Total Took");
+//            t.printNextTime("Total Took");
         }
 
         t.reset();

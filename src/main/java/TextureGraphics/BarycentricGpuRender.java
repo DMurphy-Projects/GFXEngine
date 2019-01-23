@@ -1,10 +1,10 @@
 package TextureGraphics;
 
-import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Helper.PolygonSplitter;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.JoclMemory;
-import TextureGraphics.Memory.JoclTexture;
+import TextureGraphics.Memory.Texture.ITexture;
+import TextureGraphics.Memory.Texture.JoclTexture;
 import org.jocl.*;
 
 import java.awt.image.BufferedImage;
@@ -69,7 +69,7 @@ public class BarycentricGpuRender extends JoclRenderer {
         setupOutputMemory();
     }
 
-    public void render(double[][] polygon, double[][] textureAnchor, JoclTexture texture)
+    public void render(double[][] polygon, double[][] textureAnchor, ITexture texture)
     {
         setupTextureArgs(texture);
 
@@ -186,7 +186,7 @@ public class BarycentricGpuRender extends JoclRenderer {
     {
         clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(getStatic(screenSize)));
     }
-    private void setupTextureArgs(JoclTexture texture)
+    private void setupTextureArgs(ITexture texture)
     {
         clSetKernelArg(kernel, 1, Sizeof.cl_mem, texture.getTexture());
         clSetKernelArg(kernel, 2, Sizeof.cl_mem, texture.getSize());
