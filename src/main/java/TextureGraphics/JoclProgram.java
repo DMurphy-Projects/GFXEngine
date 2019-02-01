@@ -20,6 +20,9 @@ public abstract class JoclProgram {
     protected cl_context context;
     protected cl_command_queue commandQueue;
 
+    protected boolean profiling = false;
+    cl_device_id device;
+
     HashMap<String, Integer> dynamicNames = new HashMap<>();
     HashMap<String, Integer> staticNames = new HashMap<>();
 
@@ -214,7 +217,10 @@ public abstract class JoclProgram {
                 null, null, null);
 
         cl_queue_properties p = new cl_queue_properties();
-//        p.addProperty(CL_QUEUE_PROPERTIES, CL_QUEUE_PROFILING_ENABLE);
+        if (profiling) {
+            p.addProperty(CL_QUEUE_PROPERTIES, CL_QUEUE_PROFILING_ENABLE);
+            this.device = device;
+        }
 
         commandQueue = clCreateCommandQueueWithProperties(context, device, p, null);
 

@@ -20,21 +20,24 @@ public class TriangularValueHelper {
 
         for (int i=triangle;i>=1;i--)
         {
-            for (int ii=max;ii>=1;ii--)
+            for (int ii=1;ii<=max;ii++)
             {
                 //the ideal is when both of these sum to 0
-                int difX = max - ii; int difY = triangle - (i*ii);
-                if (difY < 0) continue;//new target must be less than existing target
+                int distFromTarget = triangle - (i*ii);
+                if (distFromTarget < 0) break;//new target must be less than existing target
                 if (!isTriangular(i*ii)) continue;//new target must be triangular in order to draw an entire triangle
-                //is t*ii triangular?
-                if (bestScore > difX+difY)
+
+                int distFromMax = max - ii;
+                int score = distFromMax + distFromTarget;
+                if (bestScore > score)
                 {
-                    bestScore = difX+difY;
+                    bestScore = score;
                     xy[0] = i*ii; xy[1] = ii;
-                    System.out.println("Found: "+xy[0]+" "+xy[1]);
+                    System.out.println("Found: "+xy[0]+" "+xy[1]+" "+score);
                 }
             }
         }
+        System.out.println("Used: "+xy[0]+" "+xy[1]);
         return xy;
     }
 
