@@ -9,6 +9,12 @@ import Shapes.BaseShape;
 
 public class PointInPolygon {
 
+    //NOTE: turns out this doesn't actually work
+    //according to the internet, this method can do triangles but seems wrong for polygons
+    //either:
+    //      -this method only works for triangles
+    //      -this implementation has an error somewhere
+    //      -both
     public static void main(String[] args)
     {
         RefPoint3D[] poly = new RefPoint3D[]{

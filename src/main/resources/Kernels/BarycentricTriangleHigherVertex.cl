@@ -12,7 +12,6 @@ void applyMatrix(__global double *matrix, double *in, bool _explicit, double *ou
 //zMap:         a grid of depth values reduced to 1 dimension
 
 //NOTE: both global sizes should be the same
-//TODO: sampling shouldn't be calculated by global sizes, as this creates a max sampling size
 __kernel void drawTriangle(
     __global int *screenSize,
     __global uint *texture,

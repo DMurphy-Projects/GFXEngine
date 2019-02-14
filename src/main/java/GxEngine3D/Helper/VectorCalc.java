@@ -91,12 +91,11 @@ public class VectorCalc {
 				nV[2],
 				0
 		};
-		//nV . (p-p0) becomes
-		//nV.x * (p.x-p0.x), etc
-		//p.x is a point we dont know and doesn't matter what the actual values are, only that it lies on the plane
+		//ax + by + cz + d = 0
+		//d = -ax -by -cz
 		for (int i=0;i<3;i++)
 		{
-			pointForm[3] -= nV[i]*(-p[i]);
+			pointForm[3] -= nV[i] * p[i];
 		}
 		return pointForm;
 	}
