@@ -18,6 +18,14 @@ public class AsyncJoclMemory extends JoclMemory {
         memoryObject = JoclMemoryMethods.asyncWrite(context, commandQueue, arr, finishedWriting, type);
     }
 
+    public void create(cl_context context, cl_command_queue commandQueue, cl_event tF, int[] arr, long type)
+    {
+        taskFinished = tF;
+
+        finishedWriting = new cl_event();
+        memoryObject = JoclMemoryMethods.asyncWrite(context, commandQueue, arr, finishedWriting, type);
+    }
+
     @Override
     public void release() {
         if (taskFinished != null) {

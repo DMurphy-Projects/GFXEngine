@@ -191,6 +191,13 @@ public abstract class JoclProgram {
         return m;
     }
 
+    protected JoclMemory setMemoryArg(cl_event task, int[] arr, long type)
+    {
+        JoclMemory m = JoclMemory.createAsync(context, commandQueue, task, arr, type);
+        dynamicMemory.add(m);
+        return m;
+    }
+
     protected void create(String sourceFile, String kernalProgram)
     {
         final int platformIndex = 0;

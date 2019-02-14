@@ -11,6 +11,13 @@ public abstract class JoclMemory {
         return m;
     }
 
+    public static JoclMemory createAsync(cl_context context, cl_command_queue commandQueue, cl_event tF, int[] arr, long type)
+    {
+        AsyncJoclMemory m = new AsyncJoclMemory();
+        m.create(context, commandQueue, tF, arr, type);
+        return m;
+    }
+
     public static JoclMemory createBlocking(cl_context context, cl_command_queue commandQueue, double[] arr, long type)
     {
         SyncJoclMemory m = new SyncJoclMemory();
