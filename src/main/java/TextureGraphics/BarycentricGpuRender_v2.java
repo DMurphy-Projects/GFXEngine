@@ -196,6 +196,7 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
             readData(data);
         }
 
+        finish();
         return image;
     }
 

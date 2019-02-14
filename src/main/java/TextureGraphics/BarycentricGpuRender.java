@@ -142,6 +142,7 @@ public class BarycentricGpuRender extends JoclRenderer {
         clWaitForEvents(prevEvents.length, prevEvents);
         readData(data);
 
+        finish();
         return image;
     }
 

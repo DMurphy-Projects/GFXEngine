@@ -34,6 +34,9 @@ public abstract class JoclProgram {
     ArrayList<JoclMemory> dynamicMemory = new ArrayList<>();
     protected cl_mem[] staticMemory;
 
+    //after newest nvidia drivers, the cleanup became a race condition. syncing threads should remove this
+    Thread cleanupThread = new Thread();
+
     protected abstract void initStaticMemory();
 
     protected void start()
@@ -49,19 +52,29 @@ public abstract class JoclProgram {
 
     protected void initDynamicMemory()
     {
-        final ArrayList<JoclMemory> copy = (ArrayList<JoclMemory>) dynamicMemory.clone();
-        new Thread(new Runnable() {
+        if (cleanupThread.isAlive()) {
+            try {
+                cleanupThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        dynamicMemory = new ArrayList<>();
+        dynamicNames = new HashMap<>();
+    }
+
+    protected void finish()
+    {
+        cleanupThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (JoclMemory m:copy)
+                for (JoclMemory m:dynamicMemory)
                 {
                     m.release();
                 }
             }
-        }).start();
-
-        dynamicMemory = new ArrayList<>();
-        dynamicNames = new HashMap<>();
+        });
+        cleanupThread.start();
     }
 
     protected JoclMemory getDynamic(String name)
