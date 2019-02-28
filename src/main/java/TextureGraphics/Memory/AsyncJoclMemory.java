@@ -2,6 +2,8 @@ package TextureGraphics.Memory;
 
 import org.jocl.*;
 
+import java.nio.ByteBuffer;
+
 import static org.jocl.CL.clReleaseMemObject;
 import static org.jocl.CL.clWaitForEvents;
 
@@ -10,20 +12,12 @@ public class AsyncJoclMemory extends JoclMemory {
     cl_event finishedWriting, taskFinished;
     cl_mem memoryObject;
 
-    public void create(cl_context context, cl_command_queue commandQueue, cl_event tF, double[] arr, long type)
+    public void create(cl_context context, cl_command_queue commandQueue, cl_event tF, ByteBuffer buffer, long type)
     {
         taskFinished = tF;
-
         finishedWriting = new cl_event();
-        memoryObject = JoclMemoryMethods.asyncWrite(context, commandQueue, arr, finishedWriting, type);
-    }
 
-    public void create(cl_context context, cl_command_queue commandQueue, cl_event tF, int[] arr, long type)
-    {
-        taskFinished = tF;
-
-        finishedWriting = new cl_event();
-        memoryObject = JoclMemoryMethods.asyncWrite(context, commandQueue, arr, finishedWriting, type);
+        memoryObject = JoclMemoryMethods.asyncWrite(context, commandQueue, buffer, finishedWriting, type);
     }
 
     @Override

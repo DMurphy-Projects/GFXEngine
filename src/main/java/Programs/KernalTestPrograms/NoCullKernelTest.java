@@ -67,11 +67,11 @@ public class NoCullKernelTest extends JoclProgram {
                 globalWorkSize, localWorkSize, 0, null, task);
 
         double[] out1 = new double[dataSize];
-        clEnqueueReadBuffer(commandQueue, getDynamic("Output1").getRawObject(), CL_TRUE, 0,
+        clEnqueueReadBuffer(commandQueue, dynamic.get("Output1").getRawObject(), CL_TRUE, 0,
                 Sizeof.cl_double * dataSize, Pointer.to(out1), 0, null, null);
 
         double[] out2 = new double[dataSize];
-        clEnqueueReadBuffer(commandQueue, getDynamic("Output2").getRawObject(), CL_TRUE, 0,
+        clEnqueueReadBuffer(commandQueue, dynamic.get("Output2").getRawObject(), CL_TRUE, 0,
                 Sizeof.cl_double * dataSize, Pointer.to(out2), 0, null, null);
 
 //        System.out.println("GPU Out");
@@ -112,11 +112,6 @@ public class NoCullKernelTest extends JoclProgram {
     }
 
     @Override
-    protected void initStaticMemory() {
-        staticMemory = new cl_mem[0];
-    }
-
-    @Override
     public void setup() {
         super.setup();
         setupMemory();
@@ -124,15 +119,15 @@ public class NoCullKernelTest extends JoclProgram {
 
     private void setupMemory()
     {
-        setMemoryArg(dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, "Output1");
-        setMemoryArg(dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, "Output2");
+        dynamic.put("Output1",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        dynamic.put("Output2",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY);
     }
 
     private void setupArgs()
     {
         clSetKernelArg(kernel, 0, Sizeof.cl_int, Pointer.to(new int[]{dataSize}));
         clSetKernelArg(kernel, 1, Sizeof.cl_int, Pointer.to(new int[]{n}));
-        clSetKernelArg(kernel, 2, Sizeof.cl_mem, getDynamic("Output1").getObject());
-        clSetKernelArg(kernel, 3, Sizeof.cl_mem, getDynamic("Output2").getObject());
+        clSetKernelArg(kernel, 2, Sizeof.cl_mem, dynamic.get("Output1").getObject());
+        clSetKernelArg(kernel, 3, Sizeof.cl_mem, dynamic.get("Output2").getObject());
     }
 }

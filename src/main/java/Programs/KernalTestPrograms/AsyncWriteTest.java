@@ -43,7 +43,7 @@ public class AsyncWriteTest extends JoclProgram{
                 globalWorkSize, null, 0, null, null);
 
         double[] out = new double[dataSize];
-        clEnqueueReadBuffer(commandQueue, getDynamic("Output").getRawObject(), CL_TRUE, 0,
+        clEnqueueReadBuffer(commandQueue, dynamic.get("Output").getRawObject(), CL_TRUE, 0,
                 Sizeof.cl_double * dataSize, Pointer.to(out), 0, null, null);
 
 
@@ -55,11 +55,6 @@ public class AsyncWriteTest extends JoclProgram{
     }
 
     @Override
-    protected void initStaticMemory() {
-        staticMemory = new cl_mem[0];
-    }
-
-    @Override
     public void setup() {
         super.setup();
         setupMemory();
@@ -68,8 +63,8 @@ public class AsyncWriteTest extends JoclProgram{
     private void setupMemory()
     {
         double[] data = createTestData(dataSize);
-        JoclMemory m = setMemoryArg(new cl_event(), data, CL_MEM_READ_ONLY, "Input");
-        setMemoryArg(dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, "Output");
+        JoclMemory m = dynamic.put(new cl_event(), "Input", data, CL_MEM_READ_ONLY);
+        dynamic.put("Output",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY);
 
         cl_event writing = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clWaitForEvents(1, new cl_event[]{writing});
@@ -77,8 +72,8 @@ public class AsyncWriteTest extends JoclProgram{
 
     private void setupArgs()
     {
-        clSetKernelArg(kernel, 0, Sizeof.cl_mem, getDynamic("Input").getObject());
-        clSetKernelArg(kernel, 1, Sizeof.cl_mem, getDynamic("Output").getObject());
+        clSetKernelArg(kernel, 0, Sizeof.cl_mem, dynamic.get("Input").getObject());
+        clSetKernelArg(kernel, 1, Sizeof.cl_mem, dynamic.get("Output").getObject());
     }
 
 

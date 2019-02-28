@@ -40,7 +40,7 @@ public class KernelMatrixTest extends JoclProgram{
                 globalWorkSize, null, 0, null, null);
 
         double[] out = new double[3];
-        clEnqueueReadBuffer(commandQueue, getDynamic("Output").getRawObject(), CL_TRUE, 0,
+        clEnqueueReadBuffer(commandQueue, dynamic.get("Output").getRawObject(), CL_TRUE, 0,
                 Sizeof.cl_double * out.length, Pointer.to(out), 0, null, null);
 
         printResult("GPU Out", out);
@@ -77,7 +77,7 @@ public class KernelMatrixTest extends JoclProgram{
         double[] matrixFlat = createMatrix().flatten(),
                 point = new double[]{0, 0, 0};
 
-        double[] sanity = createMatrix().pointMultiply(point);
+        double[] sanity = createMatrix().pointMultiply(new double[]{0, 0, 0});
         sanity = new double[]{
                 sanity[0] / sanity[3],
                 sanity[1] / sanity[3],
@@ -85,23 +85,17 @@ public class KernelMatrixTest extends JoclProgram{
         };
         printResult("CPU Out", sanity);
 
+        dynamic.put(null, "Matrix", matrixFlat, CL_MEM_READ_ONLY);
+        dynamic.put(null, "Point", point, CL_MEM_READ_ONLY);
 
-        setMemoryArg(matrixFlat, CL_MEM_READ_ONLY, "Matrix");
-        setMemoryArg(point, CL_MEM_READ_ONLY, "Point");
-
-        setMemoryArg(3 * Sizeof.cl_double, CL_MEM_WRITE_ONLY, "Output");
+        dynamic.put("Output", 3 * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
     }
 
     private void setupArgs()
     {
-        clSetKernelArg(kernel, 0, Sizeof.cl_mem, getDynamic("Matrix").getObject());
-        clSetKernelArg(kernel, 1, Sizeof.cl_mem, getDynamic("Point").getObject());
+        clSetKernelArg(kernel, 0, Sizeof.cl_mem, dynamic.get("Matrix").getObject());
+        clSetKernelArg(kernel, 1, Sizeof.cl_mem, dynamic.get("Point").getObject());
 
-        clSetKernelArg(kernel, 2, Sizeof.cl_mem, getDynamic("Output").getObject());
-    }
-
-    @Override
-    protected void initStaticMemory() {
-        staticMemory = new cl_mem[1];
+        clSetKernelArg(kernel, 2, Sizeof.cl_mem, dynamic.get("Output").getObject());
     }
 }

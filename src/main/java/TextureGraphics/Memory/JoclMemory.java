@@ -2,26 +2,21 @@ package TextureGraphics.Memory;
 
 import org.jocl.*;
 
+import java.nio.ByteBuffer;
+
 public abstract class JoclMemory {
 
-    public static JoclMemory createAsync(cl_context context, cl_command_queue commandQueue, cl_event tF, double[] arr, long type)
+    public static JoclMemory createAsync(cl_context context, cl_command_queue commandQueue, cl_event tF, ByteBuffer buffer, long type)
     {
         AsyncJoclMemory m = new AsyncJoclMemory();
-        m.create(context, commandQueue, tF, arr, type);
+        m.create(context, commandQueue, tF, buffer, type);
         return m;
     }
 
-    public static JoclMemory createAsync(cl_context context, cl_command_queue commandQueue, cl_event tF, int[] arr, long type)
-    {
-        AsyncJoclMemory m = new AsyncJoclMemory();
-        m.create(context, commandQueue, tF, arr, type);
-        return m;
-    }
-
-    public static JoclMemory createBlocking(cl_context context, cl_command_queue commandQueue, double[] arr, long type)
+    public static JoclMemory createBlocking(cl_context context, cl_command_queue commandQueue, ByteBuffer buffer, long type)
     {
         SyncJoclMemory m = new SyncJoclMemory();
-        m.create(context, commandQueue, arr, type);
+        m.create(context, commandQueue, buffer, type);
         return m;
     }
 

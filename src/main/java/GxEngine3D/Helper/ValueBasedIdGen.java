@@ -1,8 +1,10 @@
 package GxEngine3D.Helper;
 
+import java.nio.ByteBuffer;
+
 public class ValueBasedIdGen {
 
-    public static String generate(double[] values)
+    public static <T extends Number> String generate(T[] values)
     {
         String id = "";
         for (int i=0;i<values.length-1;i++)
@@ -13,8 +15,20 @@ public class ValueBasedIdGen {
         return id;
     }
 
-    public static String generate(double value)
+    public static <T extends Number> String generate(T value)
     {
-        return Double.toString(value);
+        return value.toString();
+    }
+
+    public static String generate(ByteBuffer buffer)
+    {
+        String id = "";
+
+        while(buffer.hasRemaining())
+        {
+            id += generate(buffer.get()) + "_";
+        }
+
+        return id;
     }
 }

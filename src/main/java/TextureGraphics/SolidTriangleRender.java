@@ -63,9 +63,9 @@ public class SolidTriangleRender extends JoclRenderer {
 
     @Override
     protected void initStaticMemory() {
-        staticMemory = new cl_mem[1];
+        super.initStaticMemory();
 
-        setStaticMemoryArg(0, new int[]{screenWidth, screenHeight}, screenSize);
+        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, CL_MEM_READ_ONLY);
         setupScreenSizeArgs();
     }
 
@@ -202,7 +202,7 @@ public class SolidTriangleRender extends JoclRenderer {
     private void readData(int[] out)
     {
         //read image
-        clEnqueueReadBuffer(commandQueue, getDynamic(pixelOut).getRawObject(), CL_TRUE, 0,
+        clEnqueueReadBuffer(commandQueue, dynamic.get(pixelOut).getRawObject(), CL_TRUE, 0,
                 Sizeof.cl_uint * screenWidth*screenHeight, Pointer.to(out), 0, null, null);
 
 
@@ -226,7 +226,7 @@ public class SolidTriangleRender extends JoclRenderer {
 
     private void setupScreenSizeArgs()
     {
-        clSetKernelArg(kernel, screenSizeArg, Sizeof.cl_mem, Pointer.to(getStatic(screenSize)));
+        clSetKernelArg(kernel, screenSizeArg, Sizeof.cl_mem, immutable.get(screenSize).getObject());
     }
 
     //OUTPUT ARGUMENTS
@@ -238,20 +238,20 @@ public class SolidTriangleRender extends JoclRenderer {
 
     private void recreateOutputMemory(int size)
     {
-        setMemoryArg(size * Sizeof.cl_int, CL_MEM_WRITE_ONLY, pixelOut);
-        setMemoryArg(zMapStart, CL_MEM_READ_WRITE, zMapOut);
+        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, zMapOut, zMapStart, CL_MEM_READ_WRITE);
     }
 
     private void setupOutArgs()
     {
-        clSetKernelArg(kernel, outArg, Sizeof.cl_mem, getDynamic(pixelOut).getObject());
-        clSetKernelArg(kernel, zMapArg, Sizeof.cl_mem, getDynamic(zMapOut).getObject());
+        clSetKernelArg(kernel, outArg, Sizeof.cl_mem, dynamic.get(pixelOut).getObject());
+        clSetKernelArg(kernel, zMapArg, Sizeof.cl_mem, dynamic.get(zMapOut).getObject());
     }
     //OUTPUT ARGUMENT END
 
     private cl_event setupOffset(int[] offset, cl_event task)
     {
-        JoclMemory m = setMemoryArg(task, offset, CL_MEM_READ_ONLY);
+        JoclMemory m = dynamic.put(task, null, offset, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, offsetArg, Sizeof.cl_mem, m.getObject());
         return ((AsyncJoclMemory)m).getFinishedWritingEvent();
     }
@@ -264,7 +264,7 @@ public class SolidTriangleRender extends JoclRenderer {
 
         double[] planeEq = VectorCalc.plane_v3_pointForm(normalVector, new double[]{tX[0], tY[0], tZ[0]});
 
-        JoclMemory m = setMemoryArg(task, planeEq, CL_MEM_READ_ONLY);
+        JoclMemory m = dynamic.put(task, null, planeEq, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, planeEqArg, Sizeof.cl_mem, m.getObject());
         return ((AsyncJoclMemory)m).getFinishedWritingEvent();
     }
@@ -279,15 +279,15 @@ public class SolidTriangleRender extends JoclRenderer {
         clSetKernelArg(kernel, noPolygonsArg, Sizeof.cl_int, Pointer.to(new int[]{tX.length}));
 
         //set the triangle's points
-        m = setMemoryArg(task, tX, CL_MEM_READ_ONLY);
+        m = dynamic.put(task, null, tX, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, triangleStartArg, Sizeof.cl_mem, m.getObject());
 
-        m = setMemoryArg(task, tY, CL_MEM_READ_ONLY);
+        m = dynamic.put(task, null, tY, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, triangleStartArg+1, Sizeof.cl_mem, m.getObject());
 
-        m = setMemoryArg(task, tZ, CL_MEM_READ_ONLY);
+        m = dynamic.put(task, null, tZ, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, triangleStartArg+2, Sizeof.cl_mem, m.getObject());
 

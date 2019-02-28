@@ -1,7 +1,9 @@
 package TextureGraphics;
 
 import GxEngine3D.Helper.ValueBasedIdGen;
+import TextureGraphics.Memory.CachedMemoryHandler;
 import TextureGraphics.Memory.JoclMemory;
+import TextureGraphics.Memory.MemoryHandler;
 import org.jocl.*;
 
 import java.io.BufferedReader;
@@ -23,31 +25,34 @@ public abstract class JoclProgram {
     protected boolean profiling = false;
     cl_device_id device;
 
-    HashMap<String, Integer> dynamicNames = new HashMap<>();
-    HashMap<String, Integer> staticNames = new HashMap<>();
-
-    HashMap<String, JoclMemory> cachedMemory = new HashMap<>();
-
     //dynamic memory gets refreshed from round to round
     //cached memory stays for the lifetime of the program object, but can be added at anytime
     //static memory does not change after init
-    ArrayList<JoclMemory> dynamicMemory = new ArrayList<>();
-    protected cl_mem[] staticMemory;
+    protected MemoryHandler dynamic, immutable, cached;
 
     //after newest nvidia drivers, the cleanup became a race condition. syncing threads should remove this
     Thread cleanupThread = new Thread();
-
-    protected abstract void initStaticMemory();
 
     protected void start()
     {
         initStaticMemory();
         initDynamicMemory();
+        initCachedMemory();
+    }
+
+    protected void initStaticMemory()
+    {
+        immutable = new MemoryHandler(context, commandQueue);
     }
 
     public void setup()
     {
         initDynamicMemory();
+    }
+
+    public void initCachedMemory()
+    {
+        cached = new CachedMemoryHandler(context, commandQueue);
     }
 
     protected void initDynamicMemory()
@@ -59,8 +64,7 @@ public abstract class JoclProgram {
                 e.printStackTrace();
             }
         }
-        dynamicMemory = new ArrayList<>();
-        dynamicNames = new HashMap<>();
+        dynamic = new MemoryHandler(context, commandQueue);
     }
 
     protected void finish()
@@ -68,134 +72,10 @@ public abstract class JoclProgram {
         cleanupThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (JoclMemory m:dynamicMemory)
-                {
-                    m.release();
-                }
+                dynamic.releaseAll();
             }
         });
         cleanupThread.start();
-    }
-
-    protected JoclMemory getDynamic(String name)
-    {
-        return dynamicMemory.get(dynamicNames.get(name));
-    }
-
-    protected cl_mem getStatic(String name)
-    {
-        return staticMemory[staticNames.get(name)];
-    }
-
-    protected JoclMemory setCachedMemoryArg(cl_event task, double[] arr, long type)
-    {
-        String id = ValueBasedIdGen.generate(arr);
-        if (cachedMemory.containsKey(id))
-        {
-            return cachedMemory.get(id);
-        }
-        else {
-            JoclMemory m = JoclMemory.createAsync(context, commandQueue, task, arr, type);
-            cachedMemory.put(id, m);
-            return m;
-        }
-    }
-
-    protected void setStaticMemoryArg(int index, int size, long type, String name)
-    {
-        checkStaticNameExists(name);
-        staticNames.put(name, staticNames.size());
-        setStaticMemoryArg(index, size, type);
-    }
-
-    protected void setStaticMemoryArg(int index, int size, long type)
-    {
-        cl_mem m = clCreateBuffer(context, type,
-                size, null, null);
-        staticMemory[index] = m;
-    }
-
-    protected void setStaticMemoryArg(int index, int[] array, String name)
-    {
-        checkStaticNameExists(name);
-        staticNames.put(name, staticNames.size());
-        setStaticMemoryArg(index, array);
-    }
-
-    protected void setStaticMemoryArg(int index, int[] array)
-    {
-        cl_mem m = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                array.length * Sizeof.cl_int, null, null);
-        clEnqueueWriteBuffer(commandQueue, m, true, 0,
-                array.length * Sizeof.cl_int, Pointer.to(array), 0, null, null);
-        staticMemory[index] = m;
-    }
-
-    private void checkStaticNameExists(String name)
-    {
-        if (staticNames.containsKey(name))
-        {
-            System.out.println(String.format("Static Name '%s' already exists, releasing previous object ", name));
-            clReleaseMemObject(staticMemory[staticNames.get(name)]);
-        }
-    }
-
-    private void checkDynamicNameExists(String name)
-    {
-        if (dynamicNames.containsKey(name))
-        {
-            System.out.println(String.format("Dynamic Name '%s' already exists, releasing previous object ", name));
-            dynamicMemory.get(dynamicNames.get(name)).release();
-        }
-    }
-
-    protected JoclMemory setMemoryArg(double[] arr, long type, String name)
-    {
-        checkDynamicNameExists(name);
-        dynamicNames.put(name, dynamicMemory.size());
-        return setMemoryArg(arr, type);
-    }
-
-    protected JoclMemory setMemoryArg(int size, long type, String name)
-    {
-        checkDynamicNameExists(name);
-        dynamicNames.put(name, dynamicMemory.size());
-        return setMemoryArg(size, type);
-    }
-
-    protected JoclMemory setMemoryArg(int size, long type)
-    {
-        JoclMemory m = JoclMemory.createEmpty(context, commandQueue, size, type);
-        dynamicMemory.add(m);
-        return m;
-    }
-
-    protected JoclMemory setMemoryArg(double[] arr, long type)
-    {
-        JoclMemory m = JoclMemory.createBlocking(context, commandQueue, arr, type);
-        dynamicMemory.add(m);
-        return m;
-    }
-
-    protected JoclMemory setMemoryArg(cl_event task, double[] arr, long type, String name)
-    {
-        checkDynamicNameExists(name);
-        dynamicNames.put(name, dynamicMemory.size());
-        return setMemoryArg(task, arr, type);
-    }
-
-    protected JoclMemory setMemoryArg(cl_event task, double[] arr, long type)
-    {
-        JoclMemory m = JoclMemory.createAsync(context, commandQueue, task, arr, type);
-        dynamicMemory.add(m);
-        return m;
-    }
-
-    protected JoclMemory setMemoryArg(cl_event task, int[] arr, long type)
-    {
-        JoclMemory m = JoclMemory.createAsync(context, commandQueue, task, arr, type);
-        dynamicMemory.add(m);
-        return m;
     }
 
     protected void create(String sourceFile, String kernalProgram)

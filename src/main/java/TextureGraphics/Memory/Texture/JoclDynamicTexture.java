@@ -1,6 +1,7 @@
 package TextureGraphics.Memory.Texture;
 
 import Games.IGameScreen;
+import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.JoclMemoryMethods;
 import org.jocl.*;
 
@@ -39,10 +40,10 @@ public class JoclDynamicTexture implements ITexture, IGameScreen {
         tHeight = texture.getHeight();
 
         cl_event[] events = new cl_event[]{new cl_event(), new cl_event()};
-        cl_mem size = JoclMemoryMethods.asyncWrite(context, commandQueue, new int[]{tWidth, tHeight}, events[0], CL_MEM_READ_ONLY);
+        cl_mem size = JoclMemoryMethods.asyncWrite(context, commandQueue, BufferHelper.createBuffer(new int[]{tWidth, tHeight}), events[0], CL_MEM_READ_ONLY);
 
         int[] textureArr = texture.getRGB(0, 0, texture.getWidth(), texture.getHeight(), null, 0, texture.getWidth());
-        cl_mem tex = JoclMemoryMethods.asyncWrite(context, commandQueue, textureArr, events[1], CL_MEM_READ_ONLY);
+        cl_mem tex = JoclMemoryMethods.asyncWrite(context, commandQueue, BufferHelper.createBuffer(textureArr), events[1], CL_MEM_READ_ONLY);
 
         clWaitForEvents(events.length, events);
         this.textureMem = tex;

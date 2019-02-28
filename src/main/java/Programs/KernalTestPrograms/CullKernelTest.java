@@ -51,11 +51,11 @@ public class CullKernelTest extends JoclProgram {
                 globalWorkSize, localWorkSize, 0, null, task);
 
         double[] out1 = new double[dataSize];
-        clEnqueueReadBuffer(commandQueue, getDynamic("Output1").getRawObject(), CL_TRUE, 0,
+        clEnqueueReadBuffer(commandQueue, dynamic.get("Output1").getRawObject(), CL_TRUE, 0,
                 Sizeof.cl_double * dataSize, Pointer.to(out1), 0, null, null);
 
         double[] out2 = new double[dataSize];
-        clEnqueueReadBuffer(commandQueue, getDynamic("Output2").getRawObject(), CL_TRUE, 0,
+        clEnqueueReadBuffer(commandQueue, dynamic.get("Output2").getRawObject(), CL_TRUE, 0,
                 Sizeof.cl_double * dataSize, Pointer.to(out2), 0, null, null);
 
 //        System.out.println("GPU Out");
@@ -72,32 +72,23 @@ public class CullKernelTest extends JoclProgram {
         }
     }
 
-    private int findLocalWorkSize(int globalSize, int max)
-    {
+    private int findLocalWorkSize(int globalSize, int max) {
         //find any value where (globalSize / value) < max
         int value = 1;
         int division = 1;
-        for (int i=max;i>1;i--)
-        {
+        for (int i = max; i > 1; i--) {
             if (globalSize % i > 0) continue;
             int div;
-            if ((div = (globalSize / i)) <= max)
-            {
+            if ((div = (globalSize / i)) <= max) {
                 //alternate division for value, which is better large local groups or small?
-                if (i > value)
-                {
+                if (i > value) {
                     value = i;
                     division = div;
                 }
             }
         }
-        System.out.println("Local: "+value);
+        System.out.println("Local: " + value);
         return value;
-    }
-
-    @Override
-    protected void initStaticMemory() {
-        staticMemory = new cl_mem[0];
     }
 
     @Override
@@ -108,13 +99,13 @@ public class CullKernelTest extends JoclProgram {
 
     private void setupMemory()
     {
-        setMemoryArg(dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, "Output1");
-        setMemoryArg(dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, "Output2");
+        dynamic.put("Output1",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        dynamic.put("Output2",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY);
     }
 
     private void setupArgs()
     {
-        clSetKernelArg(kernel, 0, Sizeof.cl_mem, getDynamic("Output1").getObject());
-        clSetKernelArg(kernel, 1, Sizeof.cl_mem, getDynamic("Output2").getObject());
+        clSetKernelArg(kernel, 0, Sizeof.cl_mem, dynamic.get("Output1").getObject());
+        clSetKernelArg(kernel, 1, Sizeof.cl_mem, dynamic.get("Output2").getObject());
     }
 }

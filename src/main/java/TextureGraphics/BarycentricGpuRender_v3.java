@@ -56,9 +56,9 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
 
     @Override
     protected void initStaticMemory() {
-        staticMemory = new cl_mem[1];
+        super.initStaticMemory();
 
-        setStaticMemoryArg(0, new int[]{screenWidth, screenHeight}, screenSize);
+        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, CL_MEM_READ_ONLY);
         setupScreenSizeArgs();
     }
 
@@ -73,8 +73,8 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
 
     public void setMatrix(Matrix i, Matrix e)
     {
-        JoclMemory m1 = setCachedMemoryArg(null, i.flatten(), CL_MEM_READ_ONLY);
-        JoclMemory m2 = setMemoryArg(null, e.flatten(), CL_MEM_READ_ONLY);//cannot be cached as the camera constantly moves
+        JoclMemory m1 = cached.put(null, null, i.flatten(), CL_MEM_READ_ONLY);
+        JoclMemory m2 = dynamic.put(null, null, e.flatten(), CL_MEM_READ_ONLY);//cannot be cached as the camera constantly moves
 
         setupMatrixArgs(m1, m2);
 
@@ -199,7 +199,7 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
     private void readData(int[] out)
     {
         //read image
-        clEnqueueReadBuffer(commandQueue, getDynamic(pixelOut).getRawObject(), CL_TRUE, 0,
+        clEnqueueReadBuffer(commandQueue, dynamic.get(pixelOut).getRawObject(), CL_TRUE, 0,
                 Sizeof.cl_uint * screenWidth*screenHeight, Pointer.to(out), 0, null, null);
     }
 
@@ -212,14 +212,14 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
 
     private void recreateOutputMemory(int size)
     {
-        setMemoryArg(size * Sizeof.cl_int, CL_MEM_WRITE_ONLY, pixelOut);
-        setMemoryArg(zMapStart, CL_MEM_READ_WRITE, zMapOut);
+        dynamic.put(pixelOut,size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, zMapOut, zMapStart, CL_MEM_READ_WRITE);
     }
 
     private void setupOutArgs()
     {
-        clSetKernelArg(kernel, 9, Sizeof.cl_mem, getDynamic(pixelOut).getObject());
-        clSetKernelArg(kernel, 10, Sizeof.cl_mem, getDynamic(zMapOut).getObject());
+        clSetKernelArg(kernel, 9, Sizeof.cl_mem, dynamic.get(pixelOut).getObject());
+        clSetKernelArg(kernel, 10, Sizeof.cl_mem, dynamic.get(zMapOut).getObject());
     }
     //OUTPUT ARGUMENT END
 
@@ -232,7 +232,7 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
 
     private void setupScreenSizeArgs()
     {
-        clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(getStatic(screenSize)));
+        clSetKernelArg(kernel, 0, Sizeof.cl_mem, immutable.get(screenSize).getObject());
     }
     private void setupTextureArgs(ITexture texture)
     {
@@ -248,24 +248,24 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
         int index = 0;
 
         //set the triangle's points
-        m = setCachedMemoryArg(task, tX, CL_MEM_READ_ONLY);
+        m = cached.put(task, null, tX, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 3, Sizeof.cl_mem, m.getObject());
 
-        m = setCachedMemoryArg(task, tY, CL_MEM_READ_ONLY);
+        m = cached.put(task, null, tY, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 4, Sizeof.cl_mem, m.getObject());
 
-        m = setCachedMemoryArg(task, tZ, CL_MEM_READ_ONLY);
+        m = cached.put(task, null, tZ, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 5, Sizeof.cl_mem, m.getObject());
 
         //set the texture map's points
-        m = setCachedMemoryArg(task, tAX, CL_MEM_READ_ONLY);
+        m = cached.put(task, null, tAX, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 6, Sizeof.cl_mem, m.getObject());
 
-        m = setCachedMemoryArg(task, tAY, CL_MEM_READ_ONLY);
+        m = cached.put(task, null, tAY, CL_MEM_READ_ONLY);
         events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
         clSetKernelArg(kernel, 7, Sizeof.cl_mem, m.getObject());
 
