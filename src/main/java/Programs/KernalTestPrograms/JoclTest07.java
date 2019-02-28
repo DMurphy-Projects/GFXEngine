@@ -94,7 +94,8 @@ public class JoclTest07
 
         game.addAction(Color.WHITE, true);
         game.addAction(Color.BLACK, false);
-        game.addAction(Color.RED, false);
+        game.addAction(Color.GREEN.darker(), false);
+        game.addAction(Color.GREEN, true);
 
         initScene();
         addPolygons();
@@ -320,8 +321,7 @@ public class JoclTest07
         tAnchors = new ArrayList<>();
         clipPolys = new ArrayList<>();
 
-        camera = new Camera(0,0, 2);
-        camera.lookAt(new double[]{0, 0, 0});
+        camera = new Camera(1.5,0.5, 0.5);
     }
 
     private void updateCamera()
