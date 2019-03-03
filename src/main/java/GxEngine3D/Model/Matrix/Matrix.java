@@ -188,6 +188,114 @@ public class Matrix {
         return flat;
     }
 
+
+    public double[][] inverse_4x4()
+    {
+        return inverse_4x4(this.matrix);
+    }
+
+    //A^-1 = (1 / det(A)) * adj(A)
+    public double[][] inverse_4x4(double[][] m)
+    {
+        double determinant = determinant_4x4(m);
+        double[][] adjugate = adjugate_4x4(m);
+
+        for (int i=0;i<4;i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                adjugate[i][j] /= determinant;
+            }
+        }
+
+        return adjugate;
+    }
+
+    public double determinant_4x4(double[][] m)
+    {
+        //uses cofactor expansion along the first column, ie ignoring row and column of the an element to generate a 3x3 matrix. indicated below with 0's
+        //-, -, -, -    -, 0, 0, 0      -, 0, 0, 0      -, 0, 0, 0
+        //-, 0, 0, 0    -, -, -, -      -, 0, 0, 0      -, 0, 0, 0
+        //-, 0, 0, 0    -, 0, 0, 0      -, -, -, -      -, 0, 0, 0
+        //-, 0, 0, 0    -, 0, 0, 0      -, 0, 0, 0      -, -, -, -
+
+        //4x4 determinant is sum of (-1)^i * a[i][0] * det(cof_exp(a[i][0])), 0 <= i <= 3
+        double determinant = m[0][0] * determinant_3x3(cofactor_expansion_4x4(m, 0, 0))
+                           - m[1][0] * determinant_3x3(cofactor_expansion_4x4(m, 1, 0))
+                           + m[2][0] * determinant_3x3(cofactor_expansion_4x4(m, 2, 0))
+                           - m[3][0] * determinant_3x3(cofactor_expansion_4x4(m, 3, 0));
+
+        return determinant;
+    }
+
+    public double[][] cofactor_expansion_4x4(int i, int j)
+    {
+        return cofactor_expansion_4x4(this.matrix, i, j);
+    }
+
+    //i: row
+    //j: column
+    public double[][] cofactor_expansion_4x4(double[][] m, int i, int j)
+    {
+        double[][] m_3x3 = new double[3][3];
+        int posI = 0, posJ = 0;
+
+        for (int _i=0;_i<4;_i++)
+        {
+            if (_i == i) continue;
+            for (int _j=0;_j<4;_j++)
+            {
+                if (_j == j) continue;
+                m_3x3[posI][posJ] = m[_i][_j];
+                posJ++;
+            }
+            posI++;
+            posJ = 0;
+        }
+
+        return m_3x3;
+    }
+
+    public double determinant_3x3()
+    {
+        return determinant_3x3(this.matrix);
+    }
+
+    public double determinant_3x3(double[][] m)
+    {
+        double determinant = 0;
+
+        //3 diagonals starting at (0, 0)->(0, 2) moving down/right while wrapping around
+        //3 diagonals starting at (0, 2)->(0, 0) moving down/left while wrapping around
+        determinant = (m[0][0]*m[1][1]*m[2][2]) + (m[0][1]*m[1][2]*m[2][0]) + (m[0][2]*m[1][0]*m[2][1])
+                    - (m[0][2]*m[1][1]*m[2][0]) - (m[0][1]*m[1][0]*m[2][2]) - (m[0][0]*m[1][2]*m[2][1]);
+
+        return determinant;
+    }
+
+    //adj(A_ij) = ((-1)^i+j) * det(cof_exp(A, j, i))
+    public double[][] adjugate_4x4(double[][] m)
+    {
+        double[][] adj_4x4 = new double[4][4];
+
+        for (int i=0;i<4;i++)
+        {
+            for (int j=0;j<4;j++)
+            {
+                double determinant = determinant_3x3(cofactor_expansion_4x4(m, j, i));
+                //((-1)^i+j) is equivalent to scale by -1 when i+j is odd
+                if ((i+j) % 2 == 1)
+                {
+                    determinant *= -1;
+                }
+                adj_4x4[i][j] = determinant;
+            }
+        }
+
+        return adj_4x4;
+    }
+
+
     @Override
     public String toString() {
         String s = "\n";
