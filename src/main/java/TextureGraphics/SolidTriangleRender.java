@@ -117,10 +117,11 @@ public class SolidTriangleRender extends JoclRenderer {
             p.addPoint((int)point[0], (int) point[1]);
         }
         Rectangle r = p.getBounds();
-
-        iPoly = flip(iPoly);
+        r = r.intersection(new Rectangle(0, 0, screenWidth, screenHeight));
 
 //        cpuTest(r.x, r.y, r.width, r.height, iPoly);
+
+        iPoly = flip(iPoly);
 
         cl_event task = renderPolygon(iPoly, new int[]{r.x, r.y}, Math.max(r.getWidth(), 1), Math.max(r.getHeight(), 1));
         taskEvents.add(task);

@@ -1,6 +1,7 @@
 package GxEngine3D.Model.Matrix;
 
 import DebugTools.TextOutput;
+import GxEngine3D.Helper.ArrayHelper;
 
 public class Matrix {
 
@@ -174,18 +175,7 @@ public class Matrix {
 
     public double[] flatten()
     {
-        double[] flat = new double[m * n];
-        int i = 0;
-
-        for (int _m = 0;_m < m;_m++)
-        {
-            for (int _n = 0;_n<n;_n++)
-            {
-                flat[i] = matrix[_m][_n];
-                i++;
-            }
-        }
-        return flat;
+        return ArrayHelper.flatten(matrix);
     }
 
 

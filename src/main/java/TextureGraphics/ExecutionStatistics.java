@@ -154,4 +154,24 @@ public class ExecutionStatistics
             entry.print();
         }
     }
+
+    public void printTotal()
+    {
+        normalize();
+        long totalTime = 0;
+        long totalWaiting = 0;
+        for (Entry entry : entries)
+        {
+            totalTime += entry.endTime[0] - entry.startTime[0];
+            totalWaiting += entry.startTime[0] - entry.submitTime[0];
+        }
+
+        Entry e = entries.get(0);
+        System.out.println();
+        System.out.println("Kernel Time : "+
+                String.format(e.format, totalTime/e.divisor)+" "+e.suffix);
+
+        System.out.println("Total Waiting : "+
+                String.format(e.format, totalWaiting/e.divisor)+" "+e.suffix);
+    }
 }

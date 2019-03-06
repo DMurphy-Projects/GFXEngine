@@ -1,5 +1,4 @@
 package Programs;
-import GxEngine3D.Helper.DistanceCalc;
 import GxEngine3D.Helper.VectorCalc;
 
 import java.util.Arrays;
@@ -9,17 +8,17 @@ public class NSidedPolyBaryTest {
     public static void main(String[] args)
     {
         double[][] poly = new double[][]{
-                new double[]{0, 0},
-                new double[]{1, 0},
-                new double[]{1, 1},
-                new double[]{0.5, 1.5},
-                new double[]{0, 1},
+                new double[]{0, 0, 1},
+                new double[]{1, 0, 1},
+                new double[]{1, 1, 1},
+                new double[]{0.5, 1.5, 1},
+                new double[]{0, 1, 1},
         };
 
-        double[] point = new double[]{.5, .5};
+        double[] point = new double[]{.5, .2, 1};
 
         int noTriangles = poly.length - 2;
-        double[][] vectors = new double[poly.length-1][2];
+        double[][] vectors = new double[poly.length-1][];
 
         int size = 4;//how many arrays do we want to combine
         double[] preCalc = new double[noTriangles * size];//technically not just dot products anymore
@@ -69,11 +68,12 @@ public class NSidedPolyBaryTest {
         System.out.println("Weights "+Arrays.toString(weights));
         System.out.println("Triangle Index: "+Arrays.toString(triangleIndex));
 
-        double[] sanity = new double[2];
+        double[] sanity = new double[3];
         for (int i=0;i<weights.length;i++)
         {
             sanity[0] += weights[i] * poly[triangleIndex[i]][0];
             sanity[1] += weights[i] * poly[triangleIndex[i]][1];
+            sanity[2] += weights[i] * poly[triangleIndex[i]][2];
         }
 
         System.out.println("Starting Value: "+Arrays.toString(point));

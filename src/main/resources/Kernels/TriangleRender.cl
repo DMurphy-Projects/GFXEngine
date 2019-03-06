@@ -2,8 +2,6 @@
 
 //function declaration
 
-bool isOutOfBounds(double x, double y, __global int *screenSize);
-
 //function end
 
 //note:
@@ -24,36 +22,28 @@ __kernel void drawTriangle(
     double x = (get_local_size(0) * get_group_id(0) + get_local_id(0)) + offset[0];
     double y = (get_local_size(1) * get_group_id(1) + get_local_id(1)) + offset[1];
 
-    if (!isOutOfBounds(x, y, screenSize))
+    //http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+    bool inside = false;
+    for ( int i = 0, j = noPolygons - 1 ; i < noPolygons ; j = i++ )
     {
-        //http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-        bool inside = false;
-        for ( int i = 0, j = noPolygons - 1 ; i < noPolygons ; j = i++ )
+        if ( ( tY[i] > y ) != ( tY[j] > y ) &&
+            x < ( tX[j] - tX[i] ) * ( y - tY[i] ) / ( tY[j] - tY[i] ) + tX[i] )
         {
-            if ( ( tY[i] > y ) != ( tY[j] > y ) &&
-                x < ( tX[j] - tX[i] ) * ( y - tY[i] ) / ( tY[j] - tY[i] ) + tX[i] )
-            {
-                inside = !inside;
-            }
-        }
-        if (inside)
-        {
-            int pos = (y * screenSize[0]) + x;
-
-            //we need to find z value, by using plane eq. ax + by +cz + d = 0, we can find (a, b, c, d) using triangle points
-            //then substitute (x, y) and re-arrange for z, thus
-            //z = (-ax - by - d) / c
-            double z = (-(planeEq[0]*x) - (planeEq[1]*y) - planeEq[3]) / planeEq[2];
-            if (zMap[pos] > z)
-            {
-                zMap[pos] = z;
-                out[pos] = color;
-            }
+            inside = !inside;
         }
     }
-}
+    if (inside)
+    {
+        int pos = (y * screenSize[0]) + x;
 
-bool isOutOfBounds(double x, double y, __global int *screenSize)
-{
-    return (x > screenSize[0]-1 || y > screenSize[1]-1 || x < 0 || y < 0);
+        //we need to find z value, by using plane eq. ax + by +cz + d = 0, we can find (a, b, c, d) using triangle points
+        //then substitute (x, y) and re-arrange for z, thus
+        //z = (-ax - by - d) / c
+        double z = (-(planeEq[0]*x) - (planeEq[1]*y) - planeEq[3]) / planeEq[2];
+        if (z < 1 && z > 0 && zMap[pos] > z)
+        {
+            zMap[pos] = z;
+            out[pos] = color;
+        }
+    }
 }
