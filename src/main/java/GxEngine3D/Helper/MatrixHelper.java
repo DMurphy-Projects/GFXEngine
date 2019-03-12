@@ -66,14 +66,19 @@ public class MatrixHelper {
         return rollRot;
     }
 
-    public static double[][] setupIdentityMatrix()
+    public static double[][] setupScaleMatrix(double x, double y, double z)
     {
         double[][] identity = new double[4][4];
-        identity[0][0] = 1;
-        identity[1][1] = 1;
-        identity[2][2] = 1;
+        identity[0][0] = x;
+        identity[1][1] = y;
+        identity[2][2] = z;
         identity[3][3] = 1;
         return identity;
+    }
+
+    public static double[][] setupIdentityMatrix()
+    {
+        return setupScaleMatrix(1, 1, 1);
     }
 
     public static double[][] setupTranslateMatrix(double[] translate)
