@@ -53,8 +53,6 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
             preCalcArg = 20
     ;
 
-    int color = Color.WHITE.getRGB();
-
     public BarycentricGpuRender_v4(int screenWidth, int screenHeight)
     {
         this.profiling = true;
@@ -116,7 +114,6 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
 
     @Override
     public void render(double[][] polygon, double[][] textureAnchor, ITexture texture) {
-        if (PolygonClipBoundsChecker.shouldCull(polygon)) return;
         setupTextureArgs(texture);
 
         double[][] screenPoly = new double[polygon.length][polygon[0].length];

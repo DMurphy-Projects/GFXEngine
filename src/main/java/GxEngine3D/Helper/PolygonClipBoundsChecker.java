@@ -21,6 +21,19 @@ public class PolygonClipBoundsChecker {
         return false;
     }
 
+    //assumes the polygon is on screen
+    public static boolean intersectsNearPlane(double[][] polygon)
+    {
+        for (int i=0;i<polygon.length;i++)
+        {
+            if (polygon[i][2] < 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static boolean checkLowest(double[][] polygon, int index, int value)
     {
         for (double[] point: polygon)

@@ -1,5 +1,6 @@
 package Programs.KernalTestPrograms;
 
+import DebugTools.PaintPad;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.*;
 import GxEngine3D.Model.Matrix.Matrix;
@@ -52,7 +53,7 @@ public class JoclTest09
     ArrayList<double[][]> clipPolys;
 
     double[][] translate, rotate, scale;
-    Matrix projection, combined;
+    Matrix projection, combined, allCombined, textureMap;
 
     BarycentricGpuRender_v4 renderer;//is a specific test
     JoclTexture texture;
@@ -61,8 +62,7 @@ public class JoclTest09
 
     PerformanceTimer t;
 
-    JFrame debugFrame;
-    JPanel debugPanel;
+    PaintPad debugPad;
 
     public JoclTest09(int width, int height)
     {
@@ -108,10 +108,10 @@ public class JoclTest09
 
         frame.setVisible(true);
 
-        debugPanel = new JPanel();
-        debugPanel.setPreferredSize(new Dimension(500, 500));
-        debugFrame = FrameHelper.setupFrame(debugPanel, "Debug");
-        debugFrame.setVisible(true);
+        PolygonPointSampler.initDebug();
+
+//        debugPad = new PaintPad(screenWidth, screenHeight);
+//        debugPad.setMode(PaintPad.Mode.Centre);
     }
 
     private void initInteraction()
@@ -200,71 +200,37 @@ public class JoclTest09
         });
     }
 
+    //the relative -> texture matrix is case specific, ie each shape needs its own transform
+    private void setupTextureMap()
+    {
+        //TODO do we need to scale inward by a small value?
+        Matrix matrix = new Matrix(MatrixHelper.setupIdentityMatrix());
+        matrix = new Matrix(matrix.matrixMultiply(MatrixHelper.setupTranslateMatrix(.5, 0.5, 0)));
+        matrix = new Matrix(matrix.matrixMultiply(MatrixHelper.setupScaleMatrix(1, -1, 1)));
+        textureMap = matrix;
+    }
+
     private void addPolygons()
     {
         double[][] relativePoints = new double[][]{
-                new double[]{0, 0, 0},
-                new double[]{1, 0, 0},
-                new double[]{1, 1, 0},
-                new double[]{0, 1, 0},
-        };
-        double u = .99, l = .01;
-        double[][] textureRelativePoints = new double[][] {
-                new double[]{l, u},
-                new double[]{u, u},
-                new double[]{u, l},
-                new double[]{l, l},
+                new double[]{-.5, -.5, 0},
+                new double[]{.5, -.5, 0},
+                new double[]{.5, .5, 0},
+                new double[]{-.5, .5, 0},
         };
 
-        wallPanelScene(relativePoints, textureRelativePoints);
+        setupTextureMap();
+        double[][] textureRelativePoints = new double[relativePoints.length][];
+        for(int i=0;i<relativePoints.length;i++)
+        {
+            textureRelativePoints[i] = MatrixHelper.applyImplicitMatrix(textureMap, relativePoints[i]);
+        }
+        singlePolygonScene(relativePoints, textureRelativePoints);
     }
 
-    private void intersectionScene(double[][] relativePoints, double[][] textureRelativePoints)
+    private void singlePolygonScene(double[][] relativePoints, double[][] textureRelativePoints)
     {
         addPolygon(relativePoints, textureRelativePoints);
-
-        relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
-
-        double[][] rotate = MatrixHelper.setupFullRotation(0, Math.PI/2, 0);
-        applyMatrix(relativePoints, new Matrix(rotate));
-
-        double[][] translate = MatrixHelper.setupTranslateMatrix(.5, 0, .5);
-        applyMatrix(relativePoints, new Matrix(translate));
-
-        addPolygon(relativePoints, textureRelativePoints);
-    }
-
-    //compared to previous solutions, this method seems to scale much better, by a factor of 2 or greater
-    //which is to be expected as the previous method would render 2 triangles sequentially as opposed to all triangles in parallel
-    private void wallPanelScene(double[][] relativePoints, double[][] textureRelativePoints)
-    {
-        int width = 1;
-        int height = 1;
-
-        double[][] translate = MatrixHelper.setupTranslateMatrix(1, 0, 0);
-
-        Matrix horizontal = new Matrix(translate);
-
-        translate = MatrixHelper.setupTranslateMatrix(-width, 1, 0);
-        Matrix vertical = new Matrix(translate);
-
-        for (int i=0;i<height;i++) {
-            for (int ii=0;ii<width;ii++) {
-                relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
-                applyMatrix(relativePoints, horizontal);
-
-                addPolygon(relativePoints, textureRelativePoints);
-            }
-            relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
-            applyMatrix(relativePoints, vertical);
-        }
-    }
-
-    private void applyMatrix(double[][] relativePoints, Matrix combined)
-    {
-        for (int i=0;i<relativePoints.length;i++) {
-            relativePoints[i] = MatrixHelper.applyImplicitMatrix(combined, relativePoints[i]);
-        }
     }
 
     private void addPolygon(double[][] polygon, double[][] textureAnchor)
@@ -288,8 +254,6 @@ public class JoclTest09
         camera.setup();
     }
 
-    Matrix allCombined;
-
     private void updateScene()
     {
         //this app does not use moving objects, so we only need to update the projection matrix
@@ -308,20 +272,9 @@ public class JoclTest09
             clipPolys.add(clipPoints);
         }
 
-        Graphics gfx = debugPanel.getGraphics();
-        Polygon p = new Polygon();
-        int w = debugPanel.getWidth();
-        int h = debugPanel.getHeight();
-        for (double[] point:clipPolys.get(0))
-        {
-            p.addPoint((int)(point[0]*w/10) + w/2, (int) (point[1]*h/10) + h/2);
-        }
-        gfx.setColor(Color.WHITE);
-        gfx.fillRect(0, 0, debugPanel.getWidth(), debugPanel.getHeight());
-        gfx.setColor(Color.BLACK);
-        gfx.drawPolygon(p);
-        gfx.finalize();
-        debugFrame.invalidate();
+//        debugPad.init();
+//        debugPad.drawPolygon(debugPad.createPolygon(clipPolys.get(0), screenWidth/10, screenHeight/10), Color.BLACK, false);
+//        debugPad.finish();
     }
 
     private void updateScreen()
@@ -332,13 +285,13 @@ public class JoclTest09
         t.time();
         renderer.setup();
         //note that in this example the implicit matrix is the same for all shapes, this will not be the case in the final version
-        renderer.setInverseMatrix(ArrayHelper.flatten(allCombined.inverse_4x4()));
+        Matrix renderInverse = new Matrix(allCombined.inverse_4x4());
+        renderer.setInverseMatrix(renderInverse.flatten());
 
         t.time();
         for (int i=0;i<clipPolys.size();i++)
         {
-            renderer.setRelativePoly(polys.get(i));
-            renderer.render(clipPolys.get(i), tAnchors.get(i), texture);
+            renderPolygon(clipPolys.get(i), polys.get(i), tAnchors.get(i), renderInverse, textureMap);
         }
         t.time();
 
@@ -358,6 +311,31 @@ public class JoclTest09
 
         t.reset();
         imageComponent.repaint();
+    }
+
+    private void renderPolygon(double[][] cPolygon, double[][] rPolygon, double[][] tPolygon, Matrix invRender, Matrix textureMatrix)
+    {
+        if (PolygonClipBoundsChecker.shouldCull(cPolygon)) return;
+
+        if (PolygonClipBoundsChecker.intersectsNearPlane(cPolygon)) {
+            double[][] newData = PolygonPointSampler.recreateNearPlaneClipPolygon(cPolygon);
+            if (newData.length != 0) {
+                cPolygon = newData;
+
+                rPolygon = new double[cPolygon.length][];
+                for (int i = 0; i < cPolygon.length; i++) {
+                    rPolygon[i] = MatrixHelper.applyExplicitMatrix(invRender, cPolygon[i]);
+                }
+
+                tPolygon = new double[cPolygon.length][];
+                for (int i = 0; i < cPolygon.length; i++) {
+                    tPolygon[i] = MatrixHelper.applyImplicitMatrix(textureMatrix, rPolygon[i]);
+                }
+            }
+        }
+
+        renderer.setRelativePoly(rPolygon);
+        renderer.render(cPolygon, tPolygon, texture);
     }
 
     private void setupMatrices()
