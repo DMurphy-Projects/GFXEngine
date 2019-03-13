@@ -5,6 +5,7 @@ import DebugTools.PaintPad;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
 //samples points of the edges in a polygon
 public class PolygonPointSampler {
@@ -45,97 +46,79 @@ public class PolygonPointSampler {
         return point;
     }
 
-    private static double[] avg(double[][] polygon)
+    private static double[] intersectAtZ0(double[] p0, double[] p1)
     {
-        double[] avg = new double[polygon[0].length];
-        for (double[] d:polygon)
+        //intersect is starting point + some proportion of the vector of the line
+        //Intersect (x, y, z) = (p0_x, p0_y, p0_z) + t2(p1_x - p0_x, p1_y - p0_y, p1_z - p0_z)
+        double[] v = VectorCalc.sub(p1, p0);
+
+        //take one element of the point
+        //intersect z = p0_z + t(p1_z-p0_z)
+        //z intersects at 0
+        //p0_z + t(p1_z-p0_z) = 0
+        //t = -p0_z / (p1_z-p0_z)
+        double t = -p0[2] / v[2];
+
+        return new double[]{
+                p0[0] + (t * v[0]),
+                p0[1] + (t * v[1]),
+                0,//p0[2] + (t * (p1[2]-p0[2])),//technically this is always 0
+        };
+    }
+
+    public static ArrayList<double[]> addPointsAtIntersect(double[][] polygon)
+    {
+        ArrayList<double[]> newPoly = new ArrayList<>();
+
+        //iterate over edges from p0->p1, ...pn->p0
+        for (int i=0;i<polygon.length;i++)
         {
-            for (int i=0;i<polygon[0].length;i++) {
-                avg[i] += d[i];
+            double[] p0 = polygon[i];
+            double[] p1 = polygon[(i+1) % polygon.length];
+
+            newPoly.add(p0);
+            //they both need to be on different sides of the z-axis(+, -)
+            if (Math.signum(p0[2]) != Math.signum(p1[2]))
+            {
+                double[] intersect = intersectAtZ0(p0, p1);
+                newPoly.add(intersect);
             }
         }
-        for (int i=0;i<polygon[0].length;i++) {
-            avg[i] /= polygon.length;
-        }
-        return avg;
+
+        return newPoly;
     }
 
     public static double[][] recreateNearPlaneClipPolygon(double[][] polygon)
     {
-        int sampleValue = 100;
+        //debug
+        pad.init();
+        Polygon poly = pad.createPolygon(polygon, 30, 30);
+        pad.drawPolygon(poly, Color.BLACK, false);
+        //debug end
 
-        //TODO there is a problem with the clip polygon being extremely large when intersecting the near plane
-        //as a result sampling at predetermined intervals might mean that some edges don't have any sampled points between the two points
-        polygon = samplePolygon(polygon, sampleValue);
-//        double[][] insidePoly = new double[polygon.length][];
-//        for (int i=0;i<polygon.length;i++)
-//        {
-//            if (polygon[i][2] >= 0) {
-//                insidePoly[i] = polygon[i];
-//            }
-//            else
-//            {
-//                insidePoly[i] = new double[]{0, 0, 0};
-//            }
-//        }
+        ArrayList<double[]> newPoly = addPointsAtIntersect(polygon);
 
-        ArrayList<double[]> newPolygon = new ArrayList<>();
-
-        boolean findFront = true;
-        int lastAdded = -1;
-        for (int i=0;i<polygon.length;i++)
+        //remove any points that are behind the near plane
+        Iterator it = newPoly.iterator();
+        while(it.hasNext())
         {
-            if (findFront) {
-                //this is in front the nearPlane
-                if (polygon[i][2] >= 0) {
-                    newPolygon.add(polygon[i]);
-                    System.out.println("Added: "+i+", "+polygon[i][2]);
-                    findFront = false;
-                    continue;
-                }
-            } else {
-                if (lastAdded == i-1) { continue; }
-                //this is behind the nearPlane
-                if (polygon[i][2] <= 0) {
-                        newPolygon.add(polygon[i - 1]);
+            double[] point = (double[]) it.next();
 
-                        System.out.println("Added_B: " + (i - 1) + ", " + polygon[i - 1][2]);
-                        findFront = true;
-                }
-
-                if (i % (sampleValue+1) == 0)
-                {
-                    if (polygon[i][2] >= 0) {
-                        newPolygon.add(polygon[i]);
-
-                        System.out.println("Added_I: "+i+", "+polygon[i][2]);
-                        lastAdded = i;
-                    }
-                }
+            if (point[2] < 0) {
+                it.remove();
             }
         }
 
-        double[][] p = new double[newPolygon.size()][];
-
-        newPolygon.toArray(p);
-
         //debug
-        pad.init();
-        Polygon poly;
+        polygon = new double[newPoly.size()][];
+        newPoly.toArray(polygon);
 
         poly = pad.createPolygon(polygon, 30, 30);
         pad.drawPolygon(poly, Color.RED, false);
 
-        poly = pad.createPolygon(p, 30, 30);
-        pad.drawPolygon(poly, Color.BLACK, true);
-        pad.drawPolygonVertices(poly, Color.RED, true, false);
-
-//        poly = pad.createPolygon(insidePoly, 30, 30);
-//        pad.drawPolygonVertices(poly, Color.BLUE, false);
-
         pad.finish();
         //debug end
 
-        return p;
+        return polygon;
     }
 }
