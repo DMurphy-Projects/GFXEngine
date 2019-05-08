@@ -16,8 +16,21 @@ public class PolygonClipBoundsChecker {
         if (checkHighest(polygon, Y, -1)) return true;
 
         if (checkLowest(polygon, DEPTH, 1)) return true;
-        if (checkHighest(polygon, DEPTH, -1)) return true;
+        if (checkNearPlaneDepth(polygon)) return true;
 
+        return false;
+    }
+
+    private static boolean checkNearPlaneDepth(double[][] polygon)
+    {
+        for (double[] point: polygon)
+        {
+            //if any are outside the near plane, we should cull
+            if (point[2] < -1)
+            {
+                return true;
+            }
+        }
         return false;
     }
 

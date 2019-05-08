@@ -4,7 +4,7 @@ import DebugTools.PaintPad;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.*;
 import GxEngine3D.Model.Matrix.Matrix;
-import TextureGraphics.BarycentricGpuRender_v3;
+import GxEngine3D.Model.Projection;
 import TextureGraphics.BarycentricGpuRender_v4;
 import TextureGraphics.Memory.Texture.JoclTexture;
 
@@ -22,7 +22,13 @@ import java.util.Map;
 //      resulting in a shape that is distorted. This is also exists in earlier tests so is not caused by recent changes. This does not exist in the sampling based method
 //      as it does not use clip points of the polygon directly
 //      Is this intended or a bug of unknown origin?
-//      Are there ways of minimising/working around this?
+//          100% caused by intersection of near plane with the polygon to render, to fix this we would need to clip on the near plane
+//          the work of clipping is complete in "PolygonPointSampler" however recreating the texture relative polygon is the current stopping point
+//          as it turns out you cannot take the inverse of the frustum matrix which leads to the need for another solution, 3d picking is the current best but seems
+//          like a lot of work to do for every clipped polygon each frame
+//      A better solution seems like 3d picking the normal vector of the near clipping plane into world space then performing the clip on the relative/world space polygons
+//      then transforming the new shape but for now the renderer culls every polygon in this configuration
+
 public class JoclTest09
 {
     public static void main(String args[])
@@ -53,7 +59,7 @@ public class JoclTest09
     ArrayList<double[][]> clipPolys;
 
     double[][] translate, rotate, scale;
-    Matrix projection, combined, allCombined, textureMap;
+    Matrix frustrum, projection, combined, allCombined, textureMap;
 
     BarycentricGpuRender_v4 renderer;//is a specific test
     JoclTexture texture;
@@ -63,6 +69,8 @@ public class JoclTest09
     PerformanceTimer t;
 
     PaintPad debugPad;
+
+    double NEAR = 0.1, FAR = 30;
 
     public JoclTest09(int width, int height)
     {
@@ -108,10 +116,7 @@ public class JoclTest09
 
         frame.setVisible(true);
 
-        PolygonPointSampler.initDebug();
-
-//        debugPad = new PaintPad(screenWidth, screenHeight);
-//        debugPad.setMode(PaintPad.Mode.Centre);
+        updateScreen();
     }
 
     private void initInteraction()
@@ -134,6 +139,8 @@ public class JoclTest09
                                 System.out.println(Arrays.toString(point));
                             }
                         }
+                        break;
+                    case 'i':
                         break;
                 }
             }
@@ -205,7 +212,7 @@ public class JoclTest09
     {
         //TODO do we need to scale inward by a small value?
         Matrix matrix = new Matrix(MatrixHelper.setupIdentityMatrix());
-        matrix = new Matrix(matrix.matrixMultiply(MatrixHelper.setupTranslateMatrix(.5, 0.5, 0)));
+        matrix = new Matrix(matrix.matrixMultiply(MatrixHelper.setupTranslateMatrix(0.5, 0.5, 0)));
         matrix = new Matrix(matrix.matrixMultiply(MatrixHelper.setupScaleMatrix(1, -1, 1)));
         textureMap = matrix;
     }
@@ -225,12 +232,43 @@ public class JoclTest09
         {
             textureRelativePoints[i] = MatrixHelper.applyImplicitMatrix(textureMap, relativePoints[i]);
         }
-        singlePolygonScene(relativePoints, textureRelativePoints);
+        wallPanelScene(relativePoints, textureRelativePoints);
     }
 
     private void singlePolygonScene(double[][] relativePoints, double[][] textureRelativePoints)
     {
         addPolygon(relativePoints, textureRelativePoints);
+    }
+
+    private void wallPanelScene(double[][] relativePoints, double[][] textureRelativePoints)
+    {
+        int width = 10;
+        int height = 10;
+
+        double[][] translate = MatrixHelper.setupTranslateMatrix(1, 0, 0);
+
+        Matrix horizontal = new Matrix(translate);
+
+        translate = MatrixHelper.setupTranslateMatrix(-width, 1, 0);
+        Matrix vertical = new Matrix(translate);
+
+        for (int i=0;i<height;i++) {
+            for (int ii=0;ii<width;ii++) {
+                relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
+                applyMatrix(relativePoints, horizontal);
+
+                addPolygon(relativePoints, textureRelativePoints);
+            }
+            relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
+            applyMatrix(relativePoints, vertical);
+        }
+    }
+
+    private void applyMatrix(double[][] relativePoints, Matrix combined)
+    {
+        for (int i=0;i<relativePoints.length;i++) {
+            relativePoints[i] = MatrixHelper.applyImplicitMatrix(combined, relativePoints[i]);
+        }
     }
 
     private void addPolygon(double[][] polygon, double[][] textureAnchor)
@@ -246,7 +284,7 @@ public class JoclTest09
         clipPolys = new ArrayList<>();
 
         camera = new Camera(0,0, 2);
-        camera.lookAt(new double[]{0, 0, 0});
+//        camera.lookAt(new double[]{0, 0, 0});
     }
 
     private void updateCamera()
@@ -271,10 +309,6 @@ public class JoclTest09
             }
             clipPolys.add(clipPoints);
         }
-
-//        debugPad.init();
-//        debugPad.drawPolygon(debugPad.createPolygon(clipPolys.get(0), screenWidth/10, screenHeight/10), Color.BLACK, false);
-//        debugPad.finish();
     }
 
     private void updateScreen()
@@ -291,7 +325,7 @@ public class JoclTest09
         t.time();
         for (int i=0;i<clipPolys.size();i++)
         {
-            renderPolygon(clipPolys.get(i), polys.get(i), tAnchors.get(i), renderInverse, textureMap);
+            renderPolygon(clipPolys.get(i), polys.get(i), tAnchors.get(i));
         }
         t.time();
 
@@ -313,26 +347,27 @@ public class JoclTest09
         imageComponent.repaint();
     }
 
-    private void renderPolygon(double[][] cPolygon, double[][] rPolygon, double[][] tPolygon, Matrix invRender, Matrix textureMatrix)
+    private void renderPolygon(double[][] cPolygon, double[][] rPolygon, double[][] tPolygon)
     {
         if (PolygonClipBoundsChecker.shouldCull(cPolygon)) return;
 
-        if (PolygonClipBoundsChecker.intersectsNearPlane(cPolygon)) {
-            double[][] newData = PolygonPointSampler.recreateNearPlaneClipPolygon(cPolygon);
-            if (newData.length != 0) {
-                cPolygon = newData;
-
-                rPolygon = new double[cPolygon.length][];
-                for (int i = 0; i < cPolygon.length; i++) {
-                    rPolygon[i] = MatrixHelper.applyExplicitMatrix(invRender, cPolygon[i]);
-                }
-
-                tPolygon = new double[cPolygon.length][];
-                for (int i = 0; i < cPolygon.length; i++) {
-                    tPolygon[i] = MatrixHelper.applyImplicitMatrix(textureMatrix, rPolygon[i]);
-                }
-            }
-        }
+        //DEBUG START
+//        debugPad.init();
+//        Polygon poly = debugPad.createPolygon(new double[][]{
+//                new double[]{0, 0},
+//                new double[]{0, 1},
+//                new double[]{1, 1},
+//                new double[]{1, 0},
+//                }, 50, 50);
+//        debugPad.drawPolygon(poly, Color.BLACK, false);
+//
+//        poly = debugPad.createPolygon(tPolygon, 50, 50);
+//        debugPad.drawPolygon(poly, Color.RED, false);
+//
+//        poly = debugPad.createPolygon(rPolygon, 50, 50);
+//        debugPad.drawPolygon(poly, Color.BLUE, false);
+//        debugPad.finish();
+        //DEBUG END
 
         renderer.setRelativePoly(rPolygon);
         renderer.render(cPolygon, tPolygon, texture);
@@ -361,8 +396,10 @@ public class JoclTest09
     {
         updateCamera();
 
-        Matrix frustum = FrustumMatrixHelper.createMatrix(90, 0.1, 30, screenWidth, screenHeight, 1);
+        Matrix frustum = FrustumMatrixHelper.createMatrix(75, NEAR, FAR, screenWidth, screenHeight, 1);
         this.projection = new Matrix(frustum.matrixMultiply(camera.getMatrix()));
+
+        this.frustrum = frustum;
     }
 
     public void centreMouse() {

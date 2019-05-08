@@ -1,5 +1,6 @@
 package TextureGraphics;
 
+import DebugTools.PaintPad;
 import GxEngine3D.Helper.ArrayHelper;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import GxEngine3D.Helper.VectorCalc;
@@ -110,7 +111,6 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
     {
         this.relativePoly = relativePoly;
     }
-
 
     @Override
     public void render(double[][] polygon, double[][] textureAnchor, ITexture texture) {
@@ -231,7 +231,7 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
             {
                 stats.addEntry("", event, ExecutionStatistics.Formats.Nano);
             }
-            stats.printTotal();
+//            stats.printTotal();
         }
 
         finish();
