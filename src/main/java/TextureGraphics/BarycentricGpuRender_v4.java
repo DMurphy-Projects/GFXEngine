@@ -1,9 +1,7 @@
 package TextureGraphics;
 
-import DebugTools.PaintPad;
 import GxEngine3D.Helper.ArrayHelper;
-import GxEngine3D.Helper.PolygonClipBoundsChecker;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.JoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
@@ -14,7 +12,6 @@ import org.jocl.cl_event;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 

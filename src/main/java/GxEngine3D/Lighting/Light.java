@@ -1,6 +1,6 @@
 package GxEngine3D.Lighting;
 
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import Shapes.FakeSphere;
 
 public class Light {

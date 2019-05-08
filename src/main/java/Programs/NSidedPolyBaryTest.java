@@ -1,5 +1,5 @@
 package Programs;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 
 import java.util.Arrays;
 

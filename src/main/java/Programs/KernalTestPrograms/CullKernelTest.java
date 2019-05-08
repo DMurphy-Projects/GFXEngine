@@ -1,12 +1,10 @@
 package Programs.KernalTestPrograms;
 
-import GxEngine3D.Helper.TriangularValueHelper;
 import TextureGraphics.ExecutionStatistics;
 import TextureGraphics.JoclProgram;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_event;
-import org.jocl.cl_mem;
 
 import javax.swing.*;
 

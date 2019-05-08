@@ -1,6 +1,6 @@
 package GxEngine3D.Intersection3D;
 
-import GxEngine3D.Helper.ProjectionCalc;
+import GxEngine3D.Helper.Maths.ProjectionCalc;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Model.Projection;

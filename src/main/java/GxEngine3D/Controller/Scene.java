@@ -3,7 +3,7 @@ package GxEngine3D.Controller;
 import java.util.*;
 
 import GxEngine3D.Model.Matrix.AlgebraicMatrix;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import DebugTools.TextOutput;
 import GxEngine3D.Lighting.Light;

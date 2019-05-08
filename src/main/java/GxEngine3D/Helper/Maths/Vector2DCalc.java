@@ -1,5 +1,6 @@
-package GxEngine3D.Helper;
+package GxEngine3D.Helper.Maths;
 
+//TODO is this needed anymore?
 public class Vector2DCalc {
     public static double side(double[] v0, double[] v1, double[] p)
     {

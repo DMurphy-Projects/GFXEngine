@@ -1,6 +1,6 @@
 package GxEngine3D.Model;
 
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 
 public class Plane {
 	Vector v1, v2;

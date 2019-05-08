@@ -1,6 +1,6 @@
 package GxEngine3D.Intersection3D;
 
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Model.Vector;
 

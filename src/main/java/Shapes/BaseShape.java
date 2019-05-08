@@ -6,8 +6,8 @@ import java.awt.Polygon;
 import java.util.ArrayList;
 
 import DebugTools.TextOutput;
-import GxEngine3D.Helper.MatrixHelper;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.MatrixHelper;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Lighting.AltLighting;
 import GxEngine3D.Lighting.ILightingStrategy;
 import GxEngine3D.Model.Matrix.Matrix;

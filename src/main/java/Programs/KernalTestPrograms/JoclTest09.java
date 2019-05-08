@@ -3,8 +3,9 @@ package Programs.KernalTestPrograms;
 import DebugTools.PaintPad;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.*;
+import GxEngine3D.Helper.Maths.FrustumMatrixHelper;
+import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Model.Matrix.Matrix;
-import GxEngine3D.Model.Projection;
 import TextureGraphics.BarycentricGpuRender_v4;
 import TextureGraphics.Memory.Texture.JoclTexture;
 

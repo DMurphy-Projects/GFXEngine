@@ -1,7 +1,7 @@
 package TextureGraphics.CPUImplementation;
 
 import DebugTools.DebugView;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 
 public class HorizontalRenderer extends BaseRenderer{
 

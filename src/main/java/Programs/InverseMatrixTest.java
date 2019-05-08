@@ -1,10 +1,8 @@
 package Programs;
 
-import DebugTools.TextModule.NullImplement;
-import DebugTools.TextOutput;
 import GxEngine3D.Camera.Camera;
-import GxEngine3D.Helper.FrustumMatrixHelper;
-import GxEngine3D.Helper.MatrixHelper;
+import GxEngine3D.Helper.Maths.FrustumMatrixHelper;
+import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Model.Matrix.Matrix;
 
 import java.util.Arrays;

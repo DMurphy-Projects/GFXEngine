@@ -3,6 +3,7 @@ package Programs;
 import DebugTools.DebugView;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.*;
+import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Model.Matrix.Matrix;
 import GxEngine3D.View.ViewHandler;
 import TextureGraphics.CPUImplementation.BaseRenderer;

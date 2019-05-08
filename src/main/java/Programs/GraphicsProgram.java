@@ -4,7 +4,7 @@ import DebugTools.TextModule.GlobalCategoryBlacklist;
 import DebugTools.TextModule.TextBlacklist;
 import DebugTools.TextModule.TextToggle;
 import GxEngine3D.Model.Matrix.AlgebraicMatrix;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Camera.OrbitingCamera;
 import GxEngine3D.Controller.GXController;

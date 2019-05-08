@@ -1,7 +1,7 @@
 package Programs;
 
-import GxEngine3D.Helper.PlaneCalc;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.PlaneCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Model.RefPoint3D;

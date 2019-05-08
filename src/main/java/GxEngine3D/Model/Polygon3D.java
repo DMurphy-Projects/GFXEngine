@@ -1,7 +1,7 @@
 package GxEngine3D.Model;
 
 import java.awt.Color;
-import GxEngine3D.Helper.DistanceCalc;
+import GxEngine3D.Helper.Maths.DistanceCalc;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Lighting.Light;
 import GxEngine3D.Model.Matrix.Matrix;

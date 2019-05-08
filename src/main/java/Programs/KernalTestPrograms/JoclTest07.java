@@ -2,20 +2,17 @@ package Programs.KernalTestPrograms;
 
 import Games.Ant.AntGame;
 import GxEngine3D.Camera.Camera;
-import GxEngine3D.Helper.FrustumMatrixHelper;
-import GxEngine3D.Helper.MatrixHelper;
+import GxEngine3D.Helper.Maths.FrustumMatrixHelper;
+import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.BarycentricGpuRender_v2;
-import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.Texture.JoclDynamicTexture;
-import org.jocl.Sizeof;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

@@ -1,7 +1,7 @@
 package GxEngine3D.Animation.Routines;
 
 import GxEngine3D.Helper.CastingHelper;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import Shapes.IManipulable;
 
 public class RotationRoutine extends BaseRoutine {

@@ -1,4 +1,4 @@
-package GxEngine3D.Helper;
+package GxEngine3D.Helper.Maths;
 
 public class DistanceCalc {
 

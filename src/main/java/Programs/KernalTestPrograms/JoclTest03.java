@@ -8,9 +8,9 @@ package Programs.KernalTestPrograms;
 
 
 import GxEngine3D.Camera.Camera;
-import GxEngine3D.Helper.MatrixHelper;
-import GxEngine3D.Helper.Vector2DCalc;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.MatrixHelper;
+import GxEngine3D.Helper.Maths.Vector2DCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Model.Matrix.Matrix;
 import GxEngine3D.View.ViewHandler;
 import org.jocl.*;

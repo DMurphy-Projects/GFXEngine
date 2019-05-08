@@ -1,11 +1,10 @@
 package Programs.KernalTestPrograms;
 
 import GxEngine3D.Camera.Camera;
-import GxEngine3D.Helper.FrustumMatrixHelper;
-import GxEngine3D.Helper.MatrixHelper;
+import GxEngine3D.Helper.Maths.FrustumMatrixHelper;
+import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
-import TextureGraphics.BarycentricGpuRender_v2;
 import TextureGraphics.BarycentricGpuRender_v3;
 import TextureGraphics.Memory.Texture.JoclTexture;
 

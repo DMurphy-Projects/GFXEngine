@@ -1,7 +1,7 @@
 package GxEngine3D.Camera;
 
-import GxEngine3D.Helper.DistanceCalc;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.DistanceCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Controller.GXTickEvent;
 import GxEngine3D.Controller.ITickListener;
 import Shapes.BaseShape;

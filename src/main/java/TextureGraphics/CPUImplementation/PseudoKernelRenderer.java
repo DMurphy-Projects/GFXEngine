@@ -1,7 +1,7 @@
 package TextureGraphics.CPUImplementation;
 
 import DebugTools.DebugView;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 
 import java.util.ArrayList;
 import java.util.List;

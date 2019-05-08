@@ -5,12 +5,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 
-import GxEngine3D.Helper.ProjectionCalc;
+import GxEngine3D.Helper.Maths.ProjectionCalc;
 import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.RefPoint3D;
-import GxEngine3D.Helper.RotationCalc;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.RotationCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import Shapes.Cube;
 
 //TODO reimplement this class with newer systems

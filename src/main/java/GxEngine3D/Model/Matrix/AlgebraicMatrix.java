@@ -1,8 +1,8 @@
 package GxEngine3D.Model.Matrix;
 
 import DebugTools.TextOutput;
-import GxEngine3D.Helper.PlaneCalc;
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.PlaneCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Model.Plane;
 
 import java.util.ArrayList;

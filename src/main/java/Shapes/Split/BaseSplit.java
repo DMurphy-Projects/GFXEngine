@@ -1,6 +1,6 @@
 package Shapes.Split;
 
-import GxEngine3D.Helper.VectorCalc;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Model.Polygon3D;
 import GxEngine3D.Model.RefPoint3D;
 import GxEngine3D.Model.Vector;

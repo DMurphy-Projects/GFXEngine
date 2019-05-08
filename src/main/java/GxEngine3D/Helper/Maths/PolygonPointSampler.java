@@ -1,10 +1,9 @@
-package GxEngine3D.Helper;
+package GxEngine3D.Helper.Maths;
 
 import DebugTools.PaintPad;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 //samples points of the edges in a polygon

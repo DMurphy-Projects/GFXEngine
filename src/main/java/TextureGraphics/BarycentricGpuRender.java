@@ -1,10 +1,9 @@
 package TextureGraphics;
 
-import GxEngine3D.Helper.PolygonSplitter;
+import GxEngine3D.Helper.Maths.PolygonSplitter;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.JoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
-import TextureGraphics.Memory.Texture.JoclTexture;
 import org.jocl.*;
 
 import java.awt.image.BufferedImage;

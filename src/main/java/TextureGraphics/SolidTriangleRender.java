@@ -1,18 +1,13 @@
 package TextureGraphics;
 
-import GxEngine3D.Helper.Iterator.ITriangleIterator;
-import GxEngine3D.Helper.Iterator.RegularTriangleIterator;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
-import GxEngine3D.Helper.VectorCalc;
-import GxEngine3D.Model.Vector;
+import GxEngine3D.Helper.Maths.VectorCalc;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.JoclMemory;
-import TextureGraphics.Memory.JoclMemoryMethods;
 import TextureGraphics.Memory.Texture.ITexture;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_event;
-import org.jocl.cl_mem;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

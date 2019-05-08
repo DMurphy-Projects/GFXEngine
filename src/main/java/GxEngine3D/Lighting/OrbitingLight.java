@@ -1,6 +1,6 @@
 package GxEngine3D.Lighting;
 
-import GxEngine3D.Helper.RotationCalc;
+import GxEngine3D.Helper.Maths.RotationCalc;
 import Shapes.FakeSphere;
 
 /**

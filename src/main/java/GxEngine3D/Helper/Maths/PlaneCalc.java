@@ -1,4 +1,4 @@
-package GxEngine3D.Helper;
+package GxEngine3D.Helper.Maths;
 
 import GxEngine3D.Model.Plane;
 import GxEngine3D.Model.Polygon3D;
