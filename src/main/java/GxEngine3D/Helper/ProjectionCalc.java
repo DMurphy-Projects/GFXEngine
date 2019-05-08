@@ -52,17 +52,21 @@ public class ProjectionCalc {
 		return bounce;
 	}
 
-	public static Projection isect_line_plane(double[] p0, double[] p1,
-											  double[] p_co, double[] p_no) {
-		double[] u = VectorCalc.sub(p1, p0);
-		return isect_vec_plane(p0, u, p_co, p_no);
+	public static Projection isect_line_plane(double[] line01, double[] line02,
+											  double[] planePoint, double[] planeNorm) {
+		double[] vec = VectorCalc.sub(line02, line01);
+		return isect_vec_plane(planeNorm, planePoint, line01, vec);
 	}
-	public static Projection isect_vec_plane(double[] from,
-											 double[] vec, double[] pp, double[] pnv) {
-		double dot = VectorCalc.dot(pnv, from);
-		double dot3 = VectorCalc.dot(pnv, pp);
-		double f = dot3 - dot;
-		return new Projection(VectorCalc.add(VectorCalc.mul_v_d(vec, f), from), f);
+
+	public static Projection isect_vec_plane(double[] norm, double[] planePoint,
+											 double[] rayPos, double[] rayVec) {
+		double denom = VectorCalc.dot(norm, rayVec);
+
+		double top = VectorCalc.dot(VectorCalc.sub(planePoint, rayPos), norm);
+		double t = top / denom;
+
+		double[] intersect = VectorCalc.add(rayPos, VectorCalc.mul_v_d(rayVec, t));
+		return new Projection(intersect, t);
 	}
 
 

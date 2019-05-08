@@ -1,5 +1,7 @@
 package GxEngine3D.Model;
 
+import java.util.Arrays;
+
 public class Projection {
 	
 	private double[] point;
@@ -20,10 +22,6 @@ public class Projection {
 
 	@Override
 	public String toString() {
-		String s = "";
-		for (double d:point)
-			s+=d+" ";
-		s+= tValue;
-		return s;
+		return String.format("Point: %s, TValue: %s", Arrays.toString(point), tValue);
 	}
 }
