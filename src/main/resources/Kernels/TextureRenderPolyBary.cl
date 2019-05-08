@@ -1,4 +1,4 @@
-//this is an implementation for drawing a triangle with a solid color
+//this is an implementation for drawing a triangle with a texture
 
 //function declaration
 
