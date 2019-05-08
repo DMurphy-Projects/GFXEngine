@@ -49,6 +49,17 @@ public class Matrix {
         return out;
     }
 
+    //multiplies v4 with 4*4 matrix
+    public double[] pointMultiply4(double[] in)
+    {
+        double[] out = new double[4];
+        out[0] = in[0] * matrix[0][0] + in[1] * matrix[0][1] + in[2] * matrix[0][2] +  in[3] * matrix[0][3];
+        out[1] = in[0] * matrix[1][0] + in[1] * matrix[1][1] + in[2] * matrix[1][2] +  in[3] * matrix[1][3];
+        out[2] = in[0] * matrix[2][0] + in[1] * matrix[2][1] + in[2] * matrix[2][2] +  in[3] * matrix[2][3];
+        out[3] = in[0] * matrix[3][0] + in[1] * matrix[3][1] + in[2] * matrix[3][2] +  in[3] * matrix[3][3];
+        return out;
+    }
+
     public double[] pointMultiply3(double[] in)
     {
         double[] out = new double[2];
