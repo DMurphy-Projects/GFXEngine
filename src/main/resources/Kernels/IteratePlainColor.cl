@@ -7,13 +7,15 @@ __kernel void drawTriangle(
     int n,
     __global int *screenSize,
     __global int *triangleArray, __global int *boundBoxArray,
-    __global uint *out, __global double *zMap, __global double *planeEqArray, __global int *planeEqArrayInfo
+    __global uint *out, __global double *zMap, __global double *planeEqArray, __global int *planeEqArrayInfo,
+    __global uint *colorArray
 )
 {
     int x = get_local_size(0) * get_group_id(0) + get_local_id(0);
     int y = get_local_size(1) * get_group_id(1) + get_local_id(1);
 
-    int color = -1;
+    int color = 0;
+    bool draw = false;
 
     int pos = (y * screenSize[0]) + x;
     //iterate through triangles
@@ -50,13 +52,14 @@ __kernel void drawTriangle(
                 if (z < 1 && z > 0 && zMap[pos] > z)
                 {
                     zMap[pos] = z;
-                    color = 1000;//TODO
+                    color = colorArray[i];
+                    draw = true;
                 }
             }
         }
     }
 
-    if (color > 0)
+    if (draw)
     {
         out[pos] = color;
     }

@@ -1,13 +1,11 @@
 package Programs.KernalTestPrograms;
 
-import DebugTools.PaintPad;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.Maths.FrustumMatrixHelper;
 import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import GxEngine3D.Model.Matrix.Matrix;
-import TextureGraphics.BarycentricGpuRender_v4;
 import TextureGraphics.GpuRendererIterateColor;
 import TextureGraphics.Memory.Texture.JoclTexture;
 
@@ -61,6 +59,12 @@ public class JoclTest10 {
     PerformanceTimer t;
 
     double NEAR = 0.1, FAR = 30;
+
+    int[] colorArray = new int[]{
+            Color.RED.getRGB(),
+            Color.BLUE.getRGB(),
+            Color.GREEN.getRGB(),
+    };
 
     public JoclTest10(int width, int height)
     {
@@ -227,7 +231,7 @@ public class JoclTest10 {
         {
             textureRelativePoints[i] = MatrixHelper.applyImplicitMatrix(textureMap, relativePoints[i]);
         }
-        singlePolygonScene(relativePoints, textureRelativePoints);
+        wallPanelScene(relativePoints, textureRelativePoints);
     }
 
     private void singlePolygonScene(double[][] relativePoints, double[][] textureRelativePoints)
@@ -322,7 +326,6 @@ public class JoclTest10 {
 
     private void updateScreen()
     {
-        System.out.println("Update");
         t.time();
         updateScene();
 
@@ -333,6 +336,8 @@ public class JoclTest10 {
         t.time();
         for (int i=0;i<clipPolys.size();i++)
         {
+            renderer.setColor(colorArray[i % colorArray.length]);
+
             renderer.setScreenPoly(screenPolys.get(i));
             renderPolygon(clipPolys.get(i), polys.get(i), tAnchors.get(i));
         }
