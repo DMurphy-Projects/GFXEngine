@@ -15,7 +15,7 @@ public class CachedMemoryHandler extends MemoryHandler {
 
     //async call
     @Override
-    protected JoclMemory put(cl_event task, String name, ByteBuffer buffer, long type, boolean nameValid)
+    protected IJoclMemory putAsync(cl_event task, String name, ByteBuffer buffer, int offset, long type)
     {
         String id = ValueBasedIdGen.generate(buffer);
         if (names.containsKey(id))
@@ -24,12 +24,12 @@ public class CachedMemoryHandler extends MemoryHandler {
         }
 
         //treat it as a regular variable
-        return super.put(task, id, buffer, type, true);
+        return super.putAsync(task, id, buffer, offset, type);
     }
 
     //blocking call
     @Override
-    protected JoclMemory put(String name, ByteBuffer buffer, long type, boolean nameValid)
+    protected IJoclMemory putSync(String name, ByteBuffer buffer, int offset, long type)
     {
         String id = ValueBasedIdGen.generate(buffer);
         if (names.containsKey(id))
@@ -37,12 +37,12 @@ public class CachedMemoryHandler extends MemoryHandler {
             return memory.get(names.get(id));
         }
 
-        return super.put(id, buffer, type, nameValid);
+        return super.putSync(id, buffer, offset, type);
     }
 
     //non-write call
     @Override
-    protected JoclMemory put(String name, int totalSize, long type, boolean nameValid)
+    protected IJoclMemory putEmpty(String name, int totalSize, long type, boolean sync)
     {
         //since we cant create a id based on contents when there are none, throw exception
         if (name == null)
@@ -58,7 +58,7 @@ public class CachedMemoryHandler extends MemoryHandler {
             return memory.get(names.get(name));
         }
 
-        return super.put(name, totalSize, type, nameValid);
+        return super.putEmpty(name, totalSize, type, sync);
     }
 
     private class CachedMemoryHandlerException extends Exception

@@ -1,8 +1,6 @@
 package TextureGraphics;
 
-import GxEngine3D.Helper.ValueBasedIdGen;
 import TextureGraphics.Memory.CachedMemoryHandler;
-import TextureGraphics.Memory.JoclMemory;
 import TextureGraphics.Memory.MemoryHandler;
 import org.jocl.*;
 
@@ -10,8 +8,6 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import static org.jocl.CL.*;
 

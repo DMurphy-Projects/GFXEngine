@@ -3,7 +3,7 @@ package TextureGraphics;
 import GxEngine3D.Helper.ArrayHelper;
 import GxEngine3D.Helper.Maths.VectorCalc;
 import TextureGraphics.Memory.AsyncJoclMemory;
-import TextureGraphics.Memory.JoclMemory;
+import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
@@ -70,7 +70,7 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
     protected void initStaticMemory() {
         super.initStaticMemory();
 
-        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, CL_MEM_READ_ONLY);
+        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, 0, CL_MEM_READ_ONLY);
         setupScreenSizeArgs();
     }
 
@@ -257,8 +257,8 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
-        dynamic.put(null, zMapOut, zMapStart, CL_MEM_READ_WRITE);
+        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY, true);
+        dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
     }
 
     private void setupOutArgs()
@@ -270,9 +270,9 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
 
     private cl_event setupOffset(int[] offset, cl_event task)
     {
-        JoclMemory m = dynamic.put(task, null, offset, CL_MEM_READ_ONLY);
+        IJoclMemory m = dynamic.put(task, null, offset, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, offsetArg, Sizeof.cl_mem, m.getObject());
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 
     private cl_event setupPlaneEqaution(double[] tX, double[] tY, double[] tZ, cl_event task)
@@ -283,9 +283,9 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
 
         double[] planeEq = VectorCalc.plane_v3_pointForm(normalVector, new double[]{tX[0], tY[0], tZ[0]});
 
-        JoclMemory m = dynamic.put(task, null, planeEq, CL_MEM_READ_ONLY);
+        IJoclMemory m = dynamic.put(task, null, planeEq, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, planeEqArg, Sizeof.cl_mem, m.getObject());
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 
     private void setupTextureArgs(ITexture texture)
@@ -297,13 +297,13 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
     private cl_event[] setupPolygonArgs(int start, cl_event task, double[]... data)
     {
         cl_event[] events = new cl_event[data.length];
-        JoclMemory m;
+        IJoclMemory m;
         int index = 0;
 
         for (double[] d: data)
         {
-            m = dynamic.put(task, null, d, CL_MEM_READ_ONLY);
-            events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+            m = dynamic.put(task, null, d, 0, CL_MEM_READ_ONLY);
+            events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
             clSetKernelArg(kernel, start++, Sizeof.cl_mem, m.getObject());
         }
 

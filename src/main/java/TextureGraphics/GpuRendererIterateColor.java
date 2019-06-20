@@ -4,7 +4,7 @@ import GxEngine3D.Helper.Iterator.RegularTriangleIterator;
 import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import TextureGraphics.Memory.AsyncJoclMemory;
-import TextureGraphics.Memory.JoclMemory;
+import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
@@ -72,7 +72,7 @@ public class GpuRendererIterateColor extends  JoclRenderer{
     protected void initStaticMemory() {
         super.initStaticMemory();
 
-        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, CL_MEM_READ_ONLY);
+        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, 0, CL_MEM_READ_ONLY);
         setupScreenSizeArgs();
     }
 
@@ -263,8 +263,8 @@ public class GpuRendererIterateColor extends  JoclRenderer{
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
-        dynamic.put(null, zMapOut, zMapStart, CL_MEM_READ_WRITE);
+        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY, true);
+        dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
     }
 
     private void setupOutArgs()
@@ -281,41 +281,41 @@ public class GpuRendererIterateColor extends  JoclRenderer{
 
     private cl_event setupTriangleArray(cl_event task)
     {
-        JoclMemory m = dynamic.put(task, null, triangleArray, CL_MEM_READ_ONLY);
+        IJoclMemory m = dynamic.put(task, null, triangleArray, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, triangleArrayArg, Sizeof.cl_mem, m.getObject());
 
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 
     private cl_event setupBoundboxArray(cl_event task)
     {
-        JoclMemory m = dynamic.put(task, null, boundBoxArray, CL_MEM_READ_ONLY);
+        IJoclMemory m = dynamic.put(task, null, boundBoxArray, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, boundBoxArrayArg, Sizeof.cl_mem, m.getObject());
 
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 
     private cl_event setupPlaneEquationArray(cl_event task)
     {
-        JoclMemory m = dynamic.put(task, null, planeEqArray, CL_MEM_READ_ONLY);
+        IJoclMemory m = dynamic.put(task, null, planeEqArray, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, planeEqArg, Sizeof.cl_mem, m.getObject());
 
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 
     private cl_event setupPlaneEqautionInfoArray(cl_event task)
     {
-        JoclMemory m = dynamic.put(task, null, planeEqInfoArray, CL_MEM_READ_ONLY);
+        IJoclMemory m = dynamic.put(task, null, planeEqInfoArray, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, planeEqInfoArg, Sizeof.cl_mem, m.getObject());
 
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 
     private cl_event setupColorArray(cl_event task)
     {
-        JoclMemory m = dynamic.put(task, null, colorArray, CL_MEM_READ_ONLY);
+        IJoclMemory m = dynamic.put(task, null, colorArray, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, colorArrayArg, Sizeof.cl_mem, m.getObject());
 
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 }

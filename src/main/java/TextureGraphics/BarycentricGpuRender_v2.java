@@ -5,13 +5,11 @@ import GxEngine3D.Helper.Iterator.ITriangleIterator;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.Memory.AsyncJoclMemory;
-import TextureGraphics.Memory.JoclMemory;
+import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
-import TextureGraphics.Memory.Texture.JoclTexture;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_event;
-import org.jocl.cl_mem;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -77,7 +75,7 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
     protected void initStaticMemory() {
         super.initStaticMemory();
 
-        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, CL_MEM_READ_ONLY);
+        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, 0, CL_MEM_READ_ONLY);
         setupScreenSizeArgs();
     }
 
@@ -92,14 +90,14 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
 
     public void setMatrix(Matrix i, Matrix e)
     {
-        JoclMemory m1 = cached.put(null, null, i.flatten(), CL_MEM_READ_ONLY);
-        JoclMemory m2 = dynamic.put(null, null, e.flatten(), CL_MEM_READ_ONLY);//cannot be cached as the camera constantly moves
+        IJoclMemory m1 = cached.put(null, null, i.flatten(), 0, CL_MEM_READ_ONLY);
+        IJoclMemory m2 = dynamic.put(null, null, e.flatten(), 0, CL_MEM_READ_ONLY);//cannot be cached as the camera constantly moves
 
         setupMatrixArgs(m1, m2);
 
         matrixEvents = new cl_event[]{
-                ((AsyncJoclMemory)m1).getFinishedWritingEvent(),
-                ((AsyncJoclMemory)m2).getFinishedWritingEvent()
+                ((AsyncJoclMemory)m1).getFinishedWritingEvent()[0],
+                ((AsyncJoclMemory)m2).getFinishedWritingEvent()[0]
         };
     }
 
@@ -225,8 +223,8 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
-        dynamic.put(null, zMapOut, zMapStart, CL_MEM_READ_WRITE);
+        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY, true);
+        dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
     }
 
     private void setupOutArgs()
@@ -236,7 +234,7 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
     }
     //OUTPUT ARGUMENT END
 
-    private void setupMatrixArgs(JoclMemory iMatrix, JoclMemory eMatrix)
+    private void setupMatrixArgs(IJoclMemory iMatrix, IJoclMemory eMatrix)
     {
         clSetKernelArg(kernel, 11, Sizeof.cl_mem, iMatrix.getObject());
         clSetKernelArg(kernel, 12, Sizeof.cl_mem, eMatrix.getObject());
@@ -258,33 +256,33 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
             double[] tA01, double[] tA02, double[] tA03, cl_event task)
     {
         cl_event[] events = new cl_event[6];
-        JoclMemory m;
+        IJoclMemory m;
         int index = 0;
 
         //set the triangle's points
-        m = cached.put(task, null, t01, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = cached.put(task, null, t01, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 3, Sizeof.cl_mem, m.getObject());
 
-        m = cached.put(task, null, t02, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = cached.put(task, null, t02, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 4, Sizeof.cl_mem, m.getObject());
 
-        m = cached.put(task, null, t03, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = cached.put(task, null, t03, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 5, Sizeof.cl_mem, m.getObject());
 
         //set the texture map's points
-        m = cached.put(task, null, tA01, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = cached.put(task, null, tA01, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 6, Sizeof.cl_mem, m.getObject());
 
-        m = cached.put(task, null, tA02, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = cached.put(task, null, tA02, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 7, Sizeof.cl_mem, m.getObject());
 
-        m = cached.put(task, null, tA03, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = cached.put(task, null, tA03, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 8, Sizeof.cl_mem, m.getObject());
 
         return events;

@@ -82,10 +82,10 @@ public class KernelMatrixTest extends JoclProgram{
         };
         printResult("CPU Out", sanity);
 
-        dynamic.put(null, "Matrix", matrixFlat, CL_MEM_READ_ONLY);
-        dynamic.put(null, "Point", point, CL_MEM_READ_ONLY);
+        dynamic.put(null, "Matrix", matrixFlat, 0, CL_MEM_READ_ONLY);
+        dynamic.put(null, "Point", point, 0, CL_MEM_READ_ONLY);
 
-        dynamic.put("Output", 3 * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        dynamic.put("Output", 3 * Sizeof.cl_double, CL_MEM_WRITE_ONLY, true);
     }
 
     private void setupArgs()

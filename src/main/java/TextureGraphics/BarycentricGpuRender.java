@@ -2,7 +2,7 @@ package TextureGraphics;
 
 import GxEngine3D.Helper.Maths.PolygonSplitter;
 import TextureGraphics.Memory.AsyncJoclMemory;
-import TextureGraphics.Memory.JoclMemory;
+import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
 import org.jocl.*;
 
@@ -56,7 +56,7 @@ public class BarycentricGpuRender extends JoclRenderer {
     protected void initStaticMemory() {
         super.initStaticMemory();
 
-        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, CL_MEM_READ_ONLY);
+        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, 0, CL_MEM_READ_ONLY);
         setupScreenSizeArgs();
     }
 
@@ -170,8 +170,8 @@ public class BarycentricGpuRender extends JoclRenderer {
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
-        dynamic.put(null, zMapOut, zMapStart, CL_MEM_READ_WRITE);
+        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY, true);
+        dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
     }
 
     private void setupOutArgs()
@@ -197,35 +197,35 @@ public class BarycentricGpuRender extends JoclRenderer {
             double[] tA01, double[] tA02, double[] tA03, cl_event task)
     {
         cl_event[] events = new cl_event[6];
-        JoclMemory m;
+        IJoclMemory m;
         int index = 0;
 
         //set the triangle's points
         //this is approx 90% of this method
-        m = dynamic.put(task, null, t01, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = dynamic.put(task, null, t01, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 3, Sizeof.cl_mem, m.getObject());
 
-        m = dynamic.put(task, null, t02, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = dynamic.put(task, null, t02, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 4, Sizeof.cl_mem, m.getObject());
 
-        m = dynamic.put(task, null, t03, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = dynamic.put(task, null, t03, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 5, Sizeof.cl_mem, m.getObject());
 
         //set the texture map's points
         //this is approx 10% of this method
-        m = dynamic.put(task, null, tA01, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = dynamic.put(task, null, tA01, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 6, Sizeof.cl_mem, m.getObject());
 
-        m = dynamic.put(task, null, tA02, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = dynamic.put(task, null, tA02, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 7, Sizeof.cl_mem, m.getObject());
 
-        m = dynamic.put(task, null, tA03, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = dynamic.put(task, null, tA03, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, 8, Sizeof.cl_mem, m.getObject());
 
         return events;

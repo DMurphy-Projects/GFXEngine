@@ -3,7 +3,7 @@ package TextureGraphics;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import GxEngine3D.Helper.Maths.VectorCalc;
 import TextureGraphics.Memory.AsyncJoclMemory;
-import TextureGraphics.Memory.JoclMemory;
+import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
@@ -60,7 +60,7 @@ public class SolidTriangleRender extends JoclRenderer {
     protected void initStaticMemory() {
         super.initStaticMemory();
 
-        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, CL_MEM_READ_ONLY);
+        immutable.put(null, screenSize, new int[]{screenWidth, screenHeight}, 0, CL_MEM_READ_ONLY);
         setupScreenSizeArgs();
     }
 
@@ -234,8 +234,8 @@ public class SolidTriangleRender extends JoclRenderer {
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
-        dynamic.put(null, zMapOut, zMapStart, CL_MEM_READ_WRITE);
+        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY, true);
+        dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
     }
 
     private void setupOutArgs()
@@ -247,9 +247,9 @@ public class SolidTriangleRender extends JoclRenderer {
 
     private cl_event setupOffset(int[] offset, cl_event task)
     {
-        JoclMemory m = dynamic.put(task, null, offset, CL_MEM_READ_ONLY);
+        IJoclMemory m = dynamic.put(task, null, offset, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, offsetArg, Sizeof.cl_mem, m.getObject());
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 
     private cl_event setupPlaneEqaution(double[] tX, double[] tY, double[] tZ, cl_event task)
@@ -260,31 +260,31 @@ public class SolidTriangleRender extends JoclRenderer {
 
         double[] planeEq = VectorCalc.plane_v3_pointForm(normalVector, new double[]{tX[0], tY[0], tZ[0]});
 
-        JoclMemory m = dynamic.put(task, null, planeEq, CL_MEM_READ_ONLY);
+        IJoclMemory m = dynamic.put(task, null, planeEq, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, planeEqArg, Sizeof.cl_mem, m.getObject());
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 
     private cl_event[] setupTriangleArgs(double[] tX, double[] tY, double[] tZ, cl_event task)
     {
         cl_event[] events = new cl_event[3];
-        JoclMemory m;
+        IJoclMemory m;
         int index = 0;
 
         //(tX, tY, tZ) should have the same length
         clSetKernelArg(kernel, noPolygonsArg, Sizeof.cl_int, Pointer.to(new int[]{tX.length}));
 
         //set the triangle's points
-        m = dynamic.put(task, null, tX, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = dynamic.put(task, null, tX, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, triangleStartArg, Sizeof.cl_mem, m.getObject());
 
-        m = dynamic.put(task, null, tY, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = dynamic.put(task, null, tY, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, triangleStartArg+1, Sizeof.cl_mem, m.getObject());
 
-        m = dynamic.put(task, null, tZ, CL_MEM_READ_ONLY);
-        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        m = dynamic.put(task, null, tZ, 0, CL_MEM_READ_ONLY);
+        events[index++] = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clSetKernelArg(kernel, triangleStartArg+2, Sizeof.cl_mem, m.getObject());
 
         return events;

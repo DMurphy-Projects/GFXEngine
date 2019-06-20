@@ -2,11 +2,10 @@ package Programs.KernalTestPrograms;
 
 import TextureGraphics.JoclProgram;
 import TextureGraphics.Memory.AsyncJoclMemory;
-import TextureGraphics.Memory.JoclMemory;
+import TextureGraphics.Memory.IJoclMemory;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_event;
-import org.jocl.cl_mem;
 
 import javax.swing.*;
 
@@ -63,10 +62,10 @@ public class AsyncWriteTest extends JoclProgram{
     private void setupMemory()
     {
         double[] data = createTestData(dataSize);
-        JoclMemory m = dynamic.put(new cl_event(), "Input", data, CL_MEM_READ_ONLY);
-        dynamic.put("Output",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        IJoclMemory m = dynamic.put(new cl_event(), "Input", data, 0, CL_MEM_READ_ONLY);
+        dynamic.put("Output",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, true);
 
-        cl_event writing = ((AsyncJoclMemory)m).getFinishedWritingEvent();
+        cl_event writing = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clWaitForEvents(1, new cl_event[]{writing});
     }
 
