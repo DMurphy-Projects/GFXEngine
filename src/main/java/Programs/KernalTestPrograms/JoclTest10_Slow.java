@@ -6,7 +6,7 @@ import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import GxEngine3D.Model.Matrix.Matrix;
-import TextureGraphics.GpuRendererIterateColor;
+import TextureGraphics.GpuRendererIterateColor_Slow;
 import TextureGraphics.Memory.Texture.JoclTexture;
 
 import javax.swing.*;
@@ -18,17 +18,20 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-//NOTE: there are 2 variants of this method
-//this method uses bulk memory writes
-//this method is ~6 times faster than the other variant whilst at high triangle counts, ie scales much better
-public class JoclTest10 {
+//NOTE: there are 2 variants to this method, this is the slow version using offset writes
+//the async write method is responsible for the increase in time, it would appear that clEnqueueWriteBuffer has an almost fixed overhead
+//this has been observed in the past during profiling
+//this method uses offset writes, meaning more smaller writes going into the same buffer
+//the fixed overhead does not mix well with many smaller writes, async writes is working as intended
+//comparision with sync vs async is async approx. 50% faster but still unusably slow
+public class JoclTest10_Slow {
     public static void main(String args[])
     {
         SwingUtilities.invokeLater(new Runnable()
         {
             public void run()
             {
-                new JoclTest10(480,480);
+                new JoclTest10_Slow(480,480);
             }
         });
     }
@@ -49,12 +52,12 @@ public class JoclTest10 {
 
     ArrayList<double[][]> clipPolys;
 
-    ArrayList<double[][]> screenPolys;
+    ArrayList<int[][]> screenPolys;
 
     double[][] translate, rotate, scale;
     Matrix frustrum, projection, combined, allCombined, textureMap;
 
-    GpuRendererIterateColor renderer;//is a specific test
+    GpuRendererIterateColor_Slow renderer;//is a specific test
     JoclTexture texture;
 
     Map<Camera.Direction, Boolean> keys = new HashMap<>();
@@ -69,7 +72,7 @@ public class JoclTest10 {
             Color.GREEN.getRGB(),
     };
 
-    public JoclTest10(int width, int height)
+    public JoclTest10_Slow(int width, int height)
     {
         debug = SUCCINCT;
 
@@ -93,7 +96,7 @@ public class JoclTest10 {
             }
         };
 
-        renderer = new GpuRendererIterateColor(screenWidth, screenHeight);
+        renderer = new GpuRendererIterateColor_Slow(screenWidth, screenHeight);
 //        texture = renderer.createTexture("resources/Textures/default.png");
 
         initScene();
@@ -306,17 +309,16 @@ public class JoclTest10 {
         for (double[][] poly:polys)
         {
             double[][] clipPoints = new double[poly.length][3];
-            double[][] screenPoints = new double[poly.length][3];
+            int[][] screenPoints = new int[poly.length][2];
 
             for (int i=0;i<poly.length;i++) {
                 clipPoints[i] = MatrixHelper.applyExplicitMatrix(allCombined, poly[i]);
 
                 //translate into screen space, z remains the same
                 //screen_x = (clip_x + 1) * 0.5 * screenWidth
-                screenPoints[i][0] = (clipPoints[i][0] + 1) * 0.5 * screenWidth;
+                screenPoints[i][0] = (int)((clipPoints[i][0] + 1) * 0.5 * screenWidth);
                 //screen_y =  (1 - (clip_y + 1)* 0.5) * screenHeight
-                screenPoints[i][1] = (1 - (clipPoints[i][1] + 1) * 0.5) * screenHeight;
-                screenPoints[i][2] = clipPoints[i][2];
+                screenPoints[i][1] = (int)((1 - (clipPoints[i][1] + 1) * 0.5) * screenHeight);
             }
             clipPolys.add(clipPoints);
             screenPolys.add(screenPoints);
