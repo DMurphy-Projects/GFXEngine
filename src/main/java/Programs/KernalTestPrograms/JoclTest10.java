@@ -46,7 +46,7 @@ public class JoclTest10 {
 
     ArrayList<double[][]> clipPolys;
 
-    ArrayList<double[][]> screenPolys;
+    ArrayList<int[][]> screenPolys;
 
     double[][] translate, rotate, scale;
     Matrix frustrum, projection, combined, allCombined, textureMap;
@@ -303,17 +303,16 @@ public class JoclTest10 {
         for (double[][] poly:polys)
         {
             double[][] clipPoints = new double[poly.length][3];
-            double[][] screenPoints = new double[poly.length][3];
+            int[][] screenPoints = new int[poly.length][2];
 
             for (int i=0;i<poly.length;i++) {
                 clipPoints[i] = MatrixHelper.applyExplicitMatrix(allCombined, poly[i]);
 
                 //translate into screen space, z remains the same
                 //screen_x = (clip_x + 1) * 0.5 * screenWidth
-                screenPoints[i][0] = (clipPoints[i][0] + 1) * 0.5 * screenWidth;
+                screenPoints[i][0] = (int)((clipPoints[i][0] + 1) * 0.5 * screenWidth);
                 //screen_y =  (1 - (clip_y + 1)* 0.5) * screenHeight
-                screenPoints[i][1] = (1 - (clipPoints[i][1] + 1) * 0.5) * screenHeight;
-                screenPoints[i][2] = clipPoints[i][2];
+                screenPoints[i][1] = (int)((1 - (clipPoints[i][1] + 1) * 0.5) * screenHeight);
             }
             clipPolys.add(clipPoints);
             screenPolys.add(screenPoints);
