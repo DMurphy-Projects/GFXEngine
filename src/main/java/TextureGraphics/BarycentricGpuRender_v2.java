@@ -223,7 +223,7 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY, null);
+        dynamic.put(null, pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
         dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
     }
 

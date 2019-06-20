@@ -85,7 +85,7 @@ public class KernelMatrixTest extends JoclProgram{
         dynamic.put(null, "Matrix", matrixFlat, 0, CL_MEM_READ_ONLY);
         dynamic.put(null, "Point", point, 0, CL_MEM_READ_ONLY);
 
-        dynamic.put("Output", 3 * Sizeof.cl_double, CL_MEM_WRITE_ONLY, null);
+        dynamic.put(null, "Output", 3 * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
     }
 
     private void setupArgs()

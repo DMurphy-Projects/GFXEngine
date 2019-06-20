@@ -26,7 +26,7 @@ public class MemoryHandler {
     }
 
     //async controls the type of handling this empty buffer will have
-    public IJoclMemory put(String name, int totalSize, long type, cl_event taskEvent)
+    public IJoclMemory put(cl_event taskEvent, String name, int totalSize, long type)
     {
         return putEmpty(name, totalSize, type, taskEvent);
     }

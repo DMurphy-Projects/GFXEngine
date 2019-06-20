@@ -97,8 +97,8 @@ public class CullKernelTest extends JoclProgram {
 
     private void setupMemory()
     {
-        dynamic.put("Output1",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, null);
-        dynamic.put("Output2",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, null);
+        dynamic.put(null, "Output1",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, "Output2",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY);
     }
 
     private void setupArgs()
