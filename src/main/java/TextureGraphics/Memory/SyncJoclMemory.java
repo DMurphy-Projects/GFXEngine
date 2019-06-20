@@ -9,7 +9,7 @@ import static org.jocl.CL.clReleaseMemObject;
 
 public class SyncJoclMemory extends BaseJoclMemory {
 
-    public void create(cl_context context, cl_command_queue commandQueue, cl_event tF, ByteBuffer buffer, long type) {
+    public void create(cl_context context, cl_command_queue commandQueue, ByteBuffer buffer, long type) {
         memoryObject = JoclMemoryMethods.write(context, commandQueue, buffer, type);
     }
 

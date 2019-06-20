@@ -26,9 +26,9 @@ public class MemoryHandler {
     }
 
     //async controls the type of handling this empty buffer will have
-    public IJoclMemory put(String name, int totalSize, long type, boolean sync)
+    public IJoclMemory put(String name, int totalSize, long type, cl_event taskEvent)
     {
-        return putEmpty(name, totalSize, type, sync);
+        return putEmpty(name, totalSize, type, taskEvent);
     }
     //----------Start of primitive methods
 
@@ -120,7 +120,7 @@ public class MemoryHandler {
     //----------Sync End
 
     //----------Create Empty
-    protected IJoclMemory putEmpty(String name, int totalSize, long type, boolean sync)
+    protected IJoclMemory putEmpty(String name, int totalSize, long type, cl_event taskEvent)
     {
         //if name already exists, remove it
         if (!addName(name))
@@ -129,7 +129,7 @@ public class MemoryHandler {
             addName(name);
         }
 
-        IJoclMemory m = JoclMemoryFacade.createEmpty(context, totalSize, type, sync);
+        IJoclMemory m = JoclMemoryFacade.createEmpty(context, totalSize, type, taskEvent);
         memory.add(m);
         return m;
     }

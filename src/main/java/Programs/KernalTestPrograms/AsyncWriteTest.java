@@ -63,7 +63,7 @@ public class AsyncWriteTest extends JoclProgram{
     {
         double[] data = createTestData(dataSize);
         IJoclMemory m = dynamic.put(new cl_event(), "Input", data, 0, CL_MEM_READ_ONLY);
-        dynamic.put("Output",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, true);
+        dynamic.put("Output",dataSize*Sizeof.cl_double, CL_MEM_WRITE_ONLY, null);
 
         cl_event writing = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
         clWaitForEvents(1, new cl_event[]{writing});

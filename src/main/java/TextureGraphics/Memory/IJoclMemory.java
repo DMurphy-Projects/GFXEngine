@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 public interface IJoclMemory {
 
     //create with data
-    void create(cl_context context, cl_command_queue commandQueue, cl_event tF, ByteBuffer buffer, long type);
+    void create(cl_context context, cl_command_queue commandQueue, ByteBuffer buffer, long type);
     //create without data
     void create(cl_context context, int size, long type);
 

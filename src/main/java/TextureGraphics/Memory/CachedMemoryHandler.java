@@ -42,7 +42,7 @@ public class CachedMemoryHandler extends MemoryHandler {
 
     //non-write call
     @Override
-    protected IJoclMemory putEmpty(String name, int totalSize, long type, boolean sync)
+    protected IJoclMemory putEmpty(String name, int totalSize, long type, cl_event taskEvent)
     {
         //since we cant create a id based on contents when there are none, throw exception
         if (name == null)
@@ -58,7 +58,7 @@ public class CachedMemoryHandler extends MemoryHandler {
             return memory.get(names.get(name));
         }
 
-        return super.putEmpty(name, totalSize, type, sync);
+        return super.putEmpty(name, totalSize, type, taskEvent);
     }
 
     private class CachedMemoryHandlerException extends Exception

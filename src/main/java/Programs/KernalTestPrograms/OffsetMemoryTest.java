@@ -58,7 +58,7 @@ public class OffsetMemoryTest extends JoclProgram {
         cl_event task = new cl_event();
 
         //manually create a buffer with extra room
-        AsyncJoclMemory m = (AsyncJoclMemory) dynamic.put("TestArray", dataSize * Sizeof.cl_int, CL_MEM_READ_WRITE, true);
+        AsyncJoclMemory m = (AsyncJoclMemory) dynamic.put("TestArray", dataSize * Sizeof.cl_int, CL_MEM_READ_WRITE, task);
 
         //write both arrays into the same memory object
         dynamic.put(task, "TestArray", data1, 0, 0);

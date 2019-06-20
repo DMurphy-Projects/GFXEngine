@@ -9,28 +9,28 @@ import java.nio.ByteBuffer;
 public class JoclMemoryFacade {
     public static IJoclMemory createAsync(cl_context context, cl_command_queue commandQueue, cl_event tF, ByteBuffer buffer, long type)
     {
-        AsyncJoclMemory m = new AsyncJoclMemory();
-        m.create(context, commandQueue, tF, buffer, type);
+        AsyncJoclMemory m = new AsyncJoclMemory(tF);
+        m.create(context, commandQueue, buffer, type);
         return m;
     }
 
     public static IJoclMemory createBlocking(cl_context context, cl_command_queue commandQueue, ByteBuffer buffer, long type)
     {
         SyncJoclMemory m = new SyncJoclMemory();
-        m.create(context, commandQueue, null, buffer, type);
+        m.create(context, commandQueue, buffer, type);
         return m;
     }
 
-    public static IJoclMemory createEmpty(cl_context context, int size, long type, boolean sync)
+    public static IJoclMemory createEmpty(cl_context context, int size, long type, cl_event taskEvent)
     {
         IJoclMemory m;
-        if (sync)
+        if (taskEvent == null)
         {
             m = new SyncJoclMemory();
         }
         else
         {
-            m = new AsyncJoclMemory();
+            m = new AsyncJoclMemory(taskEvent);
         }
 
         m.create(context, size, type);

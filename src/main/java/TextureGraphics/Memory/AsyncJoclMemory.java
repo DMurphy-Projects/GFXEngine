@@ -13,15 +13,15 @@ public class AsyncJoclMemory extends BaseJoclMemory {
     ArrayList<cl_event> finishedWriting;
     cl_event taskFinished;
 
-    public AsyncJoclMemory()
+    public AsyncJoclMemory(cl_event taskFinished)
     {
         finishedWriting = new ArrayList<>();
+
+        this.taskFinished = taskFinished;
     }
 
-    public void create(cl_context context, cl_command_queue commandQueue, cl_event tF, ByteBuffer buffer, long type)
+    public void create(cl_context context, cl_command_queue commandQueue, ByteBuffer buffer, long type)
     {
-        taskFinished = tF;
-
         //if we're recreating then the previous events don't matter anymore
         finishedWriting.clear();
 

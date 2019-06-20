@@ -182,7 +182,7 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
 
     public BufferedImage createImage()
     {
-        //a taskEvents size of 0 means that we culled all triangles from the render, so we don't need to read the data
+        //a waitEvents size of 0 means that we culled all triangles from the render, so we don't need to read the data
         if (taskEvents.size() > 0) {
 
             DataBufferInt dataBuffer = (DataBufferInt) image.getRaster().getDataBuffer();
@@ -223,7 +223,7 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY, true);
+        dynamic.put(pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY, null);
         dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
     }
 
