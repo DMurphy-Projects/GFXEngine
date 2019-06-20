@@ -25,7 +25,7 @@ public class JoclTest10 {
         {
             public void run()
             {
-                new JoclTest10(500,500);
+                new JoclTest10(480,480);
             }
         });
     }
@@ -68,10 +68,10 @@ public class JoclTest10 {
 
     public JoclTest10(int width, int height)
     {
-        debug = SUCCINCT;
+        debug = VERBOSE;
 
         PerformanceTimer.Mode mode = debug == VERBOSE?
-                PerformanceTimer.Mode.Percentage:
+                PerformanceTimer.Mode.Nano:
                 PerformanceTimer.Mode.Total;
 
         t = new PerformanceTimer(mode);
@@ -137,8 +137,6 @@ public class JoclTest10 {
                     case 'i':
                         break;
                     case 'l':
-                        camera.MouseMovement(10, 10);
-                        System.out.println("Updating From L");
                         updateScreen();
                         break;
                 }
@@ -241,8 +239,8 @@ public class JoclTest10 {
 
     private void wallPanelScene(double[][] relativePoints, double[][] textureRelativePoints)
     {
-        int width = 10;
-        int height = 10;
+        int width = 100;
+        int height = 100;
 
         double[][] translate = MatrixHelper.setupTranslateMatrix(1, 0, 0);
 
@@ -283,7 +281,7 @@ public class JoclTest10 {
         clipPolys = new ArrayList<>();
         screenPolys = new ArrayList<>();
 
-        camera = new Camera(0,0, 2);
+        camera = new Camera(5,5, 10);
 //        camera.lookAt(new double[]{0, 0, 0});
     }
 
@@ -320,22 +318,18 @@ public class JoclTest10 {
             clipPolys.add(clipPoints);
             screenPolys.add(screenPoints);
         }
-
-        int i = 0;
     }
 
-    private void updateScreen()
-    {
+    private void updateScreen() {
         t.time();
         updateScene();
 
         t.time();
         renderer.setup();
-        renderer.prepare(screenPolys);
+        renderer.prepare(clipPolys);
 
         t.time();
-        for (int i=0;i<clipPolys.size();i++)
-        {
+        for (int i = 0; i < clipPolys.size(); i++) {
             renderer.setColor(colorArray[i % colorArray.length]);
 
             renderer.setScreenPoly(screenPolys.get(i));
@@ -352,9 +346,9 @@ public class JoclTest10 {
             t.printNextTime("Enqueue Took");
             t.printNextTime("Image Creation Took");
             System.out.println();
-        }
-        else if (debug == SUCCINCT) {
+        } else if (debug == SUCCINCT) {
             t.printNextTime("Total Took");
+
         }
 
         t.reset();
