@@ -37,17 +37,15 @@ public class GpuRendererIterateColor extends  JoclRenderer{
             triangleArrayArg = 2,
             boundBoxArrayArg = 3,
             outArg = 4,
-            zMapArg =5,
-            planeEqArg = 6,
-            planeEqInfoArg = 7,
-            colorArrayArg = 8
+            zMapArg = 5,
+            colorArrayArg = 6
                     ;
 
     //data arrays
-    int[] triangleArray, boundBoxArray, planeEqInfoArray, colorArray;
-    double[] planeEqArray;
+    int[] boundBoxArray, colorArray;
+    double[] triangleArray;
 
-    int size, tCount, eqCount;
+    int size, tCount;
 
     ArrayList<cl_event> taskEvents;
 
@@ -88,7 +86,6 @@ public class GpuRendererIterateColor extends  JoclRenderer{
     {
         this.size = 0;
         this.tCount = 0;
-        this.eqCount = 0;
 
         int triangleCount = 0;
         for (double[][] poly:clipPolygons)
@@ -101,13 +98,9 @@ public class GpuRendererIterateColor extends  JoclRenderer{
         if (size == 0) return;
 
         //this is per triangle
-        triangleArray = new int[triangleCount*6];//each element contains 2 points => 3 integers, XY
+        triangleArray = new double[triangleCount*9];//each element contains 2 points => 3 integers, XY
         boundBoxArray = new int[triangleCount*4];//each element contains 4 integers, [x, y, width, height]
-        planeEqInfoArray = new int[triangleCount];//each element only has 1 integer
         colorArray = new int[triangleCount];//each element only has 1 integer, the color value
-
-        //this is per polygon
-        planeEqArray = new double[size*4];//each element contains 4 doubles, [a, b, c, d] see plane equations
     }
 
     double[][] screenPoly;
@@ -135,10 +128,10 @@ public class GpuRendererIterateColor extends  JoclRenderer{
 
             int offset = 0;
             for (int _i: index) {
-                for (int i = 0; i < 2; i++) {
-                    triangleArray[(tCount * 6) + offset] = (int) screenPoly[_i][i];
-                    offset++;
-                }
+                int size = screenPoly[_i].length;
+                System.arraycopy(screenPoly[_i], 0, triangleArray, (tCount * 9) + offset, size);
+                offset += size;
+
                 p.addPoint((int) screenPoly[_i][0], (int) screenPoly[_i][1]);
             }
 
@@ -149,40 +142,10 @@ public class GpuRendererIterateColor extends  JoclRenderer{
             boundBoxArray[(tCount * 4) + 2] = r.width;
             boundBoxArray[(tCount * 4) + 3] = r.height;
 
-            planeEqInfoArray[tCount] = eqCount;
-
             colorArray[tCount] = color;
 
             tCount++;
         }
-
-        //do plane equation
-        double[] v1 = new double[]{
-                screenPoly[1][0] - screenPoly[0][0],
-                screenPoly[1][1] - screenPoly[0][1],
-                screenPoly[1][2] - screenPoly[0][2]
-        };
-        double[] v2 = new double[]{
-                screenPoly[2][0] - screenPoly[0][0],
-                screenPoly[2][1] - screenPoly[0][1],
-                screenPoly[2][2] - screenPoly[0][2]
-        };
-        double[] normalVector = VectorCalc.norm(VectorCalc.cross(v1, v2));
-
-        double[] planeEq = VectorCalc.plane_v3_pointForm(normalVector,
-                new double[]{
-                    screenPoly[0][0],
-                    screenPoly[0][1],
-                    screenPoly[0][2]
-                });
-        planeEqArray[(eqCount * 4) + 0] = planeEq[0];
-        planeEqArray[(eqCount * 4) + 1] = planeEq[1];
-        planeEqArray[(eqCount * 4) + 2] = planeEq[2];
-        planeEqArray[(eqCount * 4) + 3] = planeEq[3];
-
-        //this method adds multiple triangles per run,
-        // however polygons should be planar, so we only add 1 planeEq per run
-        eqCount++;
     }
 
     private void enqueueTasks()
@@ -192,13 +155,11 @@ public class GpuRendererIterateColor extends  JoclRenderer{
         cl_event taskEvent = new cl_event();
         //write all data to device
         setupN();
-        cl_event[] writingEvents = new cl_event[5];
+        cl_event[] writingEvents = new cl_event[3];
 
         writingEvents[0] = setupTriangleArray(taskEvent);
         writingEvents[1] = setupBoundboxArray(taskEvent);
-        writingEvents[2] = setupPlaneEquationArray(taskEvent);
-        writingEvents[3] = setupPlaneEqautionInfoArray(taskEvent);
-        writingEvents[4] = setupColorArray(taskEvent);
+        writingEvents[2] = setupColorArray(taskEvent);
 
         //enqueue ranges
         long[] globalWorkSize = new long[] {
@@ -295,22 +256,6 @@ public class GpuRendererIterateColor extends  JoclRenderer{
     {
         IJoclMemory m = dynamic.put(task, null, boundBoxArray, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, boundBoxArrayArg, Sizeof.cl_mem, m.getObject());
-
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
-    }
-
-    private cl_event setupPlaneEquationArray(cl_event task)
-    {
-        IJoclMemory m = dynamic.put(task, null, planeEqArray, 0, CL_MEM_READ_ONLY);
-        clSetKernelArg(kernel, planeEqArg, Sizeof.cl_mem, m.getObject());
-
-        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
-    }
-
-    private cl_event setupPlaneEqautionInfoArray(cl_event task)
-    {
-        IJoclMemory m = dynamic.put(task, null, planeEqInfoArray, 0, CL_MEM_READ_ONLY);
-        clSetKernelArg(kernel, planeEqInfoArg, Sizeof.cl_mem, m.getObject());
 
         return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
