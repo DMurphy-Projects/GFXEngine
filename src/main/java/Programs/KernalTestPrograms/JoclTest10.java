@@ -232,7 +232,7 @@ public class JoclTest10 {
         {
             textureRelativePoints[i] = MatrixHelper.applyImplicitMatrix(textureMap, relativePoints[i]);
         }
-        wallPanelScene(relativePoints, textureRelativePoints);
+        intersectionScene(relativePoints, textureRelativePoints);
     }
 
     private void singlePolygonScene(double[][] relativePoints, double[][] textureRelativePoints)
@@ -262,6 +262,18 @@ public class JoclTest10 {
             relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
             applyMatrix(relativePoints, vertical);
         }
+    }
+
+    private void intersectionScene(double[][] relativePoints, double[][] textureRelativePoints)
+    {
+        addPolygon(relativePoints, textureRelativePoints);
+
+        relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
+
+        double[][] rotate = MatrixHelper.setupFullRotation(0, Math.PI/2, 0);
+        applyMatrix(relativePoints, new Matrix(rotate));
+
+        addPolygon(relativePoints, textureRelativePoints);
     }
 
     private void applyMatrix(double[][] relativePoints, Matrix combined)

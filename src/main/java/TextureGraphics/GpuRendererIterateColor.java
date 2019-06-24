@@ -93,11 +93,12 @@ public class GpuRendererIterateColor extends  JoclRenderer{
         int triangleCount = 0;
         for (double[][] poly:clipPolygons)
         {
-            if (PolygonClipBoundsChecker.shouldCull(poly)) {
+            if (!PolygonClipBoundsChecker.shouldCull(poly)) {
                 this.size += 1;
                 triangleCount += poly.length - 2;//based on how we're iterating, count triangles == n-2, where n is number of points in poly
             }
         }
+        if (size == 0) return;
 
         //this is per triangle
         triangleArray = new int[triangleCount*6];//each element contains 2 points => 3 integers, XY
@@ -186,6 +187,8 @@ public class GpuRendererIterateColor extends  JoclRenderer{
 
     private void enqueueTasks()
     {
+        if (size == 0) return;
+
         cl_event taskEvent = new cl_event();
         //write all data to device
         setupN();
@@ -219,15 +222,15 @@ public class GpuRendererIterateColor extends  JoclRenderer{
     public BufferedImage createImage() {
         enqueueTasks();
 
+        DataBufferInt dataBuffer = (DataBufferInt) image.getRaster().getDataBuffer();
+        int data[] = dataBuffer.getData();
+
         if (taskEvents.size() > 0) {
 
-            DataBufferInt dataBuffer = (DataBufferInt) image.getRaster().getDataBuffer();
-            int data[] = dataBuffer.getData();
             cl_event[] events = new cl_event[taskEvents.size()];
             taskEvents.toArray(events);
 
             clWaitForEvents(events.length, events);
-            readData(data);
 
             ExecutionStatistics stats = new ExecutionStatistics();
             for (cl_event event:taskEvents)
@@ -236,6 +239,7 @@ public class GpuRendererIterateColor extends  JoclRenderer{
             }
             stats.printTotal();
         }
+        readData(data);
 
         finish();
         return image;
