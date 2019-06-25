@@ -29,9 +29,9 @@ __kernel void drawTriangle(
         //check if inside bounding box
         if (x > bx && x < (bx+width) && y > by && y < (by+height))
         {
-            double p1x = triangleArray[(i*9)+0]; double p1y = triangleArray[(i*9)+1]; double p1z = triangleArray[(i*9)+2];
-            double p2x = triangleArray[(i*9)+3]; double p2y = triangleArray[(i*9)+4]; double p2z = triangleArray[(i*9)+5];
-            double p3x = triangleArray[(i*9)+6]; double p3y = triangleArray[(i*9)+7]; double p3z = triangleArray[(i*9)+8];
+            double p1x = triangleArray[(i*9)+0]; double p1y = triangleArray[(i*9)+1];
+            double p2x = triangleArray[(i*9)+3]; double p2y = triangleArray[(i*9)+4];
+            double p3x = triangleArray[(i*9)+6]; double p3y = triangleArray[(i*9)+7];
 
             double denominator = (p2y - p3y)*(p1x - p3x) + (p3x - p2x)*(p1y - p3y);
             double v = ((p2y - p3y)*(x - p3x) + (p3x - p2x)*(y - p3y)) / denominator;
@@ -40,6 +40,10 @@ __kernel void drawTriangle(
 
             if ((w >= 0) && (v >= 0) && (u >= 0))
             {
+                double p1z = triangleArray[(i*9)+2];
+                double p2z = triangleArray[(i*9)+5];
+                double p3z = triangleArray[(i*9)+8];
+
                 double z = (v*p1z) + (w*p2z) + (u*p3z);
                 if (z < 1 && z > 0 && zMap[pos] > z)
                 {
