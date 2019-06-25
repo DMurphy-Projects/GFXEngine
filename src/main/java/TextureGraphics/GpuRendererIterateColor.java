@@ -1,9 +1,9 @@
 package TextureGraphics;
 
 import GxEngine3D.Helper.Iterator.RegularTriangleIterator;
-import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import TextureGraphics.Memory.AsyncJoclMemory;
+import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
 import org.jocl.Pointer;
