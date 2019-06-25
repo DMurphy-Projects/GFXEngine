@@ -50,11 +50,12 @@ public class MemoryHandler {
     //----------End of primitive methods
 
     //entry point for primitive methods, switches between asyc, sync and non-writing implementations
+    //and additional entry point for using pre-existing byteBuffers
     //Switches:
     //task present => async
     //name missing => assign name
     //name already exists => write into existing
-    private IJoclMemory put(cl_event task, String name, ByteBuffer buffer, int offset, long type)
+    public IJoclMemory put(cl_event task, String name, ByteBuffer buffer, int offset, long type)
     {
         if (name == null) {
             name = prefix + count++;
