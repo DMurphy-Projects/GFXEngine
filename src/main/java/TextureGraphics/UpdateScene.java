@@ -31,7 +31,7 @@ public class UpdateScene extends JoclProgram{
     ArrayList<cl_event> taskEvents;
 
     //names to retrieve arguments by
-    String relativeArray = "Relative", clipArray = "Clip", screenArray = "Screen",
+    String relativeArray = "Relative", clipArray = "Clip", screenArray = "Screen", polygonStart = "PolygonStart",
             screenSize = "ScreenSize";
 
     //arg indices
@@ -51,6 +51,8 @@ public class UpdateScene extends JoclProgram{
     ByteBuffer clipArrayData, screenArrayData;
 
     cl_event task;
+
+    boolean relativeUpdated = false;
 
     public UpdateScene(int screenWidth, int screenHeight)
     {
@@ -86,7 +88,10 @@ public class UpdateScene extends JoclProgram{
         taskEvents.clear();
 
         task = new cl_event();
+    }
 
+    public void resetPolygons()
+    {
         pointCount = 0;
         polyCount = 0;
         memoryOffset = 0;
@@ -107,6 +112,8 @@ public class UpdateScene extends JoclProgram{
         int polyCount = polygons.size();
         polygonStartArrayData = new int[polyCount+1];
         polygonStartArrayData[polyCount] = (count * 3) - 1;
+
+        relativeUpdated = true;
     }
 
     public void setMatrix(double[] flatMatrix)
@@ -136,11 +143,18 @@ public class UpdateScene extends JoclProgram{
 
         taskEvents.add(task);
 
-        cl_event[] waitingEvents = new cl_event[3];
+        cl_event[] waitingEvents = new cl_event[relativeUpdated?3:1];
 
-        waitingEvents[0] = setupRelativeArray(task);
-        waitingEvents[1] = setupPolygonStartArray(task);
-        waitingEvents[2] = setupMatrix(task);
+        int i = 0;
+        if (relativeUpdated)
+        {
+            waitingEvents[0] = setupRelativeArray(task);
+            waitingEvents[1] = setupPolygonStartArray(task);
+
+            relativeUpdated = false;
+            i += 2;
+        }
+        waitingEvents[i] = setupMatrix(task);
 
         long[] globalWorkSize = { polyCount };
 
@@ -213,8 +227,8 @@ public class UpdateScene extends JoclProgram{
 
     private cl_event setupRelativeArray(cl_event task)
     {
-        IJoclMemory m = dynamic.put(task, null, relativeArrayData,0, CL_MEM_READ_ONLY);
-        clSetKernelArg(kernel, relativeArrayArg, Sizeof.cl_mem, m.getObject());
+        IJoclMemory m = cached.put(task, relativeArray, relativeArrayData,0, CL_MEM_READ_ONLY);
+        setRelativeArrayArg(m);
         return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 
@@ -227,8 +241,18 @@ public class UpdateScene extends JoclProgram{
 
     private cl_event setupPolygonStartArray(cl_event task)
     {
-        IJoclMemory m = dynamic.put(task, null, polygonStartArrayData,0, CL_MEM_READ_ONLY);
-        clSetKernelArg(kernel, polyStartArrayArg, Sizeof.cl_mem, m.getObject());
+        IJoclMemory m = cached.put(task, polygonStart, polygonStartArrayData,0, CL_MEM_READ_ONLY);
+        setPolygonStartArg(m);
         return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
+    }
+
+    private void setRelativeArrayArg(IJoclMemory m)
+    {
+        clSetKernelArg(kernel, relativeArrayArg, Sizeof.cl_mem, m.getObject());
+    }
+
+    private void setPolygonStartArg(IJoclMemory m)
+    {
+        clSetKernelArg(kernel, polyStartArrayArg, Sizeof.cl_mem, m.getObject());
     }
 }

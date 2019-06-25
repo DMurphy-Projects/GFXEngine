@@ -74,11 +74,17 @@ public class JoclTest11 {
         t.time();
         updateSceneCpu();
         t.time();
+        updateRelativePolygons();
+        updateSceneGpu();
+        t.time();
+        //relative polygons don't change, unless another is added.removed
+        //so this shows the true performance of this method
         updateSceneGpu();
         t.time();
 
         t.printNextTime("CPU");
         t.printNextTime("GPU - Initial");
+        t.printNextTime("GPU - After");
     }
 
     private void updateSceneCpu()
@@ -86,16 +92,22 @@ public class JoclTest11 {
         updateScene();
     }
 
-    private void updateSceneGpu()
+    private void updateRelativePolygons()
     {
-        renderer.setup();
         renderer.prepare(relativePolys);
-        renderer.setMatrix(allCombined.flatten());
 
+        renderer.resetPolygons();
         for (double[][] polygon: relativePolys)
         {
             renderer.addPolygon(polygon);
         }
+    }
+
+    private void updateSceneGpu()
+    {
+        renderer.setup();
+
+        renderer.setMatrix(allCombined.flatten());
 
         renderer.enqueue();
         renderer.update();
