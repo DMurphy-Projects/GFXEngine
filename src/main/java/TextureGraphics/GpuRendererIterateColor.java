@@ -13,6 +13,7 @@ import org.jocl.cl_event;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -25,8 +26,6 @@ public class GpuRendererIterateColor extends  JoclRenderer{
     int screenWidth, screenHeight;
 
     BufferedImage image;
-
-    double[] zMapStart;
 
     //names to retrieve arguments by
     String pixelOut = "Out1", zMapOut = "Out2", screenSize = "ScreenSize";
@@ -48,6 +47,9 @@ public class GpuRendererIterateColor extends  JoclRenderer{
     int size, tCount;
 
     ArrayList<cl_event> taskEvents;
+    cl_event taskEvent;
+
+    ByteBuffer zMapBuffer;
 
     public GpuRendererIterateColor(int screenWidth, int screenHeight)
     {
@@ -60,8 +62,10 @@ public class GpuRendererIterateColor extends  JoclRenderer{
 
         super.start();
 
-        zMapStart = new double[screenWidth*screenHeight];
+        double[] zMapStart = new double[screenWidth*screenHeight];
         Arrays.fill(zMapStart, 1);
+
+        zMapBuffer = BufferHelper.createBuffer(zMapStart);
 
         image = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
     }
@@ -78,6 +82,8 @@ public class GpuRendererIterateColor extends  JoclRenderer{
     public void setup() {
         super.setup();
         taskEvents = new ArrayList<>();
+
+        taskEvent = new cl_event();
 
         setupOutputMemory();
     }
@@ -117,6 +123,7 @@ public class GpuRendererIterateColor extends  JoclRenderer{
 
     @Override
     public void render(double[][] polygon, double[][] textureAnchor, ITexture texture) {
+        if (PolygonClipBoundsChecker.shouldCull(polygon)) return;
         //do triangles
         RegularTriangleIterator it = new RegularTriangleIterator();
         it.iterate(screenPoly);
@@ -151,15 +158,14 @@ public class GpuRendererIterateColor extends  JoclRenderer{
     private void enqueueTasks()
     {
         if (size == 0) return;
-
-        cl_event taskEvent = new cl_event();
         //write all data to device
         setupN();
-        cl_event[] writingEvents = new cl_event[3];
+        cl_event[] writingEvents = new cl_event[4];
 
         writingEvents[0] = setupTriangleArray(taskEvent);
         writingEvents[1] = setupBoundboxArray(taskEvent);
         writingEvents[2] = setupColorArray(taskEvent);
+        writingEvents[3] = ((AsyncJoclMemory)dynamic.get(zMapOut)).getFinishedWritingEvent()[0];
 
         //enqueue ranges
         long[] globalWorkSize = new long[] {
@@ -228,8 +234,11 @@ public class GpuRendererIterateColor extends  JoclRenderer{
 
     private void recreateOutputMemory(int size)
     {
+        //this uses put empty which has no async behaviour
         dynamic.put(null, pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
-        dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
+
+        //TODO creating the double buffer for this is expensive
+        dynamic.put(taskEvent, zMapOut, zMapBuffer, 0, CL_MEM_READ_WRITE);
     }
 
     private void setupOutArgs()

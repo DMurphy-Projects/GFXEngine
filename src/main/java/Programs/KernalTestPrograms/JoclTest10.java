@@ -71,7 +71,7 @@ public class JoclTest10 {
 
     public JoclTest10(int width, int height)
     {
-        debug = SUCCINCT;
+        debug = VERBOSE;
 
         PerformanceTimer.Mode mode = debug == VERBOSE?
                 PerformanceTimer.Mode.Nano:
@@ -232,7 +232,7 @@ public class JoclTest10 {
         {
             textureRelativePoints[i] = MatrixHelper.applyImplicitMatrix(textureMap, relativePoints[i]);
         }
-        intersectionScene(relativePoints, textureRelativePoints);
+        wallPanelScene(relativePoints, textureRelativePoints);
     }
 
     private void singlePolygonScene(double[][] relativePoints, double[][] textureRelativePoints)
@@ -336,11 +336,14 @@ public class JoclTest10 {
     }
 
     private void updateScreen() {
+
         t.time();
+        //TODO this is currently the bottleneck for this kernel
         updateScene();
 
         t.time();
         renderer.setup();
+        t.time();
         renderer.prepare(clipPolys);
 
         t.time();
@@ -348,7 +351,7 @@ public class JoclTest10 {
             renderer.setColor(colorArray[i % colorArray.length]);
 
             renderer.setScreenPoly(screenPolys.get(i));
-            renderPolygon(clipPolys.get(i), polys.get(i), tAnchors.get(i));
+            renderer.render(clipPolys.get(i), tAnchors.get(i), texture);
         }
         t.time();
 
@@ -358,6 +361,7 @@ public class JoclTest10 {
         if (debug == VERBOSE) {
             t.printNextTime("Scene Update Took");
             t.printNextTime("Renderer Setup Took");
+            t.printNextTime("Renderer Prepare Took");
             t.printNextTime("Enqueue Took");
             t.printNextTime("Image Creation Took");
             System.out.println();
@@ -368,13 +372,6 @@ public class JoclTest10 {
 
         t.reset();
         imageComponent.repaint();
-    }
-
-    private void renderPolygon(double[][] cPolygon, double[][] rPolygon, double[][] tPolygon)
-    {
-        if (PolygonClipBoundsChecker.shouldCull(cPolygon)) return;
-
-        renderer.render(cPolygon, tPolygon, texture);
     }
 
     private void setupMatrices()
