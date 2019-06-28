@@ -7,6 +7,7 @@ import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.GpuRendererIterateColor;
+import TextureGraphics.GpuRendererIterateColorPolygon;
 import TextureGraphics.Memory.Texture.JoclTexture;
 
 import javax.swing.*;
@@ -54,7 +55,7 @@ public class JoclTest10 {
     double[][] translate, rotate, scale;
     Matrix frustrum, projection, combined, allCombined, textureMap;
 
-    GpuRendererIterateColor renderer;//is a specific test
+    GpuRendererIterateColorPolygon renderer;//is a specific test
     JoclTexture texture;
 
     Map<Camera.Direction, Boolean> keys = new HashMap<>();
@@ -93,7 +94,7 @@ public class JoclTest10 {
             }
         };
 
-        renderer = new GpuRendererIterateColor(screenWidth, screenHeight);
+        renderer = new GpuRendererIterateColorPolygon(screenWidth, screenHeight);
 //        texture = renderer.createTexture("resources/Textures/default.png");
 
         initScene();
@@ -232,7 +233,7 @@ public class JoclTest10 {
         {
             textureRelativePoints[i] = MatrixHelper.applyImplicitMatrix(textureMap, relativePoints[i]);
         }
-        wallPanelScene(relativePoints, textureRelativePoints);
+        singlePolygonScene(relativePoints, textureRelativePoints);
     }
 
     private void singlePolygonScene(double[][] relativePoints, double[][] textureRelativePoints)
