@@ -19,7 +19,6 @@ public class BufferHelper {
         {
             buffer.putDouble(e);
         }
-        buffer.rewind();
 
         return buffer;
     }
@@ -33,7 +32,6 @@ public class BufferHelper {
         {
             buffer.putInt(e);
         }
-        buffer.rewind();
 
         return buffer;
     }
