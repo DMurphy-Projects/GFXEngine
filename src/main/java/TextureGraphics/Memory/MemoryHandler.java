@@ -25,7 +25,14 @@ public class MemoryHandler {
         this.commandQueue = commandQueue;
     }
 
-    //async controls the type of handling this empty buffer will have
+    //taskEvent controls the type of handling this empty buffer will have
+    //IMPORTANT NOTE: specific handling of memory with the use of empty buffers may result in unmapped memory being used
+    //SPECIFIC EXAMPLE:
+    //              step 1: writing data and enqueueing
+    //              step 2: releasing all memory used
+    //              step 3: creating and empty buffer only, with 0 writes for rest of the duration of the test
+    //              step 4: reading from the empty buffer
+    //              result: assortment of interleaved data of what was written previously, instead of an empty buffer
     public IJoclMemory put(cl_event taskEvent, String name, int totalSize, long type)
     {
         return putEmpty(name, totalSize, type, taskEvent);

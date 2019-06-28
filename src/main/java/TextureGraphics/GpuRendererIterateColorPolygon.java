@@ -48,7 +48,7 @@ public class GpuRendererIterateColorPolygon extends  JoclRenderer{
     ArrayList<cl_event> taskEvents;
     cl_event taskEvent;
 
-    ByteBuffer zMapBuffer;
+    ByteBuffer zMapBuffer, pixelBuffer;
 
     int polygonMemoryOffset, polygonCount;
 
@@ -67,6 +67,9 @@ public class GpuRendererIterateColorPolygon extends  JoclRenderer{
         Arrays.fill(zMapStart, 1);
 
         zMapBuffer = BufferHelper.createBuffer(zMapStart);
+
+        int[] pixelStart = new int[screenWidth*screenHeight];
+        pixelBuffer = BufferHelper.createBuffer(pixelStart);
 
         image = new BufferedImage(screenWidth, screenHeight, BufferedImage.TYPE_INT_RGB);
     }
@@ -162,12 +165,13 @@ public class GpuRendererIterateColorPolygon extends  JoclRenderer{
 
         //write all data to device
         setupN();
-        cl_event[] writingEvents = new cl_event[4];
+        cl_event[] writingEvents = new cl_event[5];
 
         writingEvents[0] = setupPolygonArray(taskEvent);
         writingEvents[1] = setupBoundboxArray(taskEvent);
         writingEvents[2] = setupColorArray(taskEvent);
         writingEvents[3] = setupPolygonStartArray(taskEvent);
+        writingEvents[4] = setupZBuffer(taskEvent);
 
         //enqueue ranges
         long[] globalWorkSize = new long[] {
@@ -230,17 +234,8 @@ public class GpuRendererIterateColorPolygon extends  JoclRenderer{
     //OUTPUT ARGUMENTS
     private void setupOutputMemory()
     {
-        recreateOutputMemory(screenWidth*screenHeight);
-    }
-
-    private void recreateOutputMemory(int size)
-    {
-        //this uses put empty which has no async behaviour
-        IJoclMemory m = dynamic.put(null, pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
+        IJoclMemory m = dynamic.put(null, pixelOut, pixelBuffer, 0, CL_MEM_WRITE_ONLY);
         clSetKernelArg(kernel, outArg, Sizeof.cl_mem, m.getObject());
-
-        m = dynamic.put(null, zMapOut, zMapBuffer, 0, CL_MEM_READ_WRITE);
-        clSetKernelArg(kernel, zMapArg, Sizeof.cl_mem, m.getObject());
     }
     //OUTPUT ARGUMENT END
 
@@ -277,6 +272,14 @@ public class GpuRendererIterateColorPolygon extends  JoclRenderer{
     {
         IJoclMemory m = dynamic.put(task, null, polygonStartArray, 0, CL_MEM_READ_ONLY);
         clSetKernelArg(kernel, polygonStartArrayArg, Sizeof.cl_mem, m.getObject());
+
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
+    }
+
+    private cl_event setupZBuffer(cl_event task)
+    {
+        IJoclMemory m = dynamic.put(task, zMapOut, zMapBuffer, 0, CL_MEM_READ_WRITE);
+        clSetKernelArg(kernel, zMapArg, Sizeof.cl_mem, m.getObject());
 
         return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
