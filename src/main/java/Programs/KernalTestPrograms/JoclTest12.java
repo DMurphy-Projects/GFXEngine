@@ -181,7 +181,7 @@ public class JoclTest12 {
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                Point p = frame.getLocationOnScreen();
+                Point p = imageComponent.getLocationOnScreen();
                 int[] center = new int[]{
                         p.x + (screenWidth/2),
                         p.y + (screenHeight/2)
@@ -199,7 +199,7 @@ public class JoclTest12 {
         try {
             Robot r = new Robot();
 
-            Point loc = frame.getLocationOnScreen();
+            Point loc = imageComponent.getLocationOnScreen();
 
             r.mouseMove(loc.x + (screenWidth/2), loc.y + (screenHeight/2));
         } catch (AWTException e) {
