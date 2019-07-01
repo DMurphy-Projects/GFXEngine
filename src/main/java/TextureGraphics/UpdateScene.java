@@ -8,15 +8,14 @@ import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.MemoryHandler;
 import TextureGraphics.Memory.Texture.ITexture;
-import org.jocl.Pointer;
-import org.jocl.Sizeof;
-import org.jocl.cl_event;
+import org.jocl.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -66,6 +65,38 @@ public class UpdateScene extends JoclProgram{
         taskEvents = new ArrayList<>();
 
         super.start();
+    }
+
+    public DoubleBuffer getScreenPolygonBuffer()
+    {
+        screenArrayData.order(ByteOrder.nativeOrder());
+        return screenArrayData.asDoubleBuffer();
+    }
+
+    public DoubleBuffer getClipPolygonBuffer()
+    {
+        clipArrayData.order(ByteOrder.nativeOrder());
+        return clipArrayData.asDoubleBuffer();
+    }
+
+    public IJoclMemory getScreenPolygonArray()
+    {
+        return dynamic.get(screenArray);
+    }
+
+    public IJoclMemory getPolygonStartArray()
+    {
+        return cached.get(polygonStart);
+    }
+
+    public int[] getPolygonStartData()
+    {
+        return polygonStartArrayData;
+    }
+
+    public cl_event getTask()
+    {
+        return task;
     }
 
     @Override
@@ -163,13 +194,27 @@ public class UpdateScene extends JoclProgram{
                 globalWorkSize, null, waitingEvents.length, waitingEvents, task);
     }
 
-    public void update()
+    public boolean waitOnFinishing()
     {
         if (taskEvents.size() > 0) {
-            cl_event[] events = new cl_event[taskEvents.size()];
-            taskEvents.toArray(events);
+            cl_event[] executionTasks = new cl_event[taskEvents.size()];
+            taskEvents.toArray(executionTasks);
 
-            clWaitForEvents(events.length, events);
+            clWaitForEvents(executionTasks.length, executionTasks);
+            return true;
+        }
+        return false;
+    }
+
+    public void finish()
+    {
+        super.finish();
+    }
+
+    public void update()
+    {
+        if (waitOnFinishing()) {
+
             readData();
 
             if (profiling) {
@@ -185,18 +230,26 @@ public class UpdateScene extends JoclProgram{
     }
 
     //JOCL handling functions
-    private void readData()
+    cl_event[] readTasks;
+    public void readData()
     {
-        cl_event readTask1 = new cl_event();
-        cl_event readTask2 = new cl_event();
+        readTasks = new cl_event[2];
+        readTasks[0] = new cl_event();
+        readTasks[1] = new cl_event();
+
+        cl_event[] executionTasks = new cl_event[taskEvents.size()];
+        taskEvents.toArray(executionTasks);
 
         clEnqueueReadBuffer(commandQueue, dynamic.get(clipArray).getRawObject(), false, 0,
-                Sizeof.cl_double * pointCount * 3, Pointer.to(clipArrayData), 0, null, readTask1);
+                Sizeof.cl_double * pointCount * 3, Pointer.to(clipArrayData), executionTasks.length, executionTasks, readTasks[0]);
 
         clEnqueueReadBuffer(commandQueue, dynamic.get(screenArray).getRawObject(), false, 0,
-                Sizeof.cl_double * pointCount * 3, Pointer.to(screenArrayData), 0, null, readTask2);
+                Sizeof.cl_double * pointCount * 3, Pointer.to(screenArrayData), executionTasks.length, executionTasks, readTasks[1]);
+    }
 
-        clWaitForEvents(2, new cl_event[]{readTask1, readTask2});
+    public void waitOnReadTasks()
+    {
+        clWaitForEvents(readTasks.length, readTasks);
     }
 
     private void setupScreenSizeArgs()
