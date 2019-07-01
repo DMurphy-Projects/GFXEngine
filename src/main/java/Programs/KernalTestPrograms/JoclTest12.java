@@ -181,10 +181,13 @@ public class JoclTest12 {
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                Point p = imageComponent.getLocationOnScreen();
-                int[] center = new int[]{imageComponent.getWidth()/2, imageComponent.getHeight()/2};
+                Point p = frame.getLocationOnScreen();
+                int[] center = new int[]{
+                        p.x + (screenWidth/2),
+                        p.y + (screenHeight/2)
+                };
 
-                camera.MouseMovement(center[0] - e.getX() - p.x, center[1] - e.getY() - p.y);
+                camera.MouseMovement(center[0] - e.getXOnScreen(), center[1] - e.getYOnScreen());
                 centreMouse();
 
                 updateScreen();
