@@ -6,19 +6,27 @@ import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.GpuRendererFragment;
-import TextureGraphics.GpuRendererIterateColorPolygon;
-import TextureGraphics.UpdateScene;
+import TextureGraphics.UpdateSceneCulling;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+
+//this implementation uses a two phase approach to render:
+//  1: update scene via gpu, also calculates culling
+//  2: render the scene via gpu with minimal setup
+//classification of a bottleneck is when the frame time would result in less than 20 frames/sec or >50m nano
+//limits of this method are as follows:
+//  scene updating bottlenecks at 800*800 array of squares which corresponds to 1,280,000‬ triangles, regardless of what is being rendered
+//  gpu render bottlenecks at 100*100 array of on screen squares which corresponds to 20,000 triangles
+//      the bulk of the work here is finding what triangle is closest for the pixel we're rendering
+//  host bottleneck is unknown, for 1,280,000‬ triangles time taken is <1.5m nano
 public class JoclTest12 {
 
     private BufferedImage image;
@@ -35,7 +43,7 @@ public class JoclTest12 {
     double[][] translate, rotate, scale;
     Matrix frustrum, projection, combined, allCombined;
 
-    UpdateScene updater;
+    UpdateSceneCulling updater;
     GpuRendererFragment renderer;
 
     double NEAR = 0.1, FAR = 30;
@@ -76,7 +84,7 @@ public class JoclTest12 {
         screenWidth = width;
         screenHeight = height;
 
-        updater = new UpdateScene(screenWidth, screenHeight);;
+        updater = new UpdateSceneCulling(screenWidth, screenHeight);;
         renderer = new GpuRendererFragment(screenWidth, screenHeight, updater);
 
         initScene();
@@ -249,13 +257,10 @@ public class JoclTest12 {
         updater.waitOnReadTasks();
         t.time();
 
-        DoubleBuffer clipBuffer = updater.getClipPolygonBuffer();
-        DoubleBuffer screenBuffer = updater.getScreenPolygonBuffer();
-
-        renderer.prepare(clipBuffer, screenBuffer, updater.getPolygonStartData());
+        renderer.prepare(updater.getIndexArrayData());
         t.time();
 
-        renderer.setupRender();
+        renderer.setupRender(updater.getScreenPolygonBuffer(), updater.getPolygonStartData());
         t.time();
 
         renderer.enqueueTasks(updater.getTask());

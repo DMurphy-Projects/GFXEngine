@@ -9,8 +9,10 @@ import org.jocl.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -18,10 +20,7 @@ import static org.jocl.CL.*;
 
 //this implementation is based on the GpuRendererIterateColorPolygon
 //the handling of the polygon points will be external
-//NOTE:
-//slowest parts:
-//      Prepare: to be expected, as it has to reinterpret from a double buffer and check bounds
-//      Create : this is really just waiting for the kernel to finish
+//
 public class GpuRendererFragment extends  JoclProgram{
 
     int screenWidth, screenHeight;
@@ -45,7 +44,6 @@ public class GpuRendererFragment extends  JoclProgram{
 
     //data arrays
     int[] boundBoxArray, colorArray, indexArray;
-    ArrayList<double[][]>  screenPolygonsList;
     int[] color;
     ByteBuffer zMapBuffer, pixelBuffer;
 
@@ -93,44 +91,25 @@ public class GpuRendererFragment extends  JoclProgram{
         setupOutputMemory();
     }
 
-    public void prepare(DoubleBuffer clipPolygons, DoubleBuffer screenPolygons, int[] polygonStart)
+    public void prepare(IntBuffer indexArrayData)
     {
         this.size = 0;
-        int startIndex = 0;
-        int index = 0;
-
-        screenPolygonsList = new ArrayList<>();
 
         ArrayList<Integer> indexArrayList = new ArrayList<>();
         ArrayList<Integer> colorArrayList = new ArrayList<>();
 
-        while(clipPolygons.hasRemaining())
+        int index = 0;
+        while(indexArrayData.hasRemaining())
         {
-            int lower = polygonStart[startIndex];
-            int upper = polygonStart[startIndex+1];
-            int size = (upper - lower) / 3;
-
-            double[][] cPolygon = new double[size][3];
-            double[][] sPolygon = new double[size][3];
-
-            for (int i=0;i<size;i++)
+            int i = indexArrayData.get();
+            if (i == 0)
             {
-                for (int ii=0;ii<3;ii++)
-                {
-                    cPolygon[i][ii] = clipPolygons.get();
-                    sPolygon[i][ii] = screenPolygons.get();
-                }
-            }
-
-            if (!PolygonClipBoundsChecker.shouldCull(cPolygon)) {
                 this.size++;
 
-                screenPolygonsList.add(sPolygon);
-
                 indexArrayList.add(index);
-
                 colorArrayList.add(color[index % color.length]);
             }
+
             index++;
         }
 
@@ -160,12 +139,21 @@ public class GpuRendererFragment extends  JoclProgram{
         this.color = color;
     }
 
-    public void setupRender()
+    public void setupRender(DoubleBuffer screenPolygonData, int[] polygonStart)
     {
-        for (double[][] polygon: screenPolygonsList) {
+        for (int i: indexArray)
+        {
+            int start = polygonStart[i];
+            int end = polygonStart[i+1];
+            int size = (end - start) / 3;
+
             Polygon p = new Polygon();
-            for (double[] point : polygon) {
-                p.addPoint((int) point[0], (int) point[1]);
+
+            for (int _i=0;_i<size;_i++)
+            {
+                screenPolygonData.position(start + (_i * 3));
+
+                p.addPoint((int) screenPolygonData.get(), (int) screenPolygonData.get());
             }
 
             Rectangle r = p.getBounds();
@@ -200,8 +188,7 @@ public class GpuRendererFragment extends  JoclProgram{
 
         //TODO needs to be a relationship with the screen dimensions, currently hard coded
         long[] localWorkSize = new long[] {
-                (long) screenWidth / 30,
-                (long) screenHeight / 30
+                32, 32
         };
 
         clEnqueueNDRangeKernel(commandQueue, kernel, 2, null,
