@@ -64,6 +64,21 @@ public class UpdateSceneCulling extends JoclProgram{
         super.start();
     }
 
+    public UpdateSceneCulling(int screenWidth, int screenHeight, JoclSetup setup)
+    {
+        this.profiling = setup.isProfiling();
+
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
+
+        create("resources/Kernels/SceneUpdate/SceneUpdateCulling.cl", "updateScene",
+                setup);
+
+        taskEvents = new ArrayList<>();
+
+        super.start();
+    }
+
     public DoubleBuffer getScreenPolygonBuffer()
     {
         screenArrayData.order(ByteOrder.nativeOrder());
