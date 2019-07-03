@@ -1,6 +1,5 @@
 package TextureGraphics;
 
-import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
@@ -9,7 +8,6 @@ import org.jocl.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
@@ -57,7 +55,7 @@ public class GpuRendererFragment extends  JoclProgram{
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/IteratePlainColorPolygonSkip.cl", "drawTriangle", externalProgram);
+        create("resources/Kernels/IterateMethods/IteratePlainColorPolygonSkip.cl", "drawTriangle", externalProgram);
 
         super.start();
 

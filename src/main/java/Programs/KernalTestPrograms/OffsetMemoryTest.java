@@ -1,12 +1,8 @@
 package Programs.KernalTestPrograms;
 
-import DebugTools.PaintPad;
 import TextureGraphics.JoclProgram;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.BufferHelper;
-import TextureGraphics.Memory.IJoclMemory;
-import TextureGraphics.Memory.SyncJoclMemory;
-import com.sun.scenario.effect.Offset;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_event;
@@ -37,7 +33,7 @@ public class OffsetMemoryTest extends JoclProgram {
     public OffsetMemoryTest()
     {
         //we only need a context for the test, the kernel will not be executed
-        create("resources/Kernels/TextureRenderPolyBary.cl", "drawTriangle");
+        create("resources/Kernels/TextureMethods/TextureRenderPolyBary.cl", "drawTriangle");
 
         super.start();
     }

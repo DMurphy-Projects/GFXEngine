@@ -187,7 +187,7 @@ public class JoclTest04
                 clCreateCommandQueue(context, device, properties, null);
 
         // Program Setup
-        String source = readFile("resources/Kernels/BarycentricTriangle.cl");
+        String source = readFile("resources/Kernels/Barycentric/BarycentricTriangle.cl");
 
         // Create the program
         cl_program cpProgram = clCreateProgramWithSource(context, 1,

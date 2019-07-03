@@ -63,7 +63,7 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/BarycentricTriangleWithMatrix.cl", "drawTriangle");
+        create("resources/Kernels/Barycentric/BarycentricTriangleWithMatrix.cl", "drawTriangle");
 
         super.start();
 

@@ -1,23 +1,14 @@
 package TextureGraphics;
 
-import GxEngine3D.Helper.ArrayHelper;
-import GxEngine3D.Helper.Maths.VectorCalc;
-import GxEngine3D.Helper.PerformanceTimer;
 import TextureGraphics.Memory.AsyncJoclMemory;
-import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.MemoryHandler;
-import TextureGraphics.Memory.Texture.ITexture;
 import org.jocl.*;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.jocl.CL.*;
 
@@ -60,7 +51,7 @@ public class UpdateScene extends JoclProgram{
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/SceneUpdate.cl", "updateScene");
+        create("resources/Kernels/SceneUpdate/SceneUpdate.cl", "updateScene");
 
         taskEvents = new ArrayList<>();
 

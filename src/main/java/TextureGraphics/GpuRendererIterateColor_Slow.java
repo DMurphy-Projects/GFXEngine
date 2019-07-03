@@ -57,7 +57,7 @@ public class GpuRendererIterateColor_Slow extends  JoclRenderer{
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/IteratePlainColor_Slow.cl", "drawTriangle");
+        create("resources/Kernels/IterateMethods/IteratePlainColor_Slow.cl", "drawTriangle");
 
         super.start();
 

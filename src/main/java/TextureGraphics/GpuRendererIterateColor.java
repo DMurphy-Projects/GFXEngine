@@ -58,7 +58,7 @@ public class GpuRendererIterateColor extends  JoclRenderer{
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/IteratePlainColor.cl", "drawTriangle");
+        create("resources/Kernels/IterateMethods/IteratePlainColor.cl", "drawTriangle");
 
         super.start();
 

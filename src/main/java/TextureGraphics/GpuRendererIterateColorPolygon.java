@@ -1,6 +1,5 @@
 package TextureGraphics;
 
-import GxEngine3D.Helper.Iterator.RegularTriangleIterator;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import TextureGraphics.Memory.*;
 import TextureGraphics.Memory.Texture.ITexture;
@@ -59,7 +58,7 @@ public class GpuRendererIterateColorPolygon extends  JoclRenderer{
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/IteratePlainColorPolygon.cl", "drawTriangle");
+        create("resources/Kernels/IterateMethods/IteratePlainColorPolygon.cl", "drawTriangle");
 
         super.start();
 

@@ -172,7 +172,7 @@ public class JoclTest03
                 clCreateCommandQueue(context, device, 0, null);
 
         // Program Setup
-        String source = readFile("resources/Kernels/TextureTriangleParallel.cl");
+        String source = readFile("resources/Kernels/TextureMethods/TextureTriangleParallel.cl");
 
         // Create the program
         cl_program cpProgram = clCreateProgramWithSource(context, 1,

@@ -57,7 +57,7 @@ public class UpdateSceneCulling extends JoclProgram{
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/SceneUpdateCulling.cl", "updateScene");
+        create("resources/Kernels/SceneUpdate/SceneUpdateCulling.cl", "updateScene");
 
         taskEvents = new ArrayList<>();
 
