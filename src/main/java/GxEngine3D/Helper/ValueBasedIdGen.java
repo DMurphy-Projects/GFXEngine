@@ -24,6 +24,7 @@ public class ValueBasedIdGen {
     {
         String id = "";
 
+        buffer.rewind();
         while(buffer.hasRemaining())
         {
             id += generate(buffer.get()) + "_";
