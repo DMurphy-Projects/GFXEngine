@@ -13,8 +13,6 @@ public class AntGame implements IGame{
 
     int x, y, facing = 0, width, height;
 
-    int[] pixels;
-
     HashMap<Integer, Boolean> actionMap = new HashMap<>();
     ArrayList<Integer> colorOrder = new ArrayList<>();
 
@@ -29,8 +27,6 @@ public class AntGame implements IGame{
 
         x = width/2;
         y = height/2;
-
-        pixels = screen.getScreenContents();
     }
 
     public void addAction(Color color, boolean turnLeft)
@@ -49,8 +45,8 @@ public class AntGame implements IGame{
         isInBounds = checkBounds(x, y);
         if (!isInBounds) return;
 
-        int current = getPixel(x, y);
-        drawPixel(x, y, getNextColor(current));
+        int current = screen.getPixel(x, y);
+        screen.setPixel(x, y, getNextColor(current));
 
         boolean shouldTurnLeft = actionMap.get(current);
 
@@ -62,8 +58,6 @@ public class AntGame implements IGame{
         {
             turnRight();
         }
-
-        screen.update();
     }
 
     private boolean checkBounds(int x, int y)
@@ -114,15 +108,5 @@ public class AntGame implements IGame{
     {
         facing--;
         if (facing < 0) facing = 3;
-    }
-
-    private int getPixel(int x, int y)
-    {
-        return pixels[(width*y)+x];
-    }
-
-    private void drawPixel(int x, int y, int color)
-    {
-        pixels[(width*y)+x] = color;
     }
 }

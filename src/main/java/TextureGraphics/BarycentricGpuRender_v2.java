@@ -7,9 +7,11 @@ import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
+import TextureGraphics.Memory.Texture.MemoryDataPackage;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_event;
+import org.jocl.cl_mem;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -46,7 +48,6 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
     double[] zMapStart;
 
     //technically can read before all events can finish, but since the bottleneck is memory io, it is unlikely to happen in this implementation
-    cl_event[] matrixEvents = null;
     ArrayList<cl_event> taskEvents;
 
     //these should be the same as we are using the fact that the indices can be shared across all iterators
@@ -58,12 +59,14 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
 
     boolean cullPolygon = false;
 
-    public BarycentricGpuRender_v2(int screenWidth, int screenHeight)
+    cl_mem textureMemory;
+
+    public BarycentricGpuRender_v2(int screenWidth, int screenHeight, JoclSetup setup)
     {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/Barycentric/BarycentricTriangleWithMatrix.cl", "drawTriangle");
+        create("resources/Kernels/Barycentric/BarycentricTriangleWithMatrix.cl", "drawTriangle", setup);
 
         super.start();
 
@@ -94,11 +97,6 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
         IJoclMemory m2 = dynamic.put(null, null, e.flatten(), 0, CL_MEM_READ_ONLY);//cannot be cached as the camera constantly moves
 
         setupMatrixArgs(m1, m2);
-
-        matrixEvents = new cl_event[]{
-                ((AsyncJoclMemory)m1).getFinishedWritingEvent()[0],
-                ((AsyncJoclMemory)m2).getFinishedWritingEvent()[0]
-        };
     }
 
     public void setClipPolygon(double[][] clipPolygon)
@@ -169,10 +167,9 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
         cl_event taskEvent = new cl_event();
 
         cl_event[] writingEvents = setupTriangleArgs(p1, p2, p3, t1, t2, t3, taskEvent);
-        int waitingSize = writingEvents.length + matrixEvents.length;
+        int waitingSize = writingEvents.length;
         cl_event[] waitingEvents = new cl_event[waitingSize];
         System.arraycopy(writingEvents, 0, waitingEvents, 0, writingEvents.length);//moves writingEvents into waitingEvents
-        System.arraycopy(matrixEvents, 0, waitingEvents, writingEvents.length, matrixEvents.length);//moves matrix events onto the end of writingEvents
 
         clEnqueueNDRangeKernel(commandQueue, kernel, 2, null,
                 globalWorkSize, localWorkSize, waitingEvents.length, waitingEvents, taskEvent);
@@ -194,6 +191,7 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
             readData(data);
         }
 
+        clReleaseMemObject(textureMemory);
         finish();
         return image;
     }
@@ -247,8 +245,10 @@ public class BarycentricGpuRender_v2 extends JoclRenderer {
     }
     private void setupTextureArgs(ITexture texture)
     {
-        clSetKernelArg(kernel, 1, Sizeof.cl_mem, texture.getTexture());
-        clSetKernelArg(kernel, 2, Sizeof.cl_mem, texture.getSize());
+        MemoryDataPackage _package = texture.getDataHandler().getClTextureData();
+        textureMemory = _package.data;
+        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(textureMemory));
+        clSetKernelArg(kernel, 2, Sizeof.cl_mem, texture.getDataHandler().getClTextureInfoData());
     }
 
     //QUESTION: is it that we use this method a lot or are 6 calls slower than 1 call

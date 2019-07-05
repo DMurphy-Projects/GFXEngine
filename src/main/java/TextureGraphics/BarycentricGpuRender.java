@@ -4,6 +4,7 @@ import GxEngine3D.Helper.Maths.PolygonSplitter;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
+import TextureGraphics.Memory.Texture.MemoryDataPackage;
 import org.jocl.*;
 
 import java.awt.image.BufferedImage;
@@ -39,12 +40,12 @@ public class BarycentricGpuRender extends JoclRenderer {
     //names to retrieve arguments by
     String pixelOut = "Out1", zMapOut = "Out2", screenSize = "ScreenSize";
 
-    public BarycentricGpuRender(int screenWidth, int screenHeight)
+    public BarycentricGpuRender(int screenWidth, int screenHeight, JoclSetup setup)
     {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/Barycentric/BarycentricTriangleWithZOrdering.cl", "drawTriangle");
+        create("resources/Kernels/Barycentric/BarycentricTriangleWithZOrdering.cl", "drawTriangle", setup);
 
         super.start();
 
@@ -188,8 +189,10 @@ public class BarycentricGpuRender extends JoclRenderer {
     }
     private void setupTextureArgs(ITexture texture)
     {
-        clSetKernelArg(kernel, 1, Sizeof.cl_mem, texture.getTexture());
-        clSetKernelArg(kernel, 2, Sizeof.cl_mem, texture.getSize());
+        MemoryDataPackage _package = texture.getDataHandler().getClTextureData();
+
+        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(_package.data));
+        clSetKernelArg(kernel, 2, Sizeof.cl_mem, texture.getDataHandler().getClTextureInfoData());
     }
 
     //QUESTION: is it that we use this method a lot or are 6 calls slower than 1 call

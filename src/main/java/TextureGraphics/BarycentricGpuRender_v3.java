@@ -7,6 +7,7 @@ import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
+import TextureGraphics.Memory.Texture.MemoryDataPackage;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_event;
@@ -38,12 +39,12 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
 
     boolean cullPolygon = false;
 
-    public BarycentricGpuRender_v3(int screenWidth, int screenHeight)
+    public BarycentricGpuRender_v3(int screenWidth, int screenHeight, JoclSetup setup)
     {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/Barycentric/BarycentricTriangleHigherVertex.cl", "drawTriangle");
+        create("resources/Kernels/Barycentric/BarycentricTriangleHigherVertex.cl", "drawTriangle", setup);
 
         super.start();
 
@@ -233,8 +234,10 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
     }
     private void setupTextureArgs(ITexture texture)
     {
-        clSetKernelArg(kernel, 1, Sizeof.cl_mem, texture.getTexture());
-        clSetKernelArg(kernel, 2, Sizeof.cl_mem, texture.getSize());
+        MemoryDataPackage _package = texture.getDataHandler().getClTextureData();
+
+        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(_package.data));
+        clSetKernelArg(kernel, 2, Sizeof.cl_mem, texture.getDataHandler().getClTextureInfoData());
     }
 
     private cl_event[] setupTriangleArgs(double[] tX, double[] tY, double[] tZ,

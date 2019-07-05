@@ -6,7 +6,9 @@ import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.BarycentricGpuRender_v2;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.Texture.JoclTexture;
+import TextureGraphics.Memory.Texture.SingleTextureData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -81,8 +83,12 @@ public class JoclTest06
             }
         };
 
-        renderer = new BarycentricGpuRender_v2(screenWidth, screenHeight);
-        texture = renderer.createTexture("resources/Textures/default.png");
+        JoclSetup setup = new JoclSetup(false);
+
+        renderer = new BarycentricGpuRender_v2(screenWidth, screenHeight, setup);
+
+        SingleTextureData textureDataHandler = new SingleTextureData(setup);
+        texture = new JoclTexture("resources/Textures/default.png", textureDataHandler);
 
         initScene();
         addPolygons();

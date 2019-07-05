@@ -1,61 +1,46 @@
 package TextureGraphics.Memory.Texture;
 
-import TextureGraphics.Memory.Texture.ITexture;
-import org.jocl.*;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 
-import static org.jocl.CL.CL_MEM_READ_ONLY;
-import static org.jocl.CL.clCreateBuffer;
-import static org.jocl.CL.clEnqueueWriteBuffer;
-
 public class JoclTexture implements ITexture {
 
-    cl_context context;
-    cl_command_queue commandQueue;
+    private static int _id = 0;
+    int id;
 
-    protected cl_mem textureMem, textureSizeMem;
+    protected BufferedImage image;
 
-    BufferedImage image;
+    ITextureData dataHandler;
 
-    int tWidth, tHeight;
-
-    public JoclTexture(String path, cl_context context, cl_command_queue commandQueue)
+    public JoclTexture(String path, ITextureData dataHandler)
     {
-        this.context = context;
-        this.commandQueue = commandQueue;
+        this.id = _id++;
 
+        this.dataHandler = dataHandler;
         try {
-            image = ImageIO.read(new File(getClass().getClassLoader().getResource(path).getFile()));
+            BufferedImage image = ImageIO.read(new File(getClass().getClassLoader().getResource(path).getFile()));
+            this.image = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+            this.image.getGraphics().drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
 
-            tWidth = image.getWidth();
-            tHeight = image.getHeight();
+            int[] dataArray = ((DataBufferInt) this.image.getRaster().getDataBuffer()).getData();
 
-            textureSizeMem = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                    2 * Sizeof.cl_int, null, null);
-            clEnqueueWriteBuffer(commandQueue, textureSizeMem, true, 0,
-                    2 * Sizeof.cl_int, Pointer.to(new int[]{tWidth, tHeight}), 0, null, null);
+            dataHandler.create(image.getWidth(), image.getHeight(), dataArray);
 
-            int[] textureArr = image.getRGB(0, 0, image.getWidth(), image.getHeight(), null, 0, image.getWidth());
-            textureMem = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                    tWidth * tHeight * Sizeof.cl_uint, null, null);
-            clEnqueueWriteBuffer(commandQueue, textureMem, true, 0,
-                    tWidth * tHeight * Sizeof.cl_uint, Pointer.to(textureArr), 0, null, null);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public Pointer getTexture()
-    {
-        return Pointer.to(textureMem);
+    @Override
+    public int getId() {
+        return id;
     }
 
-    public Pointer getSize()
-    {
-        return Pointer.to(textureSizeMem);
+    @Override
+    public ITextureData getDataHandler() {
+        return dataHandler;
     }
 }

@@ -7,7 +7,9 @@ import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.BarycentricGpuRender_v2;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.Texture.JoclDynamicTexture;
+import TextureGraphics.Memory.Texture.SingleTextureData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -84,8 +86,12 @@ public class JoclTest07
             }
         };
 
-        renderer = new BarycentricGpuRender_v2(screenWidth, screenHeight);
-        texture = new JoclDynamicTexture(renderer.createTexture("resources/Textures/blank.png"));
+        JoclSetup setup = new JoclSetup(false);
+
+        renderer = new BarycentricGpuRender_v2(screenWidth, screenHeight, setup);
+
+        SingleTextureData texxtureDataHandler = new SingleTextureData(setup);
+        texture = new JoclDynamicTexture("resources/Textures/blank.png", texxtureDataHandler);
 
         AntGame game = new AntGame(texture);
 
