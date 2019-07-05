@@ -53,9 +53,9 @@ public class JoclTest13 {
     Map<Camera.Direction, Boolean> keys = new HashMap<>();
 
     int[] colorArray = new int[]{
-            Color.RED.getRGB(),
-            Color.BLUE.getRGB(),
-            Color.GREEN.getRGB(),
+            Color.RED.darker().getRGB(),
+            Color.BLUE.darker().getRGB(),
+            Color.GREEN.darker().getRGB(),
     };
 
     String VERBOSE = "v", SUCCINCT = "s";
