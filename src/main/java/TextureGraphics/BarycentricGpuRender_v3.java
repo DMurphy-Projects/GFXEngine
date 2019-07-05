@@ -11,6 +11,7 @@ import TextureGraphics.Memory.Texture.MemoryDataPackage;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_event;
+import org.jocl.cl_mem;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -29,7 +30,6 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
 
     double[] zMapStart;
 
-    cl_event[] matrixEvents = null;
     ArrayList<cl_event> taskEvents;
 
     ITriangleIterator clipIt = new RegularTriangleIterator();
@@ -38,6 +38,10 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
     String pixelOut = "Out1", zMapOut = "Out2", screenSize = "ScreenSize";
 
     boolean cullPolygon = false;
+
+    cl_mem textureMemory;
+
+    int[] pixelStart;
 
     public BarycentricGpuRender_v3(int screenWidth, int screenHeight, JoclSetup setup)
     {
@@ -50,6 +54,8 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
 
         zMapStart = new double[screenWidth*screenHeight];
         Arrays.fill(zMapStart, 1);
+
+        pixelStart = new int[screenWidth*screenHeight];
     }
 
     @Override
@@ -75,11 +81,6 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
         IJoclMemory m2 = dynamic.put(null, null, e.flatten(), 0, CL_MEM_READ_ONLY);//cannot be cached as the camera constantly moves
 
         setupMatrixArgs(m1, m2);
-
-        matrixEvents = new cl_event[]{
-                ((AsyncJoclMemory)m1).getFinishedWritingEvent()[0],
-                ((AsyncJoclMemory)m2).getFinishedWritingEvent()[0]
-        };
     }
 
     public void setClipPolygon(double[][] clipPolygon)
@@ -154,11 +155,10 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
         cl_event taskEvent = new cl_event();
         cl_event[] writingEvents = setupTriangleArgs(polygon[0], polygon[1], polygon[2], textureAnchor[0], textureAnchor[1], taskEvent);
 
-        int waitingSize = writingEvents.length + matrixEvents.length;
+        int waitingSize = writingEvents.length;
         cl_event[] waitingEvents = new cl_event[waitingSize];
 
         System.arraycopy(writingEvents, 0, waitingEvents, 0, writingEvents.length);//moves writingEvents into waitingEvents
-        System.arraycopy(matrixEvents, 0, waitingEvents, writingEvents.length, matrixEvents.length);//moves matrix events onto the end of writingEvents
 
         clEnqueueNDRangeKernel(commandQueue, kernel, 2, null,
                 globalWorkSize, localWorkSize, waitingEvents.length, waitingEvents, taskEvent);
@@ -180,6 +180,7 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
             readData(data);
         }
 
+        clReleaseMemObject(textureMemory);
         finish();
         return image;
     }
@@ -210,7 +211,7 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(null, pixelOut,size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, pixelOut,pixelStart, 0, CL_MEM_WRITE_ONLY);
         dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
     }
 
@@ -235,8 +236,9 @@ public class BarycentricGpuRender_v3 extends JoclRenderer {
     private void setupTextureArgs(ITexture texture)
     {
         MemoryDataPackage _package = texture.getDataHandler().getClTextureData();
+        textureMemory = _package.data;
 
-        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(_package.data));
+        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(textureMemory));
         clSetKernelArg(kernel, 2, Sizeof.cl_mem, texture.getDataHandler().getClTextureInfoData());
     }
 

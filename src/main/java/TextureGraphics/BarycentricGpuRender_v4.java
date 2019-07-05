@@ -9,6 +9,7 @@ import TextureGraphics.Memory.Texture.MemoryDataPackage;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_event;
+import org.jocl.cl_mem;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -52,6 +53,10 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
             preCalcArg = 20
     ;
 
+    cl_mem textureMemory;
+
+    int[] pixelStart;
+
     public BarycentricGpuRender_v4(int screenWidth, int screenHeight, JoclSetup setup)
     {
         this.profiling = true;
@@ -65,6 +70,8 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
 
         zMapStart = new double[screenWidth*screenHeight];
         Arrays.fill(zMapStart, 1);
+
+        pixelStart = new int[screenWidth*screenHeight];
     }
 
     @Override
@@ -224,14 +231,16 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
             clWaitForEvents(events.length, events);
             readData(data);
 
-            ExecutionStatistics stats = new ExecutionStatistics();
-            for (cl_event event:taskEvents)
-            {
-                stats.addEntry("", event, ExecutionStatistics.Formats.Nano);
-            }
+            if (profiling) {
+                ExecutionStatistics stats = new ExecutionStatistics();
+                for (cl_event event : taskEvents) {
+                    stats.addEntry("", event, ExecutionStatistics.Formats.Nano);
+                }
 //            stats.printTotal();
+            }
         }
 
+        clReleaseMemObject(textureMemory);
         finish();
         return image;
     }
@@ -258,7 +267,7 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(null, pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, pixelOut, pixelStart, 0, CL_MEM_WRITE_ONLY);
         dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
     }
 
@@ -292,8 +301,9 @@ public class BarycentricGpuRender_v4 extends JoclRenderer{
     private void setupTextureArgs(ITexture texture)
     {
         MemoryDataPackage _package = texture.getDataHandler().getClTextureData();
+        textureMemory = _package.data;
 
-        clSetKernelArg(kernel, texureArg, Sizeof.cl_mem, Pointer.to(_package.data));
+        clSetKernelArg(kernel, texureArg, Sizeof.cl_mem, Pointer.to(textureMemory));
         clSetKernelArg(kernel, textureSizeArg, Sizeof.cl_mem, texture.getDataHandler().getClTextureInfoData());
     }
 

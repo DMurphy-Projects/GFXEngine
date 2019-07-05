@@ -40,6 +40,10 @@ public class BarycentricGpuRender extends JoclRenderer {
     //names to retrieve arguments by
     String pixelOut = "Out1", zMapOut = "Out2", screenSize = "ScreenSize";
 
+    cl_mem textureMemory;
+
+    int[] pixelStart;
+
     public BarycentricGpuRender(int screenWidth, int screenHeight, JoclSetup setup)
     {
         this.screenWidth = screenWidth;
@@ -51,6 +55,8 @@ public class BarycentricGpuRender extends JoclRenderer {
 
         zMapStart = new double[screenWidth*screenHeight];
         Arrays.fill(zMapStart, 1);
+
+        pixelStart = new int[screenWidth*screenHeight];
     }
 
     @Override
@@ -142,6 +148,7 @@ public class BarycentricGpuRender extends JoclRenderer {
         clWaitForEvents(prevEvents.length, prevEvents);
         readData(data);
 
+        clReleaseMemObject(textureMemory);
         finish();
         return image;
     }
@@ -171,7 +178,7 @@ public class BarycentricGpuRender extends JoclRenderer {
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(null, pixelOut, size * Sizeof.cl_int, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, pixelOut, pixelStart ,0 , CL_MEM_WRITE_ONLY);
         dynamic.put(null, zMapOut, zMapStart, 0, CL_MEM_READ_WRITE);
     }
 
@@ -190,8 +197,9 @@ public class BarycentricGpuRender extends JoclRenderer {
     private void setupTextureArgs(ITexture texture)
     {
         MemoryDataPackage _package = texture.getDataHandler().getClTextureData();
+        textureMemory = _package.data;
 
-        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(_package.data));
+        clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(textureMemory));
         clSetKernelArg(kernel, 2, Sizeof.cl_mem, texture.getDataHandler().getClTextureInfoData());
     }
 
