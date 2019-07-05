@@ -22,7 +22,7 @@ public class SingleTextureData implements ITextureData {
         commandQueue = setup.getCommandQueue();
     }
 
-    public void create(int width, int height, int[] data)
+    public void create(int width, int height, int[] data, ITexture texture)
     {
         this.data = data;
         this.info = new int[]{width, height};
@@ -44,12 +44,12 @@ public class SingleTextureData implements ITextureData {
     }
 
     @Override
-    public int[] getTextureData() {
+    public int[] getTextureData(ITexture texture) {
         return data;
     }
 
     @Override
-    public int[] getTextureInfoData() {
+    public int[] getTextureInfoData(ITexture texture) {
         return info;
     }
 

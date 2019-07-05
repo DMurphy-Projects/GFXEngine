@@ -15,6 +15,9 @@ public class JoclDynamicTexture extends JoclTexture implements IGameScreen{
     public JoclDynamicTexture(String path, ITextureData dataHandler) {
         super(path, dataHandler);
     }
+    public JoclDynamicTexture(BufferedImage image, ITextureData dataHandler) {
+        super(image, dataHandler);
+    }
 
     @Override
     public void setPixel(int x, int y, int color) {
