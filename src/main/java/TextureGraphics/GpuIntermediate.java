@@ -3,6 +3,8 @@ package TextureGraphics;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
+import TextureGraphics.Memory.JoclMemoryMethods;
+import TextureGraphics.Memory.Texture.MemoryDataPackage;
 import org.jocl.*;
 
 import java.awt.*;
@@ -37,7 +39,7 @@ public class GpuIntermediate extends  JoclProgram{
 
     //data arrays
     int[] boundBoxArray, indexArrayData;
-    ByteBuffer zMapBuffer, outMapBuffer;
+    ByteBuffer zMapBuffer, outMapBuffer, outMapBufferStart;
 
     int size;
 
@@ -63,6 +65,9 @@ public class GpuIntermediate extends  JoclProgram{
 
         int[] pixelStart = new int[screenWidth*screenHeight*2];//we need 2 integers per pixel, polygon position and local triangle position
         outMapBuffer = BufferHelper.createBuffer(pixelStart);
+
+        Arrays.fill(pixelStart, -1);
+        outMapBufferStart = BufferHelper.createBuffer(pixelStart);
     }
 
     @Override
@@ -79,8 +84,6 @@ public class GpuIntermediate extends  JoclProgram{
         taskEvents = new ArrayList<>();
 
         taskEvent = new cl_event();
-
-        setupOutputMemory();
     }
 
     public cl_event getTask() {
@@ -167,19 +170,25 @@ public class GpuIntermediate extends  JoclProgram{
         }
     }
 
+    public boolean hasWorkToDo()
+    {
+        return size > 0;
+    }
+
     public void enqueueTasks(cl_event externalTask)
     {
         if (size == 0) return;
 
         //write all data to device
         setupN();
-        cl_event[] writingEvents = new cl_event[4];
+        cl_event[] writingEvents = new cl_event[5];
 
         int i = 0;
         writingEvents[i++] = setupBoundboxArray(taskEvent);
         writingEvents[i++] = setupZBuffer(taskEvent);
         writingEvents[i++] = externalTask;
         writingEvents[i++] = setupIndexArray(taskEvent);
+        writingEvents[i++] = ((AsyncJoclMemory)dynamic.get(outMap)).getFinishedWritingEvent()[0];
 
         //enqueue ranges
         long[] globalWorkSize = new long[] {
@@ -221,10 +230,20 @@ public class GpuIntermediate extends  JoclProgram{
     }
 
     //OUTPUT ARGUMENTS
-    private void setupOutputMemory()
+    //sets up a map based on an external resource
+    public void setupOutputMemory()
     {
-        IJoclMemory m = dynamic.put(null, outMap, outMapBuffer, 0, CL_MEM_WRITE_ONLY);
+        IJoclMemory m = dynamic.put(taskEvent, outMap, outMapBuffer, 0, CL_MEM_WRITE_ONLY);
         clSetKernelArg(kernel, outArg, Sizeof.cl_mem, m.getObject());
+    }
+    //setups up an empty map
+    public void setupBlankOutMap(cl_event task)
+    {
+        IJoclMemory m = dynamic.put(task, outMap, outMapBufferStart, 0, CL_MEM_WRITE_ONLY);
+        clSetKernelArg(kernel, outArg, Sizeof.cl_mem, m.getObject());
+        cl_event finished = ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
+
+        this.taskEvent = finished;
     }
     //OUTPUT ARGUMENT END
 

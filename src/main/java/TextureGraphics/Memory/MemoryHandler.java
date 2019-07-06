@@ -173,9 +173,20 @@ public class MemoryHandler {
 
     public void releaseAll()
     {
+        int i = 0;
+        String[] debug = new String[names.keySet().size()];
+        names.keySet().toArray(debug);
+
         for (IJoclMemory m:memory)
         {
-            m.release();
+            try {
+                m.release();
+            }
+            catch(Exception e)
+            {
+                System.out.println(e.getMessage() + ": " + debug[i]);
+            }
+            i++;
         }
     }
 }

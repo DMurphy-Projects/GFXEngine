@@ -24,9 +24,4 @@ __kernel void render(
             outPixel[pos] = colorArray[polygonIndex];
         }
     }
-    else
-    {
-        //there is nothing to render, so fill with solid black
-        outPixel[pos] = 0;
-    }
 }

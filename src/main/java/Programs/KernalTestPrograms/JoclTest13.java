@@ -54,6 +54,7 @@ public class JoclTest13 {
 
     SolidColorFragment solidFragment;
     TextureFragment textureFragment;
+    BackgroundFragment backgroundFragment;
 
     double NEAR = 0.1, FAR = 30;
 
@@ -115,6 +116,7 @@ public class JoclTest13 {
 
         solidFragment = new SolidColorFragment(screenWidth, screenHeight, setup);
         textureFragment = new TextureFragment(screenWidth, screenHeight, setup);
+        backgroundFragment = new BackgroundFragment(screenWidth, screenHeight, setup);
 
         initScene();
         addPolygons();
@@ -137,6 +139,7 @@ public class JoclTest13 {
 
         solidFragment.setupPixelOut(outputHandler.getPixelOut());
         textureFragment.setupPixelOut(outputHandler.getPixelOut());
+        backgroundFragment.setupPixelOut(outputHandler.getPixelOut());
 
         solidFragment.prepareColorArray(relativePolys.size(), colorArray);
 
@@ -355,6 +358,11 @@ public class JoclTest13 {
         intermediate.prepare(updater.getIndexArrayData());
         intermediate.setupBoundBox(updater.getScreenPolygonBuffer(), updater.getPolygonStartData());
 
+        if(intermediate.hasWorkToDo())
+        {
+            intermediate.setupOutputMemory();
+        }
+
         intermediate.enqueueTasks(updater.getTask());
     }
 
@@ -362,6 +370,16 @@ public class JoclTest13 {
     {
         updateSolidFragment();
         updateTextureFragment();
+        updateBackgroundFragment();
+    }
+
+    private void updateBackgroundFragment()
+    {
+        backgroundFragment.setup();
+
+        backgroundFragment.setupOutMap(intermediate.getOutMap());
+
+        backgroundFragment.enqueueTasks(intermediate.getTask());
     }
 
     private void updateSolidFragment()
@@ -410,7 +428,17 @@ public class JoclTest13 {
         t.time();
         updateIntermediate();
         t.time();
-        updateFragments();
+        if (intermediate.hasWorkToDo())
+        {
+            updateFragments();
+        }
+        else
+        {
+            //since the intermediate had no work to do, there will be no outMap generated
+            //make it create a blank one and setup to release once background fragment is finished with it
+            intermediate.setupBlankOutMap(backgroundFragment.getTask());
+            updateBackgroundFragment();
+        }
         t.time();
 
         readDataFromFragments(data);
