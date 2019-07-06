@@ -9,13 +9,19 @@ import TextureGraphics.*;
 import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.JoclMemoryMethods;
 import TextureGraphics.Memory.PixelOutputHandler;
+import TextureGraphics.Memory.Texture.JoclTexture;
+import TextureGraphics.Memory.Texture.MemoryDataPackage;
+import TextureGraphics.Memory.Texture.MultiTextureData;
 import org.jocl.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,15 +44,16 @@ public class JoclTest13 {
 
     Camera camera;
 
-    ArrayList<double[][]> relativePolys;
+    ArrayList<double[][]> relativePolys, textureRelativePolys;
 
     double[][] translate, rotate, scale;
-    Matrix frustrum, projection, combined, allCombined;
+    Matrix frustrum, projection, combined, allCombined, textureMap;
 
     UpdateSceneCulling updater;
     GpuIntermediate intermediate;
 
     SolidColorFragment solidFragment;
+    TextureFragment textureFragment;
 
     double NEAR = 0.1, FAR = 30;
 
@@ -75,7 +82,16 @@ public class JoclTest13 {
         });
     }
 
-    Pointer metaDataPointer;
+    Pointer metaDataPointer, textureMetaPointer;
+
+    String[] texturePaths = {
+            "resources/Textures/default.png",
+            "resources/Textures/bluePixel.png",
+            "resources/Textures/blank.png",
+    };
+
+    JoclTexture[] textures;
+    MultiTextureData textureDataHandler;
 
     public JoclTest13(int width, int height)
     {
@@ -97,7 +113,8 @@ public class JoclTest13 {
         updater = new UpdateSceneCulling(screenWidth, screenHeight, setup);
         intermediate = new GpuIntermediate(screenWidth, screenHeight, setup);
 
-        solidFragment = new SolidColorFragment(screenWidth, height, setup);
+        solidFragment = new SolidColorFragment(screenWidth, screenHeight, setup);
+        textureFragment = new TextureFragment(screenWidth, screenHeight, setup);
 
         initScene();
         addPolygons();
@@ -106,14 +123,29 @@ public class JoclTest13 {
 
         updateRelativePolygons();
 
+        textureFragment.prepareTextureRelative(textureRelativePolys);
+
+        //----------META
         setupMetaData(setup);
         solidFragment.setupMetaInfoArray(metaDataPointer);
+        textureFragment.setupMetaInfoArray(metaDataPointer);
+        textureFragment.setupTextureMetaArray(textureMetaPointer);
+        //----------META
 
         outputHandler = new PixelOutputHandler(setup);
         outputHandler.setup(width, height);
+
         solidFragment.setupPixelOut(outputHandler.getPixelOut());
+        textureFragment.setupPixelOut(outputHandler.getPixelOut());
 
         solidFragment.prepareColorArray(relativePolys.size(), colorArray);
+
+        //----------TEXTURES
+        prepareTextures(setup);
+        MemoryDataPackage _package = textureDataHandler.getClTextureData();
+        textureFragment.setupTextureDataArray(Pointer.to(_package.data));
+        textureFragment.setupTextureInfoArray(textureDataHandler.getClTextureInfoData());
+        //----------TEXTURES
 
         imageComponent = new JPanel()
         {
@@ -141,15 +173,52 @@ public class JoclTest13 {
     }
 
     //0 - Solid Render
-    //1 - Texture Render(not implemented)
+    //1 - Texture Render
     private void setupMetaData(JoclSetup setup)
     {
         //for this test, everything is being marked as a solid render
-        int[] data = new int[relativePolys.size()];
+        int[] metaData = new int[relativePolys.size()];
 
-        cl_mem m = JoclMemoryMethods.write(setup.getContext(), setup.getCommandQueue(),
-                BufferHelper.createBuffer(data), CL_MEM_READ_ONLY);
-        metaDataPointer = Pointer.to(m);
+        metaData[0] = 1;//flag the first polygon as a texture
+
+        cl_mem m1 = JoclMemoryMethods.write(setup.getContext(), setup.getCommandQueue(),
+                BufferHelper.createBuffer(metaData), CL_MEM_READ_ONLY);
+        metaDataPointer = Pointer.to(m1);
+
+        int[] textureMetaData = new int[relativePolys.size()];
+        textureMetaData[0] = 0;//set the first polygon to the first texture, bad example since all start with 0 anyway...
+        cl_mem m2 = JoclMemoryMethods.write(setup.getContext(), setup.getCommandQueue(),
+                BufferHelper.createBuffer(textureMetaData), CL_MEM_READ_ONLY);
+        textureMetaPointer = Pointer.to(m2);
+    }
+
+    private void prepareTextures(JoclSetup setup)
+    {
+        BufferedImage[] images = new BufferedImage[texturePaths.length];
+
+        int totalSize = 0;
+        for (int i=0;i<images.length;i++)
+        {
+            String path = texturePaths[i];
+            try {
+                BufferedImage image = ImageIO.read(new File(getClass().getClassLoader().getResource(path).getFile()));
+                images[i] = image;
+
+                totalSize += images[i].getWidth() * images[i].getHeight();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        textureDataHandler = new MultiTextureData(setup);
+        textureDataHandler.init(totalSize, images.length);
+
+        textures = new JoclTexture[images.length];
+
+        for (int i=0;i<images.length;i++)
+        {
+            textures[i] = new JoclTexture(images[i], textureDataHandler);
+        }
     }
 
     private void initInteraction()
@@ -292,6 +361,7 @@ public class JoclTest13 {
     private void updateFragments()
     {
         updateSolidFragment();
+        updateTextureFragment();
     }
 
     private void updateSolidFragment()
@@ -304,9 +374,27 @@ public class JoclTest13 {
         solidFragment.enqueueTasks(intermediate.getTask());
     }
 
+    private void updateTextureFragment()
+    {
+        textureFragment.setup();
+
+        textureFragment.setupIndexArray(intermediate.getIndexArray());
+        textureFragment.setupOutMap(intermediate.getOutMap());
+        textureFragment.setupZMap(intermediate.getZMap());
+        textureFragment.setupRelativeArray(updater.getRelativePolygonArray());
+        textureFragment.setupPolygonStartArray(updater.getPolygonStartArray());
+
+        double[] flatInverse = new Matrix(allCombined.inverse_4x4()).flatten();
+        textureFragment.setInverseMatrix(flatInverse);
+
+        textureFragment.enqueueTasks(intermediate.getTask());
+    }
+
     private void readDataFromFragments(int[] data)
     {
         solidFragment.waitOnFinishing();
+        textureFragment.waitOnFinishing();
+
         outputHandler.read(data);
         imageComponent.repaint();
     }
@@ -348,6 +436,15 @@ public class JoclTest13 {
         t.reset();
     }
 
+    private void setupTextureMap()
+    {
+        //TODO do we need to scale inward by a small value?
+        Matrix matrix = new Matrix(MatrixHelper.setupIdentityMatrix());
+        matrix = new Matrix(matrix.matrixMultiply(MatrixHelper.setupTranslateMatrix(0.5, 0.5, 0)));
+        matrix = new Matrix(matrix.matrixMultiply(MatrixHelper.setupScaleMatrix(1, -1, 1)));
+        textureMap = matrix;
+    }
+
     private void addPolygons()
     {
         double[][] relativePoints = new double[][]{
@@ -356,11 +453,17 @@ public class JoclTest13 {
                 new double[]{.5, .5, 0},
                 new double[]{-.5, .5, 0},
         };
+        setupTextureMap();
+        double[][] textureRelativePoints = new double[relativePoints.length][];
+        for(int i=0;i<relativePoints.length;i++)
+        {
+            textureRelativePoints[i] = MatrixHelper.applyImplicitMatrix(textureMap, relativePoints[i]);
+        }
 
-        wallPanelScene(relativePoints);
+        wallPanelScene(relativePoints, textureRelativePoints);
     }
 
-    private void wallPanelScene(double[][] relativePoints)
+    private void wallPanelScene(double[][] relativePoints, double[][] textureRelativePoints)
     {
         int width = 100;
         int height = 100;
@@ -377,16 +480,17 @@ public class JoclTest13 {
                 relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
                 applyMatrix(relativePoints, horizontal);
 
-                addPolygon(relativePoints);
+                addPolygon(relativePoints, textureRelativePoints);
             }
             relativePoints = Arrays.copyOfRange(relativePoints, 0, relativePoints.length);
             applyMatrix(relativePoints, vertical);
         }
     }
 
-    private void addPolygon(double[][] polygon)
+    private void addPolygon(double[][] polygon, double[][] textureAnchor)
     {
         relativePolys.add(polygon);
+        textureRelativePolys.add(textureAnchor);
     }
 
     private void applyMatrix(double[][] relativePoints, Matrix combined)
@@ -399,6 +503,7 @@ public class JoclTest13 {
     private void initScene()
     {
         relativePolys = new ArrayList<>();
+        textureRelativePolys = new ArrayList<>();
 
         camera = new Camera(5,5, 10);
     }

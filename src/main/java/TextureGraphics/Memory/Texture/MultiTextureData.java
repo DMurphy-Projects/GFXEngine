@@ -5,9 +5,8 @@ import org.jocl.*;
 
 import java.util.HashMap;
 
-import static org.jocl.CL.CL_MEM_READ_ONLY;
-import static org.jocl.CL.clCreateBuffer;
-import static org.jocl.CL.clEnqueueWriteBuffer;
+import static org.jocl.CL.*;
+import static org.jocl.CL.CL_TRUE;
 
 public class MultiTextureData implements ITextureData {
 
@@ -47,20 +46,20 @@ public class MultiTextureData implements ITextureData {
                 dataSize * Sizeof.cl_int, null, null);
 
         textureInfoArray = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                2 * dataElements * Sizeof.cl_int, null, null);
+                3 * dataElements * Sizeof.cl_int, null, null);
     }
 
     @Override
     public void create(int width, int height, int[] data, ITexture texture) {
 
-        MultiPartPackage _package = new MultiPartPackage(data, new int[]{width, height}, dataOffset);
+        MultiPartPackage _package = new MultiPartPackage(data, new int[]{width, height, dataOffset / Sizeof.cl_int}, dataOffset);
         dataOffset += width * height * Sizeof.cl_int;
 
         textures.put(texture, _package);
 
         needsUpdate = true;
 
-        int size = 2 * Sizeof.cl_int;
+        int size = 3 * Sizeof.cl_int;
         clEnqueueWriteBuffer(commandQueue, textureInfoArray, true, infoOffset,
                 size, Pointer.to(_package.info), 0, null, null);
         infoOffset += size;

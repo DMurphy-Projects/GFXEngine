@@ -92,6 +92,11 @@ public class GpuIntermediate extends  JoclProgram{
         return dynamic.get(indexArray);
     }
 
+    public IJoclMemory getZMap()
+    {
+        return dynamic.get(zMapOut);
+    }
+
     public IJoclMemory getOutMap()
     {
         return dynamic.get(outMap);

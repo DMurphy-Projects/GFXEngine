@@ -95,6 +95,12 @@ public class UpdateSceneCulling extends JoclProgram{
     {
         return dynamic.get(screenArray);
     }
+    public IJoclMemory getRelativePolygonArray()
+    {
+        return cached.get(relativeArray);
+    }
+
+
 
     public IJoclMemory getPolygonStartArray()
     {
