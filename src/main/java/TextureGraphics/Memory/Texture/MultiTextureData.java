@@ -71,6 +71,8 @@ public class MultiTextureData implements ITextureData {
 
         _package.data[pos] = data;
         _package.needsUpdate = true;
+
+        needsUpdate = true;
     }
 
     @Override
