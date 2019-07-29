@@ -100,6 +100,8 @@ public class JoclTest13 {
 
     int[] textureTypeData;
 
+    final int ANT_TEXTURE = 2;
+
     public JoclTest13(int width, int height)
     {
         debug = VERBOSE;
@@ -179,7 +181,7 @@ public class JoclTest13 {
         frame.setVisible(true);
 
         setupRenderLoop();
-        setupGame((JoclDynamicTexture)textures[2]);
+        setupGame((JoclDynamicTexture)textures[ANT_TEXTURE]);
 
         invalidate();
     }
@@ -259,11 +261,11 @@ public class JoclTest13 {
         //NOTE: index corresponds to the texture array
         int[] textureMetaData = new int[relativePolys.size()];
         textureMetaData[0] = 0;//set the first polygon to the first texture, bad example since all start with 0 anyway...
-        textureMetaData[1] = 2;//this should be the blank image
+        textureMetaData[1] = ANT_TEXTURE;
 
         //NOTE: index corresponds to the texture array
         textureTypeData = new int[relativePolys.size()];
-        textureTypeData[2] = TextureType.DYNAMIC;
+        textureTypeData[ANT_TEXTURE] = TextureType.DYNAMIC;
 
         cl_mem m2 = JoclMemoryMethods.write(setup.getContext(), setup.getCommandQueue(),
                 BufferHelper.createBuffer(textureMetaData), CL_MEM_READ_ONLY);
