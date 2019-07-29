@@ -48,15 +48,22 @@ public class AntGame implements IGame{
         int current = screen.getPixel(x, y);
         screen.setPixel(x, y, getNextColor(current));
 
-        boolean shouldTurnLeft = actionMap.get(current);
+        try {
+            boolean shouldTurnLeft = actionMap.get(current);
 
-        if (shouldTurnLeft)
-        {
-            turnLeft();
+            if (shouldTurnLeft)
+            {
+                turnLeft();
+            }
+            else
+            {
+                turnRight();
+            }
         }
-        else
+        catch (NullPointerException e)
         {
-            turnRight();
+            System.out.println("No Action for Color: " + current);
+            e.printStackTrace();
         }
     }
 
