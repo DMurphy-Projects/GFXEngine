@@ -1,5 +1,7 @@
 package Programs.KernalTestPrograms;
 
+import Games.Ant.AntGame;
+import Games.IGameScreen;
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.Maths.FrustumMatrixHelper;
 import GxEngine3D.Helper.Maths.MatrixHelper;
@@ -9,9 +11,9 @@ import TextureGraphics.*;
 import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.JoclMemoryMethods;
 import TextureGraphics.Memory.PixelOutputHandler;
-import TextureGraphics.Memory.Texture.JoclTexture;
-import TextureGraphics.Memory.Texture.MemoryDataPackage;
-import TextureGraphics.Memory.Texture.MultiTextureData;
+import TextureGraphics.Memory.Texture.*;
+import TextureGraphics.Memory.Texture.Enumeration.RenderType;
+import TextureGraphics.Memory.Texture.Enumeration.TextureType;
 import org.jocl.*;
 
 import javax.imageio.ImageIO;
@@ -72,6 +74,8 @@ public class JoclTest13 {
 
     PixelOutputHandler outputHandler;
 
+    boolean update = false;
+
     public static void main(String[] arg)
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -91,8 +95,10 @@ public class JoclTest13 {
             "resources/Textures/blank.png",
     };
 
-    JoclTexture[] textures;
+    ITexture[] textures;
     MultiTextureData textureDataHandler;
+
+    int[] textureTypeData;
 
     public JoclTest13(int width, int height)
     {
@@ -172,24 +178,93 @@ public class JoclTest13 {
 
         frame.setVisible(true);
 
-        updateScreen();
+        setupRenderLoop();
+        setupGame((JoclDynamicTexture)textures[2]);
+
+        invalidate();
     }
 
-    //0 - Solid Render
-    //1 - Texture Render
+    private void setupGame(IGameScreen screen)
+    {
+        AntGame game = new AntGame(screen);
+
+        game.addAction(Color.WHITE, true);
+        game.addAction(Color.BLACK, false);
+        game.addAction(Color.GREEN.darker(), false);
+        game.addAction(Color.GREEN, true);
+
+        //game update loop
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                while (true)
+                {
+                    game.tick();
+
+                    //update the texture in the texture fragment
+                    MemoryDataPackage _package = textureDataHandler.getClTextureData();
+                    textureFragment.setupTextureDataArray(Pointer.to(_package.data));
+
+                    invalidate();
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private void setupRenderLoop()
+    {
+        //render loop
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true)
+                {
+                    if (update)
+                    {
+                        update = false;
+                        updateScreen();
+                    }
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    private void invalidate()
+    {
+        update = true;
+    }
+
     private void setupMetaData(JoclSetup setup)
     {
-        //for this test, everything is being marked as a solid render
         int[] metaData = new int[relativePolys.size()];
 
-        metaData[0] = 1;//flag the first polygon as a texture
+        metaData[0] = RenderType.TEXTURE;//flag the first polygon as a texture
+        metaData[1] = RenderType.TEXTURE;//flag second poly as texture, this is for the game
 
         cl_mem m1 = JoclMemoryMethods.write(setup.getContext(), setup.getCommandQueue(),
                 BufferHelper.createBuffer(metaData), CL_MEM_READ_ONLY);
         metaDataPointer = Pointer.to(m1);
 
+        //NOTE: index corresponds to the texture array
         int[] textureMetaData = new int[relativePolys.size()];
         textureMetaData[0] = 0;//set the first polygon to the first texture, bad example since all start with 0 anyway...
+        textureMetaData[1] = 2;//this should be the blank image
+
+        //NOTE: index corresponds to the texture array
+        textureTypeData = new int[relativePolys.size()];
+        textureTypeData[2] = TextureType.DYNAMIC;
+
         cl_mem m2 = JoclMemoryMethods.write(setup.getContext(), setup.getCommandQueue(),
                 BufferHelper.createBuffer(textureMetaData), CL_MEM_READ_ONLY);
         textureMetaPointer = Pointer.to(m2);
@@ -220,7 +295,15 @@ public class JoclTest13 {
 
         for (int i=0;i<images.length;i++)
         {
-            textures[i] = new JoclTexture(images[i], textureDataHandler);
+            switch (textureTypeData[i])
+            {
+                case TextureType.REGULAR:
+                    textures[i] = new JoclTexture(images[i], textureDataHandler);
+                    break;
+                case TextureType.DYNAMIC:
+                    textures[i] = new JoclDynamicTexture(images[i], textureDataHandler);
+                    break;
+            }
         }
     }
 
@@ -233,12 +316,12 @@ public class JoclTest13 {
                 {
                     case 'p':
                         camera.lookAt(new double[]{0, 0, 0});
-                        updateScreen();
+                        invalidate();
                         break;
                     case 'i':
                         break;
                     case 'l':
-                        updateScreen();
+                        invalidate();
                         break;
                 }
             }
@@ -257,7 +340,7 @@ public class JoclTest13 {
                         keys.put(Camera.Direction.RIGHT, true); break;
                 }
                 camera.CameraMovement(keys);
-                updateScreen();
+                invalidate();
             }
 
             @Override
@@ -274,7 +357,7 @@ public class JoclTest13 {
                         keys.put(Camera.Direction.RIGHT, false); break;
                 }
                 camera.CameraMovement(keys);
-                updateScreen();
+                invalidate();
             }
         });
 
@@ -303,7 +386,7 @@ public class JoclTest13 {
                 camera.MouseMovement(center[0] - e.getXOnScreen(), center[1] - e.getYOnScreen());
                 centreMouse();
 
-                updateScreen();
+                invalidate();
             }
         });
     }
