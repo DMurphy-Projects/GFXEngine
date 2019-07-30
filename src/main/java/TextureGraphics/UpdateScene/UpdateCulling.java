@@ -26,7 +26,7 @@ public class UpdateCulling extends JoclProgram {
     ArrayList<cl_event> taskEvents;
 
     //names to retrieve arguments by
-    String polygonStart = "PolygonStart", indexArray = "IndexArray",
+    String polygonStart = "PolygonStart", cullFlagArray = "CullFlag",
             screenSize = "ScreenSize", polygonArray = "PolygonArray";
 
     //arg indices
@@ -34,14 +34,14 @@ public class UpdateCulling extends JoclProgram {
             polygonArrayArg = 1,
             polyStartArrayArg = 2,
             clipArrayArg = 3,
-            indexArrayArg = 4
+            cullFlagArrayArg = 4
     ;
 
     int polyCount;
 
     int[] polygonStartArrayData, polygonArrayData;
 
-    ByteBuffer indexArrayData, indexArrayDataInit;
+    ByteBuffer cullFlagData, cullFlagDataInit;
 
     cl_event task;
 
@@ -90,10 +90,10 @@ public class UpdateCulling extends JoclProgram {
         return polygonStartArrayData;
     }
 
-    public IntBuffer getIndexArrayData()
+    public IntBuffer getCullFlagData()
     {
-        indexArrayData.order(ByteOrder.nativeOrder());
-        return indexArrayData.asIntBuffer();
+        cullFlagData.order(ByteOrder.nativeOrder());
+        return cullFlagData.asIntBuffer();
     }
 
     public cl_event getTask()
@@ -134,11 +134,11 @@ public class UpdateCulling extends JoclProgram {
 
         polygonArrayData = new int[points.size() * 3];//indices
 
-        indexArrayData = ByteBuffer.allocateDirect(polyCount * Sizeof.cl_int);
+        cullFlagData = ByteBuffer.allocateDirect(polyCount * Sizeof.cl_int);
 
         int[] indexStart = new int[polyCount];
         Arrays.fill(indexStart, 0);
-        indexArrayDataInit = BufferHelper.createBuffer(indexStart);
+        cullFlagDataInit = BufferHelper.createBuffer(indexStart);
 
         polygonStartArrayData = new int[polyCount+1];
         polygonStartArrayData[polyCount] = pointCount;
@@ -227,8 +227,8 @@ public class UpdateCulling extends JoclProgram {
         taskEvents.toArray(executionTasks);
 
         int i = 0;
-        clEnqueueReadBuffer(commandQueue, dynamic.get(indexArray).getRawObject(), false, 0,
-                Sizeof.cl_int * polyCount, Pointer.to(indexArrayData), executionTasks.length, executionTasks, readTasks[i++]);
+        clEnqueueReadBuffer(commandQueue, dynamic.get(cullFlagArray).getRawObject(), false, 0,
+                Sizeof.cl_int * polyCount, Pointer.to(cullFlagData), executionTasks.length, executionTasks, readTasks[i++]);
 
     }
 
@@ -252,12 +252,12 @@ public class UpdateCulling extends JoclProgram {
 
     private void recreateOutputMemory()
     {
-        dynamic.put(null, indexArray, indexArrayDataInit, 0, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, cullFlagArray, cullFlagDataInit, 0, CL_MEM_WRITE_ONLY);
     }
 
     private void setupOutArgs()
     {
-        clSetKernelArg(kernel, indexArrayArg, Sizeof.cl_mem, dynamic.get(indexArray).getObject());
+        clSetKernelArg(kernel, cullFlagArrayArg, Sizeof.cl_mem, dynamic.get(cullFlagArray).getObject());
     }
     //OUTPUT ARGUMENT END
 

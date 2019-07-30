@@ -2,11 +2,14 @@
 void applyMatrix(__global double *matrix, double *in, double *out);
 
 //polygonArray: indices that correspond to relative/clip/screen arrays
+//polygonStartArray: contains memory offset values when taken in pairs can determine the size of a given polygon
+//clipArray: array for stored clip points, in no particular order, must use polygonArray to determine order
+//cullFlagArray: contains flags to determine whether we render this polygon or not, 0 means render, -1 means cull
 __kernel void updateScene(
     __global int *screenSize,
     __global int *polygonArray, __global int *polyStartArray,
     __global double *clipArray,
-    __global int *indexArray
+    __global int *cullFlagArray
 )
 {
     int n = get_local_size(0) * get_group_id(0) + get_local_id(0);
@@ -29,19 +32,17 @@ __kernel void updateScene(
                 isOutside = false;
             }
         }
-        if (!isBehindNear)
+        if (out[2] < 0)
         {
-            if (out[2] < 0)
-            {
-                isBehindNear = true;
-            }
+            isBehindNear = true;
+            break;
         }
     }
 
     //when to flag as not being used
     if (isOutside || isBehindNear)
     {
-        indexArray[n] = -1;
+        cullFlagArray[n] = -1;
     }
 }
 

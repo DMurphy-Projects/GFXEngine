@@ -495,7 +495,7 @@ public class JoclTest13 {
 
         pointUpdater.waitOnReadTasks();
 
-        intermediate.prepare(cullingUpdater.getIndexArrayData());
+        intermediate.prepare(cullingUpdater.getCullFlagData());
         intermediate.setupBoundBox(pointUpdater.getScreenPolygonBuffer(), cullingUpdater.getPolygonStartData());
 
         if(intermediate.hasWorkToDo())

@@ -1,6 +1,9 @@
 
 void applyMatrix(__global double *matrix, double *in, double *out);
 
+//relativeArray: contains points in relative space to be converted.
+//clipArray: an output array which expects to be filled with clip points.
+//screenArray: an output array which expects to be filled with screen points.
 __kernel void updateScene(
     __global int *screenSize,
     __global double *relativeArray,
