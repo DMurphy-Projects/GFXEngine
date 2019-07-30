@@ -1,6 +1,8 @@
-package TextureGraphics;
+package TextureGraphics.BarycentricRender;
 
 import GxEngine3D.Helper.Maths.PolygonSplitter;
+import TextureGraphics.Archive.JoclRenderer;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;

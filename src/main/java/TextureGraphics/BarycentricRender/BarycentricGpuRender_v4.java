@@ -1,7 +1,10 @@
-package TextureGraphics;
+package TextureGraphics.BarycentricRender;
 
 import GxEngine3D.Helper.ArrayHelper;
 import GxEngine3D.Helper.Maths.VectorCalc;
+import TextureGraphics.ExecutionStatistics;
+import TextureGraphics.Archive.JoclRenderer;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
@@ -23,7 +26,7 @@ import static org.jocl.CL.clSetKernelArg;
 
 //could be optimised further
 //does not have the sparse pixel problem of predecessors however this is not robust against the flaws in the projection matrix
-public class BarycentricGpuRender_v4 extends JoclRenderer{
+public class BarycentricGpuRender_v4 extends JoclRenderer {
 
     int screenWidth, screenHeight;
 

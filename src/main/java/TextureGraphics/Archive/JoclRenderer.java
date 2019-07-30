@@ -1,5 +1,6 @@
-package TextureGraphics;
+package TextureGraphics.Archive;
 
+import TextureGraphics.JoclProgram;
 import TextureGraphics.Memory.Texture.ITexture;
 import TextureGraphics.Memory.Texture.JoclTexture;
 

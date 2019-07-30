@@ -1,5 +1,7 @@
-package TextureGraphics;
+package TextureGraphics.Intermediate;
 
+import TextureGraphics.JoclProgram;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
@@ -19,7 +21,7 @@ import static org.jocl.CL.*;
 //this implementation is based on the GpuRendererIterateColorPolygon
 //the handling of the polygon points will be external
 //
-public class GpuIntermediateRefPoint extends  JoclProgram{
+public class GpuIntermediateRefPoint extends JoclProgram {
 
     int screenWidth, screenHeight;
 
@@ -54,7 +56,7 @@ public class GpuIntermediateRefPoint extends  JoclProgram{
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/IterateMethods/IterateIntermediateRefPoint.cl", "calculateMapInfo",
+        create("resources/Kernels/Intermediate/IterateIntermediateRefPoint.cl", "calculateMapInfo",
                 setup);
 
         super.start();

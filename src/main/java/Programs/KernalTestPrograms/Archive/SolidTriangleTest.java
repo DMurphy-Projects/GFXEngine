@@ -1,4 +1,4 @@
-package Programs.KernalTestPrograms;
+package Programs.KernalTestPrograms.Archive;
 
 import GxEngine3D.Camera.Camera;
 import GxEngine3D.Helper.Maths.FrustumMatrixHelper;
@@ -6,7 +6,7 @@ import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
 import TextureGraphics.Memory.Texture.JoclTexture;
-import TextureGraphics.SolidTriangleRender;
+import TextureGraphics.Archive.SolidTriangleRender;
 
 import javax.swing.*;
 import java.awt.*;

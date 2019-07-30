@@ -1,10 +1,10 @@
-package TextureGraphics;
+package TextureGraphics.Intermediate;
 
+import TextureGraphics.JoclProgram;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
-import TextureGraphics.Memory.JoclMemoryMethods;
-import TextureGraphics.Memory.Texture.MemoryDataPackage;
 import org.jocl.*;
 
 import java.awt.*;
@@ -19,7 +19,7 @@ import static org.jocl.CL.*;
 //this implementation is based on the GpuRendererIterateColorPolygon
 //the handling of the polygon points will be external
 //
-public class GpuIntermediate extends  JoclProgram{
+public class GpuIntermediate extends JoclProgram {
 
     int screenWidth, screenHeight;
 
@@ -53,7 +53,7 @@ public class GpuIntermediate extends  JoclProgram{
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/IterateMethods/IterateIntermediate.cl", "calculateMapInfo",
+        create("resources/Kernels/Intermediate/IterateIntermediate.cl", "calculateMapInfo",
                 setup);
 
         super.start();

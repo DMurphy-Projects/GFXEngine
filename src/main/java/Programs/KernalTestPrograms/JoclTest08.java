@@ -5,7 +5,7 @@ import GxEngine3D.Helper.Maths.FrustumMatrixHelper;
 import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
-import TextureGraphics.BarycentricGpuRender_v3;
+import TextureGraphics.BarycentricRender.BarycentricGpuRender_v3;
 import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.Texture.JoclTexture;
 import TextureGraphics.Memory.Texture.SingleTextureData;

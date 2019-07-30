@@ -1,27 +1,35 @@
-package TextureGraphics;
+package TextureGraphics.UpdateScene;
 
+import TextureGraphics.ExecutionStatistics;
+import TextureGraphics.JoclProgram;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.AsyncJoclMemory;
+import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.MemoryHandler;
-import org.jocl.*;
+import org.jocl.Pointer;
+import org.jocl.Sizeof;
+import org.jocl.cl_event;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.jocl.CL.*;
 
 //could be optimised further
 //does not have the sparse pixel problem of predecessors however this is not robust against the flaws in the projection matrix
-public class UpdateScene extends JoclProgram{
+public class UpdateSceneCulling extends JoclProgram {
 
     int screenWidth, screenHeight;
 
     ArrayList<cl_event> taskEvents;
 
     //names to retrieve arguments by
-    String relativeArray = "Relative", clipArray = "Clip", screenArray = "Screen", polygonStart = "PolygonStart",
+    String relativeArray = "Relative", clipArray = "Clip", screenArray = "Screen", polygonStart = "PolygonStart", indexArray = "IndexArray",
             screenSize = "ScreenSize";
 
     //arg indices
@@ -30,7 +38,8 @@ public class UpdateScene extends JoclProgram{
             polyStartArrayArg = 2,
             matrixArg = 3,
             clipArrayArg = 4,
-            screenArrayArg = 5
+            screenArrayArg = 5,
+            indexArrayArg = 6
     ;
 
     int pointCount, memoryOffset, polyCount;
@@ -38,20 +47,35 @@ public class UpdateScene extends JoclProgram{
     double[] relativeArrayData, matrix;
     int[] polygonStartArrayData;
 
-    ByteBuffer clipArrayData, screenArrayData;
+    ByteBuffer clipArrayData, screenArrayData, indexArrayData, indexArrayDataInit;
 
     cl_event task;
 
     boolean relativeUpdated = false;
 
-    public UpdateScene(int screenWidth, int screenHeight)
+    public UpdateSceneCulling(int screenWidth, int screenHeight)
     {
-        this.profiling = false;
+        this.profiling = true;
 
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/SceneUpdate/SceneUpdate.cl", "updateScene");
+        create("resources/Kernels/UpdateScene/UpdateSceneCulling.cl", "updateScene");
+
+        taskEvents = new ArrayList<>();
+
+        super.start();
+    }
+
+    public UpdateSceneCulling(int screenWidth, int screenHeight, JoclSetup setup)
+    {
+        this.profiling = setup.isProfiling();
+
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
+
+        create("resources/Kernels/UpdateScene/UpdateSceneCulling.cl", "updateScene",
+                setup);
 
         taskEvents = new ArrayList<>();
 
@@ -74,6 +98,12 @@ public class UpdateScene extends JoclProgram{
     {
         return dynamic.get(screenArray);
     }
+    public IJoclMemory getRelativePolygonArray()
+    {
+        return cached.get(relativeArray);
+    }
+
+
 
     public IJoclMemory getPolygonStartArray()
     {
@@ -83,6 +113,12 @@ public class UpdateScene extends JoclProgram{
     public int[] getPolygonStartData()
     {
         return polygonStartArrayData;
+    }
+
+    public IntBuffer getIndexArrayData()
+    {
+        indexArrayData.order(ByteOrder.nativeOrder());
+        return indexArrayData.asIntBuffer();
     }
 
     public cl_event getTask()
@@ -132,8 +168,15 @@ public class UpdateScene extends JoclProgram{
         screenArrayData = ByteBuffer.allocateDirect(count * 3 * Sizeof.cl_double);
 
         int polyCount = polygons.size();
+
+        indexArrayData = ByteBuffer.allocateDirect(polyCount * Sizeof.cl_int);
+
+        int[] indexStart = new int[polyCount];
+        Arrays.fill(indexStart, 0);
+        indexArrayDataInit = BufferHelper.createBuffer(indexStart);
+
         polygonStartArrayData = new int[polyCount+1];
-        polygonStartArrayData[polyCount] = (count * 3) - 1;
+        polygonStartArrayData[polyCount] = (count * 3);
 
         relativeUpdated = true;
     }
@@ -225,17 +268,23 @@ public class UpdateScene extends JoclProgram{
     public void readData()
     {
         readTasks = new cl_event[2];
-        readTasks[0] = new cl_event();
-        readTasks[1] = new cl_event();
+        for (int i=0;i<readTasks.length;i++)
+        {
+            readTasks[i] = new cl_event();
+        }
 
         cl_event[] executionTasks = new cl_event[taskEvents.size()];
         taskEvents.toArray(executionTasks);
 
-        clEnqueueReadBuffer(commandQueue, dynamic.get(clipArray).getRawObject(), false, 0,
-                Sizeof.cl_double * pointCount * 3, Pointer.to(clipArrayData), executionTasks.length, executionTasks, readTasks[0]);
+        int i = 0;
+//        clEnqueueReadBuffer(commandQueue, dynamic.get(clipArray).getRawObject(), false, 0,
+//                Sizeof.cl_double * pointCount * 3, Pointer.to(clipArrayData), executionTasks.length, executionTasks, readTasks[i++]);
 
         clEnqueueReadBuffer(commandQueue, dynamic.get(screenArray).getRawObject(), false, 0,
-                Sizeof.cl_double * pointCount * 3, Pointer.to(screenArrayData), executionTasks.length, executionTasks, readTasks[1]);
+                Sizeof.cl_double * pointCount * 3, Pointer.to(screenArrayData), executionTasks.length, executionTasks, readTasks[i++]);
+
+        clEnqueueReadBuffer(commandQueue, dynamic.get(indexArray).getRawObject(), false, 0,
+                Sizeof.cl_int * polyCount, Pointer.to(indexArrayData), executionTasks.length, executionTasks, readTasks[i++]);
     }
 
     public void waitOnReadTasks()
@@ -252,20 +301,22 @@ public class UpdateScene extends JoclProgram{
     private void setupOutputMemory()
     {
         //each point has 3 components, (x, y, z)
-        recreateOutputMemory(pointCount * 3);
+        recreateOutputMemory(pointCount);
         setupOutArgs();
     }
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(null, clipArray, size * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
-        dynamic.put(null, screenArray, size * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, clipArray, size * 3 * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, screenArray, size * 3 * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, indexArray, indexArrayDataInit, 0, CL_MEM_WRITE_ONLY);
     }
 
     private void setupOutArgs()
     {
         clSetKernelArg(kernel, clipArrayArg, Sizeof.cl_mem, dynamic.get(clipArray).getObject());
         clSetKernelArg(kernel, screenArrayArg, Sizeof.cl_mem, dynamic.get(screenArray).getObject());
+        clSetKernelArg(kernel, indexArrayArg, Sizeof.cl_mem, dynamic.get(indexArray).getObject());
     }
     //OUTPUT ARGUMENT END
 

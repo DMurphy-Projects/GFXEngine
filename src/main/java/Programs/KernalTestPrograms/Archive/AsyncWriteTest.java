@@ -1,4 +1,4 @@
-package Programs.KernalTestPrograms;
+package Programs.KernalTestPrograms.Archive;
 
 import TextureGraphics.JoclProgram;
 import TextureGraphics.Memory.AsyncJoclMemory;
@@ -28,7 +28,7 @@ public class AsyncWriteTest extends JoclProgram{
 
     public AsyncWriteTest()
     {
-        create("resources/Kernels/AsyncWriteTest.cl", "testWrite");
+        create("resources/Kernels/Archive/AsyncWriteTest.cl", "testWrite");
 
         super.start();
 

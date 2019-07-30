@@ -1,5 +1,7 @@
-package TextureGraphics;
+package TextureGraphics.FragmentRender;
 
+import TextureGraphics.JoclProgram;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.IJoclMemory;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
@@ -9,7 +11,7 @@ import java.util.ArrayList;
 
 import static org.jocl.CL.*;
 
-public class BackgroundFragment extends  JoclProgram{
+public class BackgroundFragment extends JoclProgram {
 
     int screenWidth, screenHeight;
 

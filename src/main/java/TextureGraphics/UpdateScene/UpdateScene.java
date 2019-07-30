@@ -1,45 +1,44 @@
-package TextureGraphics;
+package TextureGraphics.UpdateScene;
 
+import TextureGraphics.ExecutionStatistics;
+import TextureGraphics.JoclProgram;
 import TextureGraphics.Memory.AsyncJoclMemory;
-import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.MemoryHandler;
-import org.jocl.Pointer;
-import org.jocl.Sizeof;
-import org.jocl.cl_event;
+import org.jocl.*;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import static org.jocl.CL.*;
 
-public class UpdateRefPoint extends JoclProgram{
+//could be optimised further
+//does not have the sparse pixel problem of predecessors however this is not robust against the flaws in the projection matrix
+public class UpdateScene extends JoclProgram {
 
     int screenWidth, screenHeight;
 
     ArrayList<cl_event> taskEvents;
 
     //names to retrieve arguments by
-    String relativeArray = "Relative",
-            clipArray = "Clip",
-            screenArray = "Screen",
+    String relativeArray = "Relative", clipArray = "Clip", screenArray = "Screen", polygonStart = "PolygonStart",
             screenSize = "ScreenSize";
 
     //arg indices
     int screenSizeArg = 0,
             relativeArrayArg = 1,
-            matrixArg = 2,
-            clipArrayArg = 3,
-            screenArrayArg = 4
+            polyStartArrayArg = 2,
+            matrixArg = 3,
+            clipArrayArg = 4,
+            screenArrayArg = 5
     ;
 
-    int pointCount;
+    int pointCount, memoryOffset, polyCount;
 
     double[] relativeArrayData, matrix;
+    int[] polygonStartArrayData;
 
     ByteBuffer clipArrayData, screenArrayData;
 
@@ -47,30 +46,14 @@ public class UpdateRefPoint extends JoclProgram{
 
     boolean relativeUpdated = false;
 
-    String kernelPath = "resources/Kernels/SceneUpdate/UpdateRefPoint.cl", kernelMethod = "updateScene";
-
-    public UpdateRefPoint(int screenWidth, int screenHeight)
+    public UpdateScene(int screenWidth, int screenHeight)
     {
-        this.profiling = true;
+        this.profiling = false;
 
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create(kernelPath, kernelMethod);
-
-        taskEvents = new ArrayList<>();
-
-        super.start();
-    }
-
-    public UpdateRefPoint(int screenWidth, int screenHeight, JoclSetup setup)
-    {
-        this.profiling = setup.isProfiling();
-
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
-
-        create(kernelPath, kernelMethod, setup);
+        create("resources/Kernels/UpdateScene/UpdateScene.cl", "updateScene");
 
         taskEvents = new ArrayList<>();
 
@@ -93,13 +76,15 @@ public class UpdateRefPoint extends JoclProgram{
     {
         return dynamic.get(screenArray);
     }
-    public IJoclMemory getRelativePolygonArray()
+
+    public IJoclMemory getPolygonStartArray()
     {
-        return cached.get(relativeArray);
+        return cached.get(polygonStart);
     }
-    public IJoclMemory getClipPolygonArray()
+
+    public int[] getPolygonStartData()
     {
-        return dynamic.get(clipArray);
+        return polygonStartArrayData;
     }
 
     public cl_event getTask()
@@ -129,16 +114,28 @@ public class UpdateRefPoint extends JoclProgram{
         task = new cl_event();
     }
 
-    public void prepare(ArrayList<double[]> points)
+    public void resetPolygons()
     {
-        pointCount = points.size();
+        pointCount = 0;
+        polyCount = 0;
+        memoryOffset = 0;
+    }
 
-        relativeArrayData = new double[pointCount * 3];//points
+    public void prepare(ArrayList<double[][]> polygons)
+    {
+        int count = 0;
+        for (double[][] polygon: polygons)
+        {
+            count += polygon.length;
+        }
 
-        clipArrayData = ByteBuffer.allocateDirect(pointCount * 3 * Sizeof.cl_double);
-        screenArrayData = ByteBuffer.allocateDirect(pointCount * 3 * Sizeof.cl_double);
+        relativeArrayData = new double[count * 3];
+        clipArrayData = ByteBuffer.allocateDirect(count * 3 * Sizeof.cl_double);
+        screenArrayData = ByteBuffer.allocateDirect(count * 3 * Sizeof.cl_double);
 
-        createRelativePointsData(points);
+        int polyCount = polygons.size();
+        polygonStartArrayData = new int[polyCount+1];
+        polygonStartArrayData[polyCount] = (count * 3) - 1;
 
         relativeUpdated = true;
     }
@@ -148,16 +145,20 @@ public class UpdateRefPoint extends JoclProgram{
         matrix = flatMatrix;
     }
 
-    private void createRelativePointsData(ArrayList<double[]> points)
+    public void addPolygon(double[][] polygon)
     {
-        int memoryOffset = 0;
-        for (double[] p: points)
+        polygonStartArrayData[polyCount] = memoryOffset;
+
+        for (double[] p: polygon)
         {
             int size = p.length;
             System.arraycopy(p, 0, relativeArrayData, memoryOffset, size);
             memoryOffset += size;
+
+            pointCount++;
         }
-        int i = 0;
+
+        polyCount++;
     }
 
     public void enqueue()
@@ -166,19 +167,20 @@ public class UpdateRefPoint extends JoclProgram{
 
         taskEvents.add(task);
 
-        cl_event[] waitingEvents = new cl_event[relativeUpdated?2:1];
+        cl_event[] waitingEvents = new cl_event[relativeUpdated?3:1];
 
         int i = 0;
         if (relativeUpdated)
         {
             waitingEvents[0] = setupRelativeArray(task);
+            waitingEvents[1] = setupPolygonStartArray(task);
 
             relativeUpdated = false;
-            i += 1;
+            i += 2;
         }
         waitingEvents[i] = setupMatrix(task);
 
-        long[] globalWorkSize = { pointCount };
+        long[] globalWorkSize = { polyCount };
 
         //TODO do enqueue
         clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
@@ -225,20 +227,17 @@ public class UpdateRefPoint extends JoclProgram{
     public void readData()
     {
         readTasks = new cl_event[2];
-        for (int i=0;i<readTasks.length;i++)
-        {
-            readTasks[i] = new cl_event();
-        }
+        readTasks[0] = new cl_event();
+        readTasks[1] = new cl_event();
 
         cl_event[] executionTasks = new cl_event[taskEvents.size()];
         taskEvents.toArray(executionTasks);
 
-        int i = 0;
-        clEnqueueReadBuffer(commandQueue, dynamic.get(screenArray).getRawObject(), false, 0,
-                Sizeof.cl_double * pointCount * 3, Pointer.to(screenArrayData), executionTasks.length, executionTasks, readTasks[i++]);
-
         clEnqueueReadBuffer(commandQueue, dynamic.get(clipArray).getRawObject(), false, 0,
-                Sizeof.cl_double * pointCount * 3, Pointer.to(clipArrayData), executionTasks.length, executionTasks, readTasks[i++]);
+                Sizeof.cl_double * pointCount * 3, Pointer.to(clipArrayData), executionTasks.length, executionTasks, readTasks[0]);
+
+        clEnqueueReadBuffer(commandQueue, dynamic.get(screenArray).getRawObject(), false, 0,
+                Sizeof.cl_double * pointCount * 3, Pointer.to(screenArrayData), executionTasks.length, executionTasks, readTasks[1]);
     }
 
     public void waitOnReadTasks()
@@ -255,14 +254,14 @@ public class UpdateRefPoint extends JoclProgram{
     private void setupOutputMemory()
     {
         //each point has 3 components, (x, y, z)
-        recreateOutputMemory(pointCount);
+        recreateOutputMemory(pointCount * 3);
         setupOutArgs();
     }
 
     private void recreateOutputMemory(int size)
     {
-        dynamic.put(null, clipArray, size * 3 * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
-        dynamic.put(null, screenArray, size * 3 * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, clipArray, size * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
+        dynamic.put(null, screenArray, size * Sizeof.cl_double, CL_MEM_WRITE_ONLY);
     }
 
     private void setupOutArgs()
@@ -286,8 +285,20 @@ public class UpdateRefPoint extends JoclProgram{
         return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
     }
 
+    private cl_event setupPolygonStartArray(cl_event task)
+    {
+        IJoclMemory m = cached.put(task, polygonStart, polygonStartArrayData,0, CL_MEM_READ_ONLY);
+        setPolygonStartArg(m);
+        return ((AsyncJoclMemory)m).getFinishedWritingEvent()[0];
+    }
+
     private void setRelativeArrayArg(IJoclMemory m)
     {
         clSetKernelArg(kernel, relativeArrayArg, Sizeof.cl_mem, m.getObject());
+    }
+
+    private void setPolygonStartArg(IJoclMemory m)
+    {
+        clSetKernelArg(kernel, polyStartArrayArg, Sizeof.cl_mem, m.getObject());
     }
 }

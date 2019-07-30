@@ -1,4 +1,4 @@
-package Programs.KernalTestPrograms;
+package Programs.KernalTestPrograms.Archive;
 
 import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Model.Matrix.Matrix;
@@ -24,7 +24,7 @@ public class KernelMatrixTest extends JoclProgram{
 
     public KernelMatrixTest()
     {
-        create("resources/Kernels/KernelMatrix.cl", "applyMatrix");
+        create("resources/Kernels/Archive/KernelMatrix.cl", "applyMatrix");
         super.start();
 
         setup();

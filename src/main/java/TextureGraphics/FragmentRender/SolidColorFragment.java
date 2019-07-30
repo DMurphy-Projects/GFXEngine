@@ -1,5 +1,7 @@
-package TextureGraphics;
+package TextureGraphics.FragmentRender;
 
+import TextureGraphics.JoclProgram;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
@@ -20,7 +22,7 @@ import static org.jocl.CL.*;
 //this implementation is based on the GpuRendererIterateColorPolygon
 //the handling of the polygon points will be external
 //
-public class SolidColorFragment extends  JoclProgram{
+public class SolidColorFragment extends JoclProgram {
 
     int screenWidth, screenHeight;
 

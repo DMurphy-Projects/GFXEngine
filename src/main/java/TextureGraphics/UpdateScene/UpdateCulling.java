@@ -1,5 +1,8 @@
-package TextureGraphics;
+package TextureGraphics.UpdateScene;
 
+import TextureGraphics.ExecutionStatistics;
+import TextureGraphics.JoclProgram;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.BufferHelper;
 import TextureGraphics.Memory.IJoclMemory;
@@ -10,14 +13,13 @@ import org.jocl.cl_event;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.jocl.CL.*;
 
-public class UpdateCulling extends JoclProgram{
+public class UpdateCulling extends JoclProgram {
 
     int screenWidth, screenHeight;
 
@@ -43,7 +45,7 @@ public class UpdateCulling extends JoclProgram{
 
     cl_event task;
 
-    String kernelPath = "resources/Kernels/SceneUpdate/UpdateCulling.cl", kernelMethod = "updateScene";
+    String kernelPath = "resources/Kernels/UpdateScene/UpdateCulling.cl", kernelMethod = "updateScene";
 
     public UpdateCulling(int screenWidth, int screenHeight)
     {

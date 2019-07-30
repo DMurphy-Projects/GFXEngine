@@ -6,7 +6,7 @@ import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import GxEngine3D.Model.Matrix.Matrix;
-import TextureGraphics.GpuRendererIterateColor_Slow;
+import TextureGraphics.IterateMethods.GpuRendererIterateColor_Slow;
 import TextureGraphics.Memory.Texture.JoclTexture;
 
 import javax.swing.*;

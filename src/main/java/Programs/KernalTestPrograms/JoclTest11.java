@@ -5,18 +5,11 @@ import GxEngine3D.Helper.Maths.FrustumMatrixHelper;
 import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
-import TextureGraphics.GpuRendererIterateColor;
-import TextureGraphics.Memory.Texture.JoclTexture;
-import TextureGraphics.UpdateScene;
+import TextureGraphics.UpdateScene.UpdateScene;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class JoclTest11 {
     public static void main(String args[])

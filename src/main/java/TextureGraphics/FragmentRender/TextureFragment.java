@@ -1,5 +1,7 @@
-package TextureGraphics;
+package TextureGraphics.FragmentRender;
 
+import TextureGraphics.JoclProgram;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.MemoryHandler;
@@ -14,7 +16,7 @@ import static org.jocl.CL.*;
 //this implementation is based on the GpuRendererIterateColorPolygon
 //the handling of the polygon points will be external
 //
-public class TextureFragmentRefPoint extends  JoclProgram{
+public class TextureFragment extends JoclProgram {
 
     int screenWidth, screenHeight;
 
@@ -32,23 +34,22 @@ public class TextureFragmentRefPoint extends  JoclProgram{
             textureMetaArg = 7,
             zMapArg = 8,
             relativeArrayArg = 9,
-            polygonArrayArg = 10,
-            textureRelativeArrayArg = 11,
-            polygonStartArrayArg = 12,
-            inverseMatrixArg = 13
+            textureRelativeArrayArg = 10,
+            polygonStartArrayArg = 11,
+            inverseMatrixArg = 12
                     ;
 
     ArrayList<cl_event> taskEvents;
     cl_event taskEvent;
 
-    public TextureFragmentRefPoint(int screenWidth, int screenHeight, JoclSetup setup)
+    public TextureFragment(int screenWidth, int screenHeight, JoclSetup setup)
     {
         this.profiling = setup.isProfiling();
 
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/FragmentRender/TextureFragmentRefPoint.cl", "render",
+        create("resources/Kernels/FragmentRender/TextureFragment.cl", "render",
                 setup);
 
         super.start();
@@ -199,10 +200,6 @@ public class TextureFragmentRefPoint extends  JoclProgram{
     public void setupPolygonStartArray(IJoclMemory m)
     {
         clSetKernelArg(kernel, polygonStartArrayArg, Sizeof.cl_mem, m.getObject());
-    }
-    public void setupPolygonArray(IJoclMemory m)
-    {
-        clSetKernelArg(kernel, polygonArrayArg, Sizeof.cl_mem, m.getObject());
     }
     //----------EXTERNAL
 

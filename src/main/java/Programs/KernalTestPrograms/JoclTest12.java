@@ -5,8 +5,8 @@ import GxEngine3D.Helper.Maths.FrustumMatrixHelper;
 import GxEngine3D.Helper.Maths.MatrixHelper;
 import GxEngine3D.Helper.PerformanceTimer;
 import GxEngine3D.Model.Matrix.Matrix;
-import TextureGraphics.GpuRendererFragment;
-import TextureGraphics.UpdateSceneCulling;
+import TextureGraphics.IterateMethods.GpuRendererFragment;
+import TextureGraphics.UpdateScene.UpdateSceneCulling;
 
 import javax.swing.*;
 import java.awt.*;

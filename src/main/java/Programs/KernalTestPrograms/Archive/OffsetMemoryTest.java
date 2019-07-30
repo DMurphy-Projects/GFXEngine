@@ -1,4 +1,4 @@
-package Programs.KernalTestPrograms;
+package Programs.KernalTestPrograms.Archive;
 
 import TextureGraphics.JoclProgram;
 import TextureGraphics.Memory.AsyncJoclMemory;

@@ -1,4 +1,4 @@
-package TextureGraphics;
+package TextureGraphics.Archive;
 
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import GxEngine3D.Helper.Maths.VectorCalc;
@@ -48,7 +48,7 @@ public class SolidTriangleRender extends JoclRenderer {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
 
-        create("resources/Kernels/TriangleRender.cl", "drawTriangle");
+        create("resources/Kernels/Archive/TriangleRender.cl", "drawTriangle");
 
         super.start();
 

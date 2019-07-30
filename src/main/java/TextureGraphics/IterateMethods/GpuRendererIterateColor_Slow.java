@@ -1,8 +1,10 @@
-package TextureGraphics;
+package TextureGraphics.IterateMethods;
 
 import GxEngine3D.Helper.Iterator.IndexIterator;
 import GxEngine3D.Helper.Maths.VectorCalc;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
+import TextureGraphics.ExecutionStatistics;
+import TextureGraphics.Archive.JoclRenderer;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
@@ -20,7 +22,7 @@ import static org.jocl.CL.*;
 
 //this implementation uses a method that instead of drawing each triangle/poly sequentially, enqueues a range for the screen
 //and iterates over each triangle in the scene to determine which triangle the pixel would be in
-public class GpuRendererIterateColor_Slow extends  JoclRenderer{
+public class GpuRendererIterateColor_Slow extends JoclRenderer {
 
     int screenWidth, screenHeight;
 

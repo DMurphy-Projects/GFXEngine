@@ -1,9 +1,11 @@
-package TextureGraphics;
+package TextureGraphics.BarycentricRender;
 
 import GxEngine3D.Helper.Iterator.RegularTriangleIterator;
 import GxEngine3D.Helper.Iterator.ITriangleIterator;
 import GxEngine3D.Helper.PolygonClipBoundsChecker;
 import GxEngine3D.Model.Matrix.Matrix;
+import TextureGraphics.Archive.JoclRenderer;
+import TextureGraphics.JoclSetup;
 import TextureGraphics.Memory.AsyncJoclMemory;
 import TextureGraphics.Memory.IJoclMemory;
 import TextureGraphics.Memory.Texture.ITexture;
