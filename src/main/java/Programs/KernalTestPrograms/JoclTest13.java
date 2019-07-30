@@ -51,11 +51,13 @@ public class JoclTest13 {
     double[][] translate, rotate, scale;
     Matrix frustrum, projection, combined, allCombined, textureMap;
 
-    UpdateSceneCulling updater;
-    GpuIntermediate intermediate;
+    UpdateRefPoint pointUpdater;
+    UpdateCulling cullingUpdater;
+
+    GpuIntermediateRefPoint intermediate;
 
     SolidColorFragment solidFragment;
-    TextureFragment textureFragment;
+    TextureFragmentRefPoint textureFragment;
     BackgroundFragment backgroundFragment;
 
     double NEAR = 0.1, FAR = 30;
@@ -98,7 +100,7 @@ public class JoclTest13 {
     ITexture[] textures;
     MultiTextureData textureDataHandler;
 
-    int[] textureTypeData;
+    int[] textureTypeData, metaData, textureMetaData;
 
     final int ANT_TEXTURE = 2;
 
@@ -119,11 +121,13 @@ public class JoclTest13 {
 
         JoclSetup setup = new JoclSetup(true);
 
-        updater = new UpdateSceneCulling(screenWidth, screenHeight, setup);
-        intermediate = new GpuIntermediate(screenWidth, screenHeight, setup);
+        pointUpdater = new UpdateRefPoint(screenWidth, screenHeight, setup);
+        cullingUpdater = new UpdateCulling(screenWidth, screenHeight, setup);
+
+        intermediate = new GpuIntermediateRefPoint(screenWidth, screenHeight, setup);
 
         solidFragment = new SolidColorFragment(screenWidth, screenHeight, setup);
-        textureFragment = new TextureFragment(screenWidth, screenHeight, setup);
+        textureFragment = new TextureFragmentRefPoint(screenWidth, screenHeight, setup);
         backgroundFragment = new BackgroundFragment(screenWidth, screenHeight, setup);
 
         initScene();
@@ -132,6 +136,11 @@ public class JoclTest13 {
         setupMatrices();
 
         updateRelativePolygons();
+
+        //init meta arrays
+        metaData = new int[relativePolys.size()];
+        textureMetaData = new int[relativePolys.size()];
+        textureTypeData = new int[texturePaths.length];
 
         textureFragment.prepareTextureRelative(textureRelativePolys);
 
@@ -184,6 +193,13 @@ public class JoclTest13 {
         setupGame((JoclDynamicTexture)textures[ANT_TEXTURE]);
 
         invalidate();
+    }
+
+    private void setupGameMeta(int polygonNumber)
+    {
+        metaData[polygonNumber] = RenderType.TEXTURE;
+        textureMetaData[polygonNumber] = ANT_TEXTURE;
+        textureTypeData[ANT_TEXTURE] = TextureType.DYNAMIC;
     }
 
     private void setupGame(IGameScreen screen)
@@ -249,23 +265,17 @@ public class JoclTest13 {
 
     private void setupMetaData(JoclSetup setup)
     {
-        int[] metaData = new int[relativePolys.size()];
+        setupGameMeta(1);//ant game
 
-        metaData[0] = RenderType.TEXTURE;//flag the first polygon as a texture
-        metaData[1] = RenderType.TEXTURE;//flag second poly as texture, this is for the game
+        //flag the first polygon as a texture
+        metaData[0] = RenderType.TEXTURE;
 
         cl_mem m1 = JoclMemoryMethods.write(setup.getContext(), setup.getCommandQueue(),
                 BufferHelper.createBuffer(metaData), CL_MEM_READ_ONLY);
         metaDataPointer = Pointer.to(m1);
 
         //NOTE: index corresponds to the texture array
-        int[] textureMetaData = new int[relativePolys.size()];
         textureMetaData[0] = 0;//set the first polygon to the first texture, bad example since all start with 0 anyway...
-        textureMetaData[1] = ANT_TEXTURE;
-
-        //NOTE: index corresponds to the texture array
-        textureTypeData = new int[relativePolys.size()];
-        textureTypeData[ANT_TEXTURE] = TextureType.DYNAMIC;
 
         cl_mem m2 = JoclMemoryMethods.write(setup.getContext(), setup.getCommandQueue(),
                 BufferHelper.createBuffer(textureMetaData), CL_MEM_READ_ONLY);
@@ -407,13 +417,34 @@ public class JoclTest13 {
 
     private void updateRelativePolygons()
     {
-        updater.prepare(relativePolys);
+        ArrayList<int[]> polygonIndices = new ArrayList<>();
+        ArrayList<double[]> polygonPoints = new ArrayList<>();
 
-        updater.resetPolygons();
+        int sizeOffset = 0;
         for (double[][] polygon: relativePolys)
         {
-            updater.addPolygon(polygon);
+            //create local indexing, this will be done by the shape itself in future
+            int[] localPolygonIndex = new int[polygon.length * 3];
+            int indexCount = 0;
+            for (double[] point: polygon)
+            {
+                for (double _: point) {
+                    localPolygonIndex[indexCount] = indexCount++;
+                }
+
+                polygonPoints.add(point);
+            }
+            //convert local index to global index
+            for (int i=0;i<localPolygonIndex.length;i++)
+            {
+                localPolygonIndex[i] += sizeOffset;
+            }
+            polygonIndices.add(localPolygonIndex);
+            sizeOffset += localPolygonIndex.length;
         }
+
+        pointUpdater.prepare(polygonPoints);
+        cullingUpdater.prepare(polygonPoints, polygonIndices);
     }
 
     private void updateSceneGpu()
@@ -422,33 +453,51 @@ public class JoclTest13 {
 
         allCombined = new Matrix(combined.matrixMultiply(projection));
 
-        updater.setup();
+        updatePoints();
+        updateCulling();
+    }
 
-        updater.setMatrix(allCombined.flatten());
+    private void updateCulling()
+    {
+        cullingUpdater.setup();
 
-        updater.enqueue();
+        cullingUpdater.setupClipArray(pointUpdater.getClipPolygonArray());
 
-        updater.readData();
+        cullingUpdater.enqueue();
+
+        cullingUpdater.readData();
+    }
+
+    private void updatePoints()
+    {
+        pointUpdater.setup();
+
+        pointUpdater.setMatrix(allCombined.flatten());
+
+        pointUpdater.enqueue();
+
+        pointUpdater.readData();
     }
 
     private void updateIntermediate()
     {
         intermediate.setup();
 
-        intermediate.setupPolygonArray(updater.getScreenPolygonArray());
-        intermediate.setupPolygonStartArray(updater.getPolygonStartArray());
+        intermediate.setupPointArray(pointUpdater.getScreenPolygonArray());
+        intermediate.setupPolygonStartArray(cullingUpdater.getPolygonStartArray());
+        intermediate.setupPolygonArray(cullingUpdater.getPolygonArray());
 
-        updater.waitOnReadTasks();
+        pointUpdater.waitOnReadTasks();
 
-        intermediate.prepare(updater.getIndexArrayData());
-        intermediate.setupBoundBox(updater.getScreenPolygonBuffer(), updater.getPolygonStartData());
+        intermediate.prepare(cullingUpdater.getIndexArrayData());
+        intermediate.setupBoundBox(pointUpdater.getScreenPolygonBuffer(), cullingUpdater.getPolygonStartData());
 
         if(intermediate.hasWorkToDo())
         {
             intermediate.setupOutputMemory();
         }
 
-        intermediate.enqueueTasks(updater.getTask());
+        intermediate.enqueueTasks(pointUpdater.getTask());
     }
 
     private void updateFragments()
@@ -484,8 +533,9 @@ public class JoclTest13 {
         textureFragment.setupIndexArray(intermediate.getIndexArray());
         textureFragment.setupOutMap(intermediate.getOutMap());
         textureFragment.setupZMap(intermediate.getZMap());
-        textureFragment.setupRelativeArray(updater.getRelativePolygonArray());
-        textureFragment.setupPolygonStartArray(updater.getPolygonStartArray());
+        textureFragment.setupRelativeArray(pointUpdater.getRelativePolygonArray());
+        textureFragment.setupPolygonArray(cullingUpdater.getPolygonArray());
+        textureFragment.setupPolygonStartArray(cullingUpdater.getPolygonStartArray());
 
         double[] flatInverse = new Matrix(allCombined.inverse_4x4()).flatten();
         textureFragment.setInverseMatrix(flatInverse);
@@ -529,7 +579,7 @@ public class JoclTest13 {
         readDataFromFragments(data);
         t.time();
 
-        updater.finish();
+        pointUpdater.finish();
         intermediate.finish();
         solidFragment.finish();
 
