@@ -1,6 +1,9 @@
 package TextureGraphics.Memory.Texture;
 
 import TextureGraphics.JoclSetup;
+import TextureGraphics.Memory.Array.ArrayData;
+import TextureGraphics.Memory.Array.ArrayDataHandler;
+import TextureGraphics.Memory.Array.IntArrayData;
 import org.jocl.*;
 
 import java.util.HashMap;
@@ -10,115 +13,80 @@ import static org.jocl.CL.CL_TRUE;
 
 public class MultiTextureData implements ITextureData {
 
-    private class MultiPartPackage
-    {
-        public int offset;
-        public int[] data, info;
-        public boolean needsUpdate = true;
-
-        public MultiPartPackage(int[] data, int[] info, int offset)
-        {
-            this.offset = offset;
-            this.data = data;
-            this.info = info;
-        }
-    }
-
-    int dataOffset = 0, infoOffset = 0;
-    HashMap<ITexture, MultiPartPackage> textures = new HashMap<>();
-
-    cl_mem textureDataArray, textureInfoArray;
-
     cl_context context;
     cl_command_queue commandQueue;
 
-    boolean needsUpdate = false;
+    ArrayDataHandler textureArray, infoArray;
 
     public MultiTextureData(JoclSetup setup)
     {
         context = setup.getContext();
         commandQueue = setup.getCommandQueue();
+
+        textureArray = new ArrayDataHandler(setup);
+        infoArray = new ArrayDataHandler(setup);
     }
 
     public void init(int dataSize, int dataElements)
     {
-        textureDataArray = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                dataSize * Sizeof.cl_int, null, null);
+        textureArray.init(dataSize, Sizeof.cl_int, CL_MEM_READ_ONLY);
 
-        textureInfoArray = clCreateBuffer(context, CL_MEM_READ_ONLY,
-                3 * dataElements * Sizeof.cl_int, null, null);
+        infoArray.init(3 * dataElements, Sizeof.cl_int, CL_MEM_READ_ONLY);
     }
 
     @Override
     public void create(int width, int height, int[] data, ITexture texture) {
 
-        MultiPartPackage _package = new MultiPartPackage(data, new int[]{width, height, dataOffset / Sizeof.cl_int}, dataOffset);
-        dataOffset += width * height * Sizeof.cl_int;
+        int startingOffset = textureArray.getMemoryOffset();
 
-        textures.put(texture, _package);
+        textureArray.create(new IntArrayData(data), texture);
 
-        needsUpdate = true;
-
-        int size = 3 * Sizeof.cl_int;
-        clEnqueueWriteBuffer(commandQueue, textureInfoArray, true, infoOffset,
-                size, Pointer.to(_package.info), 0, null, null);
-        infoOffset += size;
+        int[] infoData = new int[]{ width, height, startingOffset / Sizeof.cl_int};
+        infoArray.create(new IntArrayData(infoData), texture);
     }
 
     @Override
     public void update(int pos, int data, ITexture texture) {
-        MultiPartPackage _package = textures.get(texture);
+        IntArrayData _package = (IntArrayData) textureArray.retrieveLocalData(texture, true);
 
         _package.data[pos] = data;
-        _package.needsUpdate = true;
-
-        needsUpdate = true;
     }
 
     @Override
     public int getDataAt(int pos, ITexture texture) {
-        MultiPartPackage _package = textures.get(texture);
+        IntArrayData _package = (IntArrayData) textureArray.retrieveLocalData(texture, false);
 
         return _package.data[pos];
     }
 
     @Override
     public int[] getTextureData(ITexture texture) {
-        MultiPartPackage _package = textures.get(texture);
+        IntArrayData _package = (IntArrayData) textureArray.retrieveLocalData(texture, false);
 
         return _package.data;
     }
 
     @Override
     public int[] getTextureInfoData(ITexture texture) {
-        MultiPartPackage _package = textures.get(texture);
+        IntArrayData _package = (IntArrayData) infoArray.retrieveLocalData(texture, false);
 
-        return _package.info;
+        return _package.data;
     }
 
     @Override
     public MemoryDataPackage getClTextureData()
     {
-        if (needsUpdate)
-        {
-            needsUpdate = false;
+        cl_mem data = textureArray.retrieveDeviceData();
 
-            for (MultiPartPackage _package: textures.values())
-            {
-                if (_package.needsUpdate)
-                {
-                    _package.needsUpdate = false;
-
-                    clEnqueueWriteBuffer(commandQueue, textureDataArray, true, _package.offset,
-                            _package.data.length * Sizeof.cl_int, Pointer.to(_package.data), 0, null, null);
-                }
-            }
-        }
-        return new MemoryDataPackage(textureDataArray, null);
+        //TODO why are these different? getClTextureData & getClTextureInfoData
+        return new MemoryDataPackage(data, null);
     }
 
     @Override
     public Pointer getClTextureInfoData() {
-        return Pointer.to(textureInfoArray);
+
+        cl_mem data = infoArray.retrieveDeviceData();
+
+        return Pointer.to(data);
     }
 }
